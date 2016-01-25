@@ -80,7 +80,9 @@ tetradPattern2graphNEL <- function(resultGraph, verbose = FALSE){
 	
     if(verbose){
         print("Graph Nodes:")
-        print(V)
+        for(i in 1:length(V)){
+            print(V[i])
+        }
     }
     
 	# extract edges
@@ -90,7 +92,10 @@ tetradPattern2graphNEL <- function(resultGraph, verbose = FALSE){
 
     if(verbose){
         print("Graph Edges:")
-        print(fgs_edges)
+        for(i in 1:length(fgs_edges)){
+            print(fgs_edges[i])
+        }
+        # print(fgs_edges)
     }
 
 	# find undirected edge indices
