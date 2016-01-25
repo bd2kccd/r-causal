@@ -53,7 +53,7 @@ dataFrame2TetradDataset <- function(df){
 	mat <- .jarray(mt, dispatch=TRUE)
 	tetradData <- .jnew("edu/cmu/tetrad/data/ColtDataSet", as.integer(nrow(df)), node_list)
 	tetradData <- tetradData$makeContinuousData(node_list, mat)
-    # tetradData <- .jcall(tetradData, "Ledu/cmu/tetrad/data/DataSet;", "makeContinuousData", node_list, mat)
+    tetradData <- .jcall(tetradData, "Ledu/cmu/tetrad/data/DataSet;", "makeContinuousData", node_list, mat)
 	tetradData <- .jcast(tetradData, "edu/cmu/tetrad/data/DataSet")
 	return(tetradData)
 }
@@ -74,14 +74,24 @@ rCovMatrix2TetradCovMatrix <- function(covmat, node_list, sample_size){
 # requires list of nodes and a set of edges
 
 # extract nodes: 
-tetradPattern2graphNEL <- function(resultGraph){
+tetradPattern2graphNEL <- function(resultGraph, verbose = FALSE){
 	nods <- resultGraph$getNodes()
 	V <- sapply(as.list(nods), with, toString())
 	
+    if(verbose){
+        print("Graph Nodes:")
+        print(V)
+    }
+    
 	# extract edges
 	eds <- resultGraph$getEdges()
 	fgs_edges <- sapply(as.list(eds), .jrcall, "toString")
 	edgemat <- str_split_fixed(fgs_edges,  pattern=" ", n=3)
+
+    if(verbose){
+        print("Graph Edges:")
+        print(fgs_edges)
+    }
 
 	# find undirected edge indices
 	undir <- which(edgemat[,2]=="---")

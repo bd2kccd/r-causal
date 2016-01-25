@@ -10,11 +10,12 @@ FGS <- function(df, penaltydiscount = 4.0, depth = 3.0, faithfulness = TRUE, ver
     .jcall(fgs_instance, "V", "setNumPatternsToStore", as.integer(0))
     .jcall(fgs_instance, "V", "setFaithfulnessAssumed", faithfulness)
     .jcall(fgs_instance, "V", "setVerbose", verbose)
+    
     # Search
     tetrad_graph <- .jcall(fgs_instance, "Ledu/cmu/tetrad/graph/Graph;", "search")
     
     # convert output of FGS into an R object (graphNEL)
-    fgs_graphNEL = tetradPattern2graphNEL(tetrad_graph)
+    fgs_graphNEL = tetradPattern2graphNEL(tetrad_graph,verbose)
     
     return(fgs_graphNEL)
 }
