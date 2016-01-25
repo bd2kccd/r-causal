@@ -1,4 +1,4 @@
-FGS <- function(df, penaltydiscount = 4.0, depth = 3.0, faithfulness = TRUE){
+FGS <- function(df, penaltydiscount = 4.0, depth = 3.0, faithfulness = TRUE, verbose = FALSE){
         
     # Data Frame to Tetrad Dataset
     tetradData <- dataFrame2TetradDataset(df)
@@ -9,7 +9,7 @@ FGS <- function(df, penaltydiscount = 4.0, depth = 3.0, faithfulness = TRUE){
     .jcall(fgs_instance, "V", "setDepth", as.integer(depth))
     .jcall(fgs_instance, "V", "setNumPatternsToStore", as.integer(0))
     .jcall(fgs_instance, "V", "setFaithfulnessAssumed", faithfulness)
-    
+    .jcall(fgs_instance, "V", "setVerbose", verbose)
     # Search
     tetrad_graph <- .jcall(fgs_instance, "Ledu/cmu/tetrad/graph/Graph;", "search")
     

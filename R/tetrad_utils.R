@@ -40,7 +40,7 @@ ugraphToTetradGraph <- function(ugmat, node_list){
 # requires rJava, assumes the JVM is running from the
 # latest Tetrad jar.
 dataFrame2TetradDataset <- function(df){
-	node_names = colnames(df)
+	node_names <- colnames(df)
 	node_list <- .jnew("java/util/ArrayList")
 	for (i in 1:length(node_names)){
 		nodname <- .jnew("java/lang/String", node_names[i])
@@ -49,7 +49,7 @@ dataFrame2TetradDataset <- function(df){
 		node_list$add(nodi)
 	}
 	node_list <- .jcast(node_list, "java.util.List")
-	mt = as.matrix(df)
+	mt <- as.matrix(df)
 	mat <- .jarray(mt, dispatch=TRUE)
 	tetradData <- .jnew("edu/cmu/tetrad/data/ColtDataSet", as.integer(nrow(df)), node_list)
 	tetradData <- tetradData$makeContinuousData(node_list, mat)
@@ -75,13 +75,13 @@ rCovMatrix2TetradCovMatrix <- function(covmat, node_list, sample_size){
 
 # extract nodes: 
 tetradPattern2graphNEL <- function(resultGraph){
-	nods = resultGraph$getNodes()
-	V = sapply(as.list(nods), with, toString())
+	nods <- resultGraph$getNodes()
+	V <- sapply(as.list(nods), with, toString())
 	
 	# extract edges
-	eds = resultGraph$getEdges()
-	ges_edges = sapply(as.list(eds), .jrcall, "toString")
-	edgemat <- str_split_fixed(ges_edges,  pattern=" ", n=3)
+	eds <- resultGraph$getEdges()
+	fgs_edges <- sapply(as.list(eds), .jrcall, "toString")
+	edgemat <- str_split_fixed(fgs_edges,  pattern=" ", n=3)
 
 	# find undirected edge indices
 	undir <- which(edgemat[,2]=="---")
