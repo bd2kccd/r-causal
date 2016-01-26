@@ -79,11 +79,11 @@ tetradPattern2graphNEL <- function(resultGraph, verbose = FALSE){
 	V <- sapply(as.list(nods), with, toString())
 	
     if(verbose){
-        cat("Graph Nodes:\n")
+        cat("\nGraph Nodes:\n")
         for(i in 1:length(V)){
             cat(V[i]," ")
         }
-        cat("\n")
+        cat("\n\n")
     }
     
 	# extract edges
