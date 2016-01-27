@@ -75,8 +75,8 @@ rCovMatrix2TetradCovMatrix <- function(covmat, node_list, sample_size){
 
 # extract nodes: 
 tetradPattern2graphNEL <- function(resultGraph, verbose = FALSE){
-	nods <- resultGraph$getNodes()
-	V <- sapply(as.list(nods), with, toString())
+	
+	V <- extractTetradNodes(resultGraph)
 	
     if(verbose){
         cat("\nGraph Nodes:\n")
@@ -87,8 +87,7 @@ tetradPattern2graphNEL <- function(resultGraph, verbose = FALSE){
     }
     
 	# extract edges
-	eds <- resultGraph$getEdges()
-	fgs_edges <- sapply(as.list(eds), .jrcall, "toString")
+	fgs_edges <- extractTetradEdges(resultGraph)
 	edgemat <- str_split_fixed(fgs_edges,  pattern=" ", n=3)
 
     if(verbose){
@@ -107,7 +106,7 @@ tetradPattern2graphNEL <- function(resultGraph, verbose = FALSE){
 	colnames(edgemat) <- c("Parent", "Child")
 	
 	# create edge list for graphNEL format
-	edgel <- list()
+	edgel <- list(NULL)
 	for (i in 1:length(V)){
 		edgel[[i]] <- edgemat[which(edgemat[,1]==V[i]),2]
 	}
@@ -117,3 +116,18 @@ tetradPattern2graphNEL <- function(resultGraph, verbose = FALSE){
 	return(outputgraph)
 }
 
+############################################################
+# extract nodes from Tetrad graph result
+extractTetradNodes <- function(resultGraph){
+    nods <- resultGraph$getNodes()
+	V <- sapply(as.list(nods), with, toString())
+    return(V)
+}
+
+############################################################
+# extract edges from Tetrad graph result
+extractTetradEdges <- function(resultGraph){
+    eds <- resultGraph$getEdges()
+	fgs_edges <- sapply(as.list(eds), .jrcall, "toString")
+    return(fgs_edges)
+}

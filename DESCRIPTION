@@ -1,6 +1,6 @@
 Package: tetradR
 Version: 5.3.0
-Date: 2016-1-20
+Date: 2016-1-27
 Title: Tetrad Library
 Author: Elizabeth Silver, Chirayu Wongchokprasitti
 Maintainer: Chirayu Wongchokprasitti <chw20@pitt.edu>
@@ -10,4 +10,4 @@ Imports: rJava, stringr, graph, RBGL
 SystemRequirements: Java (>= 1.7), JRI
 License: GPL (>= 2)
 NeedsCompilation: no
-Packaged: 2016-1-20 EST
+Packaged: 2016-1-27 EST
