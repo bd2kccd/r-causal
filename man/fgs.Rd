@@ -13,7 +13,7 @@ fgs(df, penaltydiscount = 4.0, depth = 3, faithfulness = TRUE, verbose = FALSE, 
   \item{depth}{ integer indicating the search depth for the forward reevaluation step. It ranges from -1 for unlimited depth, otherwise a number >= 0. In the forward reevaluation step, subsets of neighbors up to depth in size are considered. Limiting depth can speed up the algorithm. By default, \code{depth}=3. }
   \item{faithfulness}{ boolean indicating whether or not the search assumes that zero effect adjacencies are not in the graph.  \code{faithfulness} is \code{TRUE} by default. }
   \item{verbose}{ boolean indicating whether or not if verbose output should be printed.  \code{verbose} is \code{FALSE} by default. }
-  \item{java.parameters}{ string indicating an optional parameters for JVM. For example, java.parameters = "-Xmx1024M".   By default, \code{java.parameters}==\code{NULL}. }
+  \item{java.parameters}{ string indicating an optional parameters for JVM. For example, java.parameters = "-Xmx1024M".   By default, \code{java.parameters}=\code{NULL}. }
 }
 \details{
 FGS is an implementation of the revised GES algorithm, as specified in Chickering (2002) \dQuote{Optimal structure identification with greedy search} \emph{Journal of Machine Learning Research}. It works for both BayesNets and SEMs.
