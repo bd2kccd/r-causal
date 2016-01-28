@@ -16,7 +16,7 @@ fgs(df, penaltydiscount = 4.0, depth = 3, faithfulness = TRUE, verbose = FALSE, 
   \item{java.parameters}{ string indicating an optional parameters for JVM. For example, java.parameters = "-Xmx1024M".   By default, \code{java.parameters}=\code{NULL}. }
 }
 \details{
-FGS is an implementation of the revised GES algorithm, as specified in Chickering (2002) \dQuote{Optimal structure identification with greedy search} \emph{Journal of Machine Learning Research}. It works for both BayesNets and SEMs.
+Fast Greedy Search (FGS) is an implementation of the revised GES algorithm, as reported in Ramsey (2015) \dQuote{Scaling up Greedy Causal Search for Continuous Variables} \emph{arXiv eprint arXiv:1507.07749}.it was developed as specified in Chickering (2002) \dQuote{Optimal structure identification with greedy search} \emph{Journal of Machine Learning Research}. It works for both BayesNets and SEMs.
 
 Some code optimization could be done for the scoring part of the graph for discrete models (method scoreGraphChange). Some of Andrew Moore's approaches for caching sufficient statistics, for instance.
 
