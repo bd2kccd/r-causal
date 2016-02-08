@@ -4,11 +4,18 @@ R Wrapper for Tetrad Library
 ## R Library Requirement
 [rJava](https://cran.r-project.org/web/packages/rJava/index.html), 
 [graph](http://bioconductor.org/packages/release/bioc/html/graph.html)
+[RBGL] (http://bioconductor.org/packages/release/bioc/html/RBGL.html)
 
 ## Installation
 
-1. Install the release version of devtools from CRAN with `install.packages("devtools")`.
-2. Follow the instrunctions below.
+1. Install the R library requirements:
+```R
+source("https://bioconductor.org/biocLite.R")
+biocLite("graph")
+biocLite("RBGL")
+```
+2. Install the release version of devtools from CRAN with `install.packages("devtools")`.
+3. Install tetradR from github:
 
 ```R
 library(devtools)
