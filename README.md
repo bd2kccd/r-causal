@@ -31,6 +31,10 @@ install_github("bd2kccd/tetradR")
 library(tetradR)
 data("charity")   #Load the charity dataset
 fgs <- fgs(df = charity, penaltydiscount = 2, depth = -1, faithfulness = TRUE, verbose = TRUE)    #Compute FGS search
+fgs$parameters #Show the FGS's parameters
+fgs$datasets #Show the dataset
+fgs$nodes #Show the result's nodes
+fgs$edges #Show the result's edges
 plot(fgs$graphNEL) #Plot the causal models
 ```
 
