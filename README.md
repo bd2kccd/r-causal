@@ -10,6 +10,7 @@ R Wrapper for Tetrad Library
 
 1. Install the R library requirements:
 ```R
+install.packages("rJava")
 source("https://bioconductor.org/biocLite.R")
 biocLite("graph")
 biocLite("RBGL")
