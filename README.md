@@ -26,6 +26,14 @@ library(devtools)
 install_github("bd2kccd/tetradR")
 ```
 
+## Example
+```R
+library(tetradR)
+data("charity")   #Load the charity dataset
+fgs <- fgs(df = charity, penaltydiscount = 2, depth = -1, faithfulness = TRUE, verbose = TRUE)    #Compute FGS search
+plot(fgs$graphNEL) #Plot the causal models
+```
+
 ## Useful `rJava` Trouble-shooting Installation in Mac OS X Links
 
 1. [http://stackoverflow.com/questions/26948777/how-can-i-make-rjava-use-the-newer-version-of-java-on-osx/32544358#32544358](http://stackoverflow.com/questions/26948777/how-can-i-make-rjava-use-the-newer-version-of-java-on-osx/32544358#32544358)
