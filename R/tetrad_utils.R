@@ -52,7 +52,7 @@ dataFrame2TetradDataset <- function(df){
 	mt <- as.matrix(df)
 	mat <- .jarray(mt, dispatch=TRUE)
 	tetradData <- .jnew("edu/cmu/tetrad/data/ColtDataSet", as.integer(nrow(df)), node_list)
-	tetradData <- tetradData$makeContinuousData(node_list, mat)
+	# tetradData <- tetradData$makeContinuousData(node_list, mat)
     tetradData <- .jcall(tetradData, "Ledu/cmu/tetrad/data/DataSet;", "makeContinuousData", node_list, mat)
 	tetradData <- .jcast(tetradData, "edu/cmu/tetrad/data/DataSet")
 	return(tetradData)
