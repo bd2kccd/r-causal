@@ -3,8 +3,9 @@ R Wrapper for Tetrad Library
 
 ## R Library Requirement
 [rJava](https://cran.r-project.org/web/packages/rJava/index.html), 
-[graph](http://bioconductor.org/packages/release/bioc/html/graph.html),
-[RBGL] (http://bioconductor.org/packages/release/bioc/html/RBGL.html)
+[graph](http://bioconductor.org/packages/release/bioc/html/graph.html), 
+[RBGL] (http://bioconductor.org/packages/release/bioc/html/RBGL.html), 
+[Rgraphviz] (http://bioconductor.org/packages/release/bioc/html/Rgraphviz.html)
 
 ## Installation
 
@@ -14,6 +15,7 @@ install.packages("rJava")
 source("https://bioconductor.org/biocLite.R")
 biocLite("graph")
 biocLite("RBGL")
+biocLite("Rgraphviz") # For plotting graph
 ```
 - Install the release version of devtools from CRAN with 
 ```R
@@ -35,7 +37,8 @@ fgs$parameters #Show the FGS's parameters
 fgs$datasets #Show the dataset
 fgs$nodes #Show the result's nodes
 fgs$edges #Show the result's edges
-plot(fgs$graphNEL) #Plot the causal models
+library(Rgraphviz)
+plot(fgs$graphNEL) #Plot the causal model
 ```
 
 ## Useful `rJava` Trouble-shooting Installation in Mac OS X Links
