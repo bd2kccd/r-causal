@@ -2,6 +2,7 @@
 R Wrapper for Tetrad Library
 
 ## R Library Requirement
+R >= 3.0.2, 
 [rJava](https://cran.r-project.org/web/packages/rJava/index.html), 
 [graph](http://bioconductor.org/packages/release/bioc/html/graph.html), 
 [RBGL] (http://bioconductor.org/packages/release/bioc/html/RBGL.html), 
@@ -12,7 +13,8 @@ R Wrapper for Tetrad Library
 - Install the R library requirements:
 ```R
 install.packages("rJava")
-source("https://bioconductor.org/biocLite.R")
+source("https://bioconductor.org/biocLite.R") 
+# source("http://bioconductor.org/biocLite.R") # Another alternative one
 biocLite("graph")
 biocLite("RBGL")
 biocLite("Rgraphviz") # For plotting graph
