@@ -14,7 +14,7 @@ R >= 3.0.2,
 ```R
 install.packages("rJava")
 source("https://bioconductor.org/biocLite.R") 
-# source("http://bioconductor.org/biocLite.R") # Another alternative one
+# source("http://bioconductor.org/biocLite.R") # If encountering a connection problem with "https", try "http" instead.
 biocLite("graph")
 biocLite("RBGL")
 biocLite("Rgraphviz") # For plotting graph
