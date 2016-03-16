@@ -3,6 +3,7 @@ R Wrapper for Tetrad Library
 
 ## R Library Requirement
 R >= 3.0.2, 
+[stringr](https://cran.r-project.org/web/packages/stringr/),
 [rJava](https://cran.r-project.org/web/packages/rJava/index.html), 
 [graph](http://bioconductor.org/packages/release/bioc/html/graph.html), 
 [RBGL] (http://bioconductor.org/packages/release/bioc/html/RBGL.html), 
@@ -12,6 +13,7 @@ R >= 3.0.2,
 
 - Install the R library requirements:
 ```R
+install.packages("stringr")
 install.packages("rJava")
 source("https://bioconductor.org/biocLite.R") 
 # source("http://bioconductor.org/biocLite.R") # If encountering a connection problem with "https", try "http" instead.
