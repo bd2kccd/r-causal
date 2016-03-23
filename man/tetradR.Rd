@@ -1,4 +1,6 @@
 \name{tetradR}
+\alias{tetradR}
+\alias{tetradr}
 \title{R Wrapper for Tetrad Library}
 \description{
  \code{tetradR} is an R wrapper package containing a range of causal and statistical model algorithms from the Tetrad library.
