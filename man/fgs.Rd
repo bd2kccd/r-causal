@@ -23,14 +23,15 @@ Some code optimization could be done for the scoring part of the graph for discr
 To speed things up, it has been assumed that variables X and Y with zero correlation do not correspond to edges in the graph. This is a restricted form of the faithfulness assumption, something FGS does not assume.
 }
 \examples{
+library(r-causal)
 data("charity")   #Load the charity dataset
-#fgs <- fgs(df = charity, penaltydiscount = 2, depth = -1, faithfulness = TRUE, verbose = TRUE)    #Compute FGS search
-#fgs$parameters #Show the FGS's parameters
-#fgs$datasets #Show the dataset
-#fgs$nodes #Show the result's nodes
-#fgs$edges #Show the result's edges
-#library(Rgraphviz)
-#plot(fgs$graphNEL) #Plot the causal models
+fgs <- fgs(df = charity, penaltydiscount = 2, depth = -1, faithfulness = TRUE, verbose = TRUE)    #Compute FGS search
+fgs$parameters #Show the FGS's parameters
+fgs$datasets #Show the dataset
+fgs$nodes #Show the result's nodes
+fgs$edges #Show the result's edges
+library(Rgraphviz)
+plot(fgs$graphNEL) #Plot the causal models
 }
 
 \keyword{fgs}

@@ -1,3 +1,3 @@
-charity                     Charity Dataset
+charity                     Donations and Charity Data
 fgs                         Fast Greedy Search for Causal and Statistical Model Discovery
-tetradR                     R Wrapper for Tetrad Library
+r-causal                    R Wrapper for Tetrad Library

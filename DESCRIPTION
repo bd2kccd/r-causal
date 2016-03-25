@@ -1,4 +1,4 @@
-Package: tetradR
+Package: r-causal
 Version: 0.99.1
 Date: 2016-1-27
 Title: Tetrad Library
@@ -9,6 +9,6 @@ Depends: R (>= 3.0.2)
 Imports: rJava, stringr, graph, RBGL
 SystemRequirements: Java (>= 1.7), JRI
 License: LGPL (>= 2.1)
-biocViews: Software, Bayesian, GraphAndNetwork
+biocViews: Bayesian, GraphAndNetwork
 NeedsCompilation: no
 Packaged: 2016-1-27 EST

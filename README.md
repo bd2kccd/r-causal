@@ -1,4 +1,4 @@
-# tetradR
+# r-causal
 R Wrapper for Tetrad Library
 
 ## R Library Requirement
@@ -29,12 +29,12 @@ install.packages("devtools")
 
 ```R
 library(devtools)
-install_github("bd2kccd/tetradR")
+install_github("bd2kccd/r-causal")
 ```
 
 ## Example
 ```R
-library(tetradR)
+library(r-causal)
 data("charity")   #Load the charity dataset
 fgs <- fgs(df = charity, penaltydiscount = 2, depth = -1, faithfulness = TRUE, verbose = TRUE)    #Compute FGS search
 fgs$parameters #Show the FGS's parameters
