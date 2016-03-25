@@ -1,7 +1,7 @@
-\name{r-causal}
+\name{rcausal}
 \title{R Wrapper for Tetrad Library}
 \description{
- \code{r-causal} is an R wrapper package containing a range of causal and statistical model algorithms from the Tetrad 
+ \code{rcausal} is an R wrapper package containing a range of causal and statistical model algorithms from the Tetrad 
  library.
 }
 \details{

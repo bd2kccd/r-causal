@@ -34,7 +34,7 @@ install_github("bd2kccd/r-causal")
 
 ## Example
 ```R
-library(r-causal)
+library(rcausal)
 data("charity")   #Load the charity dataset
 fgs <- fgs(df = charity, penaltydiscount = 2, depth = -1, faithfulness = TRUE, verbose = TRUE)    #Compute FGS search
 fgs$parameters #Show the FGS's parameters
