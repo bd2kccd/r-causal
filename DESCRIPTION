@@ -5,7 +5,7 @@ Title: Tetrad Library
 Author: Elizabeth Silver, Chirayu Wongchokprasitti
 Maintainer: Chirayu Wongchokprasitti <chw20@pitt.edu>
 Description: This package is a R wrapper containing the Tetrad Library.
-Depends: R (>= 3.3.0)
+Depends: R (>= 3.2.0)
 Imports: rJava, stringr, graph, RBGL
 SystemRequirements: Java (>= 1.7), JRI
 License: LGPL (>= 2.1)
