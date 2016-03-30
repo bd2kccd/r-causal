@@ -1,12 +1,13 @@
 ---
-title: "r-causal"
+title: "rcausal"
 author: "Chirayu Wongchokprasitti"
-date: "March 25, 2016"
+date: "March 29, 2016"
 output: pdf_document
 ---
-# r-causal
+# rcausal
 
-R Wrapper for Tetrad Library, for more details see <https://github.com/bd2kccd/r-causal>.
+R Wrapper for Tetrad Library, for more details see 
+<https://github.com/bd2kccd/r-causal>.
 
 ## R Library Requirement
 R >= 3.3.0, rJava, graph, RBGL, Rgraphviz
@@ -40,9 +41,9 @@ install_github("bd2kccd/r-causal")
 ## Example
 
 ```{r}
-library(rcausal)
-data("charity")   #Load the charity dataset
-fgs <- fgs(df = charity, penaltydiscount = 2, depth = -1, faithfulness = TRUE, verbose = TRUE)    #Compute FGS search
+data("charity")    #Load the charity dataset
+fgs <- fgs(df = charity, penaltydiscount = 2, depth = -1, faithfulness = TRUE,
+            verbose = TRUE)    #Compute FGS search
 fgs$parameters #Show the FGS's parameters
 fgs$datasets #Show the dataset
 fgs$nodes #Show the result's nodes

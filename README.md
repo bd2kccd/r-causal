@@ -15,8 +15,8 @@ R >= 3.0.2,
 ```R
 install.packages("stringr")
 install.packages("rJava")
+## try http:// if https:// URLs are not supported
 source("https://bioconductor.org/biocLite.R") 
-# source("http://bioconductor.org/biocLite.R") # If encountering a connection problem with "https", try "http" instead.
 biocLite("graph")
 biocLite("RBGL")
 biocLite("Rgraphviz") # For plotting graph
@@ -36,7 +36,8 @@ install_github("bd2kccd/r-causal")
 ```R
 library(rcausal)
 data("charity")   #Load the charity dataset
-fgs <- fgs(df = charity, penaltydiscount = 2, depth = -1, faithfulness = TRUE, verbose = TRUE)    #Compute FGS search
+fgs <- fgs(df = charity, penaltydiscount = 2, depth = -1, faithfulness = TRUE, 
+verbose = TRUE)    #Compute FGS search
 fgs$parameters #Show the FGS's parameters
 fgs$datasets #Show the dataset
 fgs$nodes #Show the result's nodes

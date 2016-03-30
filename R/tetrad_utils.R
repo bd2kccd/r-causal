@@ -1,20 +1,25 @@
-################################################################################
+###############################################################################
 ugraphToTetradGraph <- function(ugmat, node_list){
   numNodes <- ncol(ugmat)
-  varnames <- strsplit(gsub("\\[|\\]", "", node_list$toString()), 
-                                split=", ")[[1]]
+  varnames <- strsplit(gsub("\\[|\\]", "", 
+                node_list$toString()), 
+                split=", ")[[1]]
   edgelist <- c()
   for (i in 2:numNodes){
     for (j in 1:(i-1)){
-      if (ugmat[j,i]==1) edgelist <- c(edgelist, paste(varnames[j], "---", 
-                                                       varnames[i]))
+      if (ugmat[j,i]==1) edgelist <- c(edgelist, 
+                                        paste(varnames[j], 
+                                        "---", 
+                                        varnames[i]))
     }
   }
   
   varstring <- paste(varnames, collapse=" ")
-  edgestring <- paste(1:length(edgelist),". ", edgelist, "\n",sep="", collapse="")
-  graphstring <- paste("\nGraph Nodes:\n", varstring, " \n\nGraph Edges: \n", 
-                       edgestring, "\n", sep="")
+  edgestring <- paste(1:length(edgelist),". ", 
+                edgelist, "\n",sep="", collapse="")
+  graphstring <- paste("\nGraph Nodes:\n", varstring, 
+                        " \n\nGraph Edges: \n", 
+                        edgestring, "\n", sep="")
   
   graphfilename <- "impossibly_long_graph_file_name_temporary.txt"
   if ("!"(file.exists(graphfilename))){
@@ -23,7 +28,8 @@ ugraphToTetradGraph <- function(ugmat, node_list){
     newug_tetrad <- .jcall("edu/cmu/tetrad/graph/GraphUtils", 
                            "Ledu/cmu/tetrad/graph/Graph;", 
                            "loadGraphTxt", graphfile)
-    newug_tetrad <- .jcast(newug_tetrad, "edu/cmu/tetrad/graph/Graph", check=TRUE)
+    newug_tetrad <- .jcast(newug_tetrad, "edu/cmu/tetrad/graph/Graph", 
+                            check=TRUE)
     rm(graphfile)
     file.remove(graphfilename)
     return(newug_tetrad)
@@ -51,9 +57,11 @@ dataFrame2TetradDataset <- function(df){
 	node_list <- .jcast(node_list, "java.util.List")
 	mt <- as.matrix(df)
 	mat <- .jarray(mt, dispatch=TRUE)
-	tetradData <- .jnew("edu/cmu/tetrad/data/ColtDataSet", as.integer(nrow(df)), node_list)
+	tetradData <- .jnew("edu/cmu/tetrad/data/ColtDataSet", 
+                            as.integer(nrow(df)), node_list)
 	# tetradData <- tetradData$makeContinuousData(node_list, mat)
-    tetradData <- .jcall(tetradData, "Ledu/cmu/tetrad/data/DataSet;", "makeContinuousData", node_list, mat)
+    tetradData <- .jcall(tetradData, "Ledu/cmu/tetrad/data/DataSet;", 
+                            "makeContinuousData", node_list, mat)
 	tetradData <- .jcast(tetradData, "edu/cmu/tetrad/data/DataSet")
 	return(tetradData)
 }
@@ -63,7 +71,8 @@ dataFrame2TetradDataset <- function(df){
 rCovMatrix2TetradCovMatrix <- function(covmat, node_list, sample_size){
   mat <- .jarray(covmat, dispatch=TRUE)
   tetmat <- .jnew("edu/cmu/tetrad/util/TetradMatrix", mat)
-  tetcovmat <- .jnew("edu/cmu/tetrad/data/CovarianceMatrix", node_list, tetmat, as.integer(sample_size))
+  tetcovmat <- .jnew("edu/cmu/tetrad/data/CovarianceMatrix", node_list, 
+                        tetmat, as.integer(sample_size))
   tetcovmat <- .jcast(tetcovmat, "edu/cmu/tetrad/data/ICovarianceMatrix", 
                       check=TRUE)
   return(tetcovmat)
@@ -74,7 +83,8 @@ rCovMatrix2TetradCovMatrix <- function(covmat, node_list, sample_size){
 # requires list of nodes and a set of edges
 
 # extract nodes: 
-tetradPattern2graphNEL <- function(resultGraph, verbose = FALSE){
+tetradPattern2graphNEL <- function(resultGraph, 
+    verbose = FALSE){
 	
 	V <- extractTetradNodes(resultGraph)
 	
