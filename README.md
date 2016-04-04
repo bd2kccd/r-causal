@@ -25,7 +25,7 @@ biocLite("Rgraphviz") # For plotting graph
 ```R
 install.packages("devtools")
 ```
-- Install tetradR from github:
+- Install r-causal from github:
 
 ```R
 library(devtools)
