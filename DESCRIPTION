@@ -1,12 +1,13 @@
 Package: rcausal
-Version: 0.99.4
-Date: 2016-3-30
-Title: Tetrad Library
+Version: 0.99.5
+Date: 2016-4-19
+Title: R-Causal Library
 Author: Elizabeth Silver, Chirayu Wongchokprasitti
 Maintainer: Chirayu Wongchokprasitti <chw20@pitt.edu>
 Description: This package is a R wrapper containing the Tetrad Library.
-Depends: R (>= 3.2.0)
-Imports: rJava, stringr, graph, RBGL
+Depends: R (>= 3.2.0), graph, RBGL
+Suggests: BiocStyle, knitr, rmarkdown
+Imports: rJava, stringr
 SystemRequirements: Java (>= 1.7), JRI
 License: LGPL (>= 2.1)
 biocViews: Bayesian, GraphAndNetwork

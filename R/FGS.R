@@ -1,5 +1,5 @@
 fgs <- function(df, penaltydiscount = 4.0, depth = 3, faithfulness = TRUE, 
-    verbose = FALSE, java.parameters = NULL){
+    numOfThreads = 2,verbose = FALSE, java.parameters = NULL){
     
     params <- list(NULL)
     
@@ -9,7 +9,7 @@ fgs <- function(df, penaltydiscount = 4.0, depth = 3, faithfulness = TRUE,
     }
 
     # Data Frame to Tetrad Dataset
-    tetradData <- dataFrame2TetradDataset(df)
+    score <- dataFrame2TetradSemBicScore(df,penaltydiscount)
 
     fgs <- list()
     class(fgs) <- "fgs"
@@ -20,16 +20,17 @@ fgs <- function(df, penaltydiscount = 4.0, depth = 3, faithfulness = TRUE,
     cat(deparse(substitute(df)),"\n\n")
 
     # Initiate FGS
-    fgs_instance <- .jnew("edu/cmu/tetrad/search/Fgs", tetradData)
-    .jcall(fgs_instance, "V", "setPenaltyDiscount", penaltydiscount)
+    fgs_instance <- .jnew("edu/cmu/tetrad/search/Fgs", score)
     .jcall(fgs_instance, "V", "setDepth", as.integer(depth))
     .jcall(fgs_instance, "V", "setNumPatternsToStore", as.integer(0))
     .jcall(fgs_instance, "V", "setFaithfulnessAssumed", faithfulness)
+    .jcall(fgs_instance, "V", "setParallelism", as.integer(numOfThreads))
     .jcall(fgs_instance, "V", "setVerbose", verbose)
 
     params <- c(params, penaltydiscount = as.double(penaltydiscount))
     params <- c(params, depth = as.integer(depth))
     params <- c(params, faithfulness = as.logical(faithfulness))
+    params <- c(params, numOfThreads = as.integer(numOfThreads))
     params <- c(params, verbose = as.logical(verbose))
 
     fgs$parameters <- params
@@ -38,6 +39,7 @@ fgs <- function(df, penaltydiscount = 4.0, depth = 3, faithfulness = TRUE,
     cat("penalty discount = ", penaltydiscount,"\n")
     cat("depth = ", as.integer(depth),"\n")
     cat("faithfulness = ", faithfulness,"\n\n")
+    cat("numOfThreads = ", as.integer(numOfThreads),"\n")
 
     # Search
     tetrad_graph <- .jcall(fgs_instance, "Ledu/cmu/tetrad/graph/Graph;", 

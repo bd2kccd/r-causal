@@ -2,7 +2,7 @@
 R Wrapper for Tetrad Library
 
 ## R Library Requirement
-R >= 3.3.0, 
+R >= 3.2.0, 
 [stringr](https://cran.r-project.org/web/packages/stringr/),
 [rJava](https://cran.r-project.org/web/packages/rJava/index.html), 
 [graph](http://bioconductor.org/packages/release/bioc/html/graph.html), 
@@ -21,10 +21,6 @@ biocLite("graph")
 biocLite("RBGL")
 biocLite("Rgraphviz") # For plotting graph
 ```
-- Install the release version of devtools from CRAN with 
-```R
-install.packages("devtools")
-```
 - Install r-causal from github:
 
 ```R
@@ -36,7 +32,7 @@ install_github("bd2kccd/r-causal")
 ```R
 library(rcausal)
 data("charity")   #Load the charity dataset
-fgs <- fgs(df = charity, penaltydiscount = 2, depth = -1, faithfulness = TRUE, 
+fgs <- fgs(df = charity, penaltydiscount = 2, depth = -1, faithfulness = TRUE, numOfThreads = 2,
 verbose = TRUE)    #Compute FGS search
 fgs$parameters #Show the FGS's parameters
 fgs$datasets #Show the dataset

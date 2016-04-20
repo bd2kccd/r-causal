@@ -7,12 +7,12 @@
  statistical model algorithms from the Tetrad library.
 }
 \details{
-\code{rcausal} is a program which creates, simulates data from, estimates, tests, 
-predicts with, and searches for causal and statistical models. The aim of 
-the program is to provide sophisticated methods in a friendly interface 
-requiring very little statistical sophistication of the user and no 
+\code{rcausal} is a program which creates, simulates data from, estimates, 
+tests, predicts with, and searches for causal and statistical models. 
+The aim of the program is to provide sophisticated methods in a friendly 
+interface requiring very little statistical sophistication of the user and no 
 programming knowledge. It is not intended to replace flexible statistical 
-programming systems such as Matlab, Splus or R. \code{rcausal} is freeware that 
+programming systems such as Matlab, Splus or R. \code{rcausal} is freeware that
 performs many of the functions in commercial programs such as Netica, Hugin, 
 LISREL, EQS and other programs, and many discovery functions these commercial 
 programs do not perform.
@@ -42,6 +42,9 @@ The program and its search algorithms have been developed over several years
 with support from the National Aeronautics and Space Administration and 
 the Office of Naval Research. Joseph Ramsey has implemented most of 
 the program, with substantial assistance from Frank Wimberly. 
+}
+\examples{
+data("charity")    #Load the charity dataset
 }
 \keyword{causal graphs}
 \keyword{causality}

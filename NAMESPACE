@@ -3,3 +3,6 @@ importFrom(graph, graphNEL)
 import(RBGL)
 importFrom(stringr, str_split_fixed)
 export("fgs")
+export("fgs.discrete")
+# Export all names
+# exportPattern(".")

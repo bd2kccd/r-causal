@@ -50,16 +50,13 @@ the result's edges, and the graphNEL causal graph result.
 }
 \examples{
 data("charity")    #Load the charity dataset
-#fgs <- fgs(df = charity, penaltydiscount = 2, depth = -1, faithfulness = TRUE, 
-#verbose = TRUE)    #Compute FGS search
-#fgs$parameters #Show the FGS's parameters
-#fgs$datasets #Show the dataset
-#fgs$nodes #Show the result's nodes
-#fgs$edges #Show the result's edges
-#library(Rgraphviz)
-#plot(fgs$graphNEL) #Plot the causal models
+fgs <- fgs(df = charity, penaltydiscount = 2, depth = -1, faithfulness = TRUE,
+    numOfThreads = 2, verbose = TRUE)    #Compute FGS search
+fgs$parameters #Show the FGS's parameters
+fgs$datasets #Show the dataset
+fgs$nodes #Show the result's nodes
+fgs$edges #Show the result's edges
 }
-
 \keyword{fgs}
 \keyword{ges}
 \keyword{causal graphs}

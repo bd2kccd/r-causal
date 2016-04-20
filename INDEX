@@ -1,3 +1,5 @@
 charity                     Donations and Charity Data
-fgs                         Fast Greedy Search for Causal and Statistical Model Discovery
+audiology                   The standardized version of the audiology Data
+fgs                         Fast Greedy Search for Causal and Statistical Model Discovery on Continuous Data
+fgs.discrete                Fast Greedy Search for Causal and Statistical Model Discovery on Discrete Data
 rcausal                     R Wrapper for Tetrad Library

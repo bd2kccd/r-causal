@@ -1,8 +1,15 @@
 ---
 title: "rcausal"
 author: "Chirayu Wongchokprasitti"
-date: "March 29, 2016"
-output: pdf_document
+date: "April 20, 2016"
+abstract: >
+  This package is a R wrapper containing the Tetrad Library.
+output: 
+    BiocStyle::pdf_document
+vignette: >
+  %\VignetteIndexEntry{rcausal}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}  
 ---
 # rcausal
 
@@ -10,13 +17,14 @@ R Wrapper for Tetrad Library, for more details see
 <https://github.com/bd2kccd/r-causal>.
 
 ## R Library Requirement
-R >= 3.3.0, rJava, graph, RBGL, Rgraphviz
+R >= 3.2.0, stringr, rJava, graph, RBGL, Rgraphviz
 
 ## Installation
 
 ### Install the R library requirements:
 
 ```{r}
+install.packages("stringr")
 install.packages("rJava")
 ## try http:// if https:// URLs are not supported
 source("https://bioconductor.org/biocLite.R")
@@ -25,13 +33,7 @@ biocLite("RBGL")
 biocLite("Rgraphviz") # For plotting graph
 ```
 
-### Install the release version of devtools from CRAN with
-
-```{r}
-install.packages("devtools")
-```
-
-### Install tetradR from github:
+### Install the r-causal from github
 
 ```{r}
 library(devtools)
@@ -43,7 +45,7 @@ install_github("bd2kccd/r-causal")
 ```{r}
 data("charity")    #Load the charity dataset
 fgs <- fgs(df = charity, penaltydiscount = 2, depth = -1, faithfulness = TRUE,
-            verbose = TRUE)    #Compute FGS search
+            numOfThreads = 2, verbose = TRUE)    #Compute FGS search
 fgs$parameters #Show the FGS's parameters
 fgs$datasets #Show the dataset
 fgs$nodes #Show the result's nodes

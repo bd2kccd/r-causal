@@ -40,30 +40,84 @@ ugraphToTetradGraph <- function(ugmat, node_list){
 }
 
 ########################################################
-# converter: R dataframe into Tetrad DataSet
+# converter: R dataframe into Tetrad BDeuScore wrapping a BoxDataSet
 # requires dataframe with named columns
-# Assumes dataset is continuous - should make this a parameter
+# Dataset is discrete.
 # requires rJava, assumes the JVM is running from the
 # latest Tetrad jar.
-dataFrame2TetradDataset <- function(df){
+dataFrame2TetradBDeuScore <- function(df,structurePrior = 1.0, 
+    samplePrior = 1.0){
+    node_names <- colnames(df)
+	node_list <- .jnew("java/util/ArrayList")
+	for (i in 1:length(node_names)){
+		nodname <- .jnew("java/lang/String", node_names[i])
+        cat("node_names: ", node_names[i],"\n")
+        cate <- unique(df[[node_names[i]]])
+        cate <- sort(cate)
+        cat("value: ")
+        print(cate)
+        cat("\n")
+        cate_list <- .jnew("java/util/ArrayList")
+        for(j in 1:length(cate)){
+            cate_list$add(as.character(cate[j]))
+        }
+        cate_list <- .jcast(cate_list, "java.util.List")
+		nodi <- .jnew("edu/cmu/tetrad/data/DiscreteVariable", 
+                    nodname, cate_list)
+		node_list$add(nodi)
+        
+        # Substitute a new categorial value
+        cate <- data.frame(cate)
+        new_col <- sapply(df[,i],function(x,cate) 
+                    as.integer(which(cate[,1] == x)),cate=cate)
+        new_col = as.integer(new_col - 1)
+        df[,i] <- (data.frame(new_col))[,1]
+	}
+	node_list <- .jcast(node_list, "java.util.List")
+	mt <- as.matrix(df)
+	mat <- .jarray(t(mt), dispatch=TRUE)
+	data <- .jnew("edu/cmu/tetrad/data/VerticalIntDataBox", mat)
+    data <- .jcast(data, "edu/cmu/tetrad/data/DataBox")
+    boxData <- .jnew("edu/cmu/tetrad/data/BoxDataSet", 
+                            data, node_list)
+    boxData <- .jcast(boxData, "edu/cmu/tetrad/data/DataSet")
+    score <- .jnew("edu/cmu/tetrad/search/BDeuScore", boxData)
+    score$setStructurePrior(as.double(structurePrior))
+    score$setSamplePrior(as.double(samplePrior))
+    score <- .jcast(score, "edu/cmu/tetrad/search/Score")
+    return(score)
+}
+
+########################################################
+# converter: R dataframe into Tetrad SemBicScore
+# requires dataframe with named columns
+# Dataset is continuous
+# requires rJava, assumes the JVM is running from the
+# latest Tetrad jar.
+dataFrame2TetradSemBicScore <- function(df,penaltydiscount = 4.0){
 	node_names <- colnames(df)
 	node_list <- .jnew("java/util/ArrayList")
 	for (i in 1:length(node_names)){
 		nodname <- .jnew("java/lang/String", node_names[i])
-		nodi <- .jnew("edu/cmu/tetrad/graph/GraphNode", nodname)
-		nodi <- .jcast(nodi, "edu/cmu/tetrad/graph/Node")
+		nodi <- .jnew("edu/cmu/tetrad/data/ContinuousVariable", nodname)
 		node_list$add(nodi)
 	}
 	node_list <- .jcast(node_list, "java.util.List")
 	mt <- as.matrix(df)
 	mat <- .jarray(mt, dispatch=TRUE)
-	tetradData <- .jnew("edu/cmu/tetrad/data/ColtDataSet", 
-                            as.integer(nrow(df)), node_list)
-	# tetradData <- tetradData$makeContinuousData(node_list, mat)
-    tetradData <- .jcall(tetradData, "Ledu/cmu/tetrad/data/DataSet;", 
-                            "makeContinuousData", node_list, mat)
-	tetradData <- .jcast(tetradData, "edu/cmu/tetrad/data/DataSet")
-	return(tetradData)
+    
+    data <- .jnew("edu/cmu/tetrad/data/DoubleDataBox", mat)
+    data <- .jcast(data, "edu/cmu/tetrad/data/DataBox")
+    boxData <- .jnew("edu/cmu/tetrad/data/BoxDataSet", 
+                            data, node_list)
+    boxData <- .jcast(boxData, "edu/cmu/tetrad/data/DataSet")
+    covMat <- .jnew("edu/cmu/tetrad/data/CovarianceMatrixOnTheFly", boxData)
+    covMat <- .jcast(covMat, "edu/cmu/tetrad/data/ICovarianceMatrix")
+    
+    score <- .jnew("edu/cmu/tetrad/search/SemBicScore", covMat)
+	score$setPenaltyDiscount(penaltydiscount)
+    score <- .jcast(score, "edu/cmu/tetrad/search/Score")
+    return(score)
 }
 
 ########################################################
@@ -102,8 +156,10 @@ tetradPattern2graphNEL <- function(resultGraph,
 
     if(verbose){
         cat("Graph Edges:\n")
-        for(i in 1:length(fgs_edges)){
-            cat(fgs_edges[i],"\n")
+        if(length(fgs_edges) > 0){
+            for(i in 1:length(fgs_edges)){
+                cat(fgs_edges[i],"\n")
+            }
         }
     }
 
@@ -138,6 +194,9 @@ extractTetradNodes <- function(resultGraph){
 # extract edges from Tetrad graph result
 extractTetradEdges <- function(resultGraph){
     eds <- resultGraph$getEdges()
-	fgs_edges <- sapply(as.list(eds), .jrcall, "toString")
+    fgs_edges <- c()
+    if(!is.null(eds)){
+	   fgs_edges <- sapply(as.list(eds), .jrcall, "toString")
+    }
     return(fgs_edges)
 }
