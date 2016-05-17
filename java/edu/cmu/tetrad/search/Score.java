@@ -21,65 +21,34 @@
 
 package edu.cmu.tetrad.search;
 
-import edu.cmu.tetrad.graph.Graph;
 import edu.cmu.tetrad.graph.Node;
 
 import java.util.List;
 
 /**
- * Estimates the Markov blanket by first running PC on the data and then graphically extracting the MB DAG.
- *
- * @author Joseph Ramsey
+ * Interface for a score suitable for FGS
  */
-public class Pcmb implements MbSearch {
-    private IndependenceTest test;
-    private int depth;
+public interface Score {
+    double localScore(int node, int...parents);
 
-    public Pcmb(IndependenceTest test, int depth) {
-        this.test = test;
-        this.depth = depth;
-    }
+    double localScoreDiff(int x, int y, int[] z);
 
-    public List<Node> findMb(String targetName) {
-        Node target = getVariableForName(targetName);
+    double localScoreDiff(int x, int y);
 
-        Pc search = new Pc(test);
-        search.setDepth(depth);
-        Graph graph = search.search();
-        MbUtils.trimToMbNodes(graph, target, false);
-        List<Node> mbVariables = graph.getNodes();
-        mbVariables.remove(target);
+    double localScore(int node, int parent);
 
-        return mbVariables;
-    }
+    double localScore(int node);
 
-    public String getAlgorithmName() {
-        return "PCMB";
-    }
+    List<Node> getVariables();
 
-    public int getNumIndependenceTests() {
-        return 0;
-    }
+    boolean isEffectEdge(double bump);
 
-    private Node getVariableForName(String targetVariableName) {
-        Node target = null;
+    boolean isDiscrete();
 
-        for (Node V : test.getVariables()) {
-            if (V.getName().equals(targetVariableName)) {
-                target = V;
-                break;
-            }
-        }
+    double getParameter1();
 
-        if (target == null) {
-            throw new IllegalArgumentException(
-                    "Target variable not in dataset: " + targetVariableName);
-        }
+    void setParameter1(double alpha);
 
-        return target;
-    }
-
+    int getSampleSize();
 }
-
-
 

@@ -157,9 +157,17 @@ public class TimeSeriesUtils {
             knowledge.setTierForbiddenWithin(i, true);
         }
 
-//        IndependenceTest test = new IndTestFisherZ(timeLags, 0.05);
-//        Cpc search = new Cpc(test);
-        Ges search = new Ges(timeLags);
+        Score score;
+
+        if (timeLags.isDiscrete()) {
+            score = new BDeuScore(timeLags);
+        } else if (timeLags.isContinuous()) {
+            score = new SemBicScore(new CovarianceMatrixOnTheFly(timeLags), 2.0);
+        } else {
+            throw new IllegalArgumentException("Mixed data set");
+        }
+
+        Fgs2 search = new Fgs2(score);
         search.setKnowledge(knowledge);
         Graph graph = search.search();
 

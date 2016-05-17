@@ -25,6 +25,7 @@ import edu.cmu.tetrad.data.DataSet;
 import edu.cmu.tetrad.data.ICovarianceMatrix;
 import edu.cmu.tetrad.graph.Node;
 import edu.cmu.tetrad.util.NumberFormatUtil;
+import edu.cmu.tetrad.util.StatUtils;
 import edu.cmu.tetrad.util.TetradLogger;
 import edu.cmu.tetrad.util.TetradMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
@@ -88,6 +89,10 @@ public final class IndTestConditionalCorrelation implements IndependenceTest {
     public IndTestConditionalCorrelation(DataSet dataSet, double alpha) {
         if (!(dataSet.isContinuous())) {
             throw new IllegalArgumentException("Data set must be continuous.");
+        }
+
+        if (!(alpha >= 0 && alpha <= 1)) {
+                throw new IllegalArgumentException("Alpha mut be in [0, 1]");
         }
 
         List<Node> nodes = dataSet.getVariables();
@@ -258,6 +263,11 @@ public final class IndTestConditionalCorrelation implements IndependenceTest {
     @Override
     public List<TetradMatrix> getCovMatrices() {
         return null;
+    }
+
+    @Override
+    public double getScore() {
+        return cci.getScore();
     }
 
     /**

@@ -29,6 +29,7 @@ install_github("bd2kccd/r-causal")
 ```
 
 ## Example
+### Continuous Dataset
 ```R
 library(rcausal)
 data("charity")   #Load the charity dataset
@@ -40,6 +41,20 @@ fgs$nodes #Show the result's nodes
 fgs$edges #Show the result's edges
 library(Rgraphviz)
 plot(fgs$graphNEL) #Plot the causal model
+```
+### Discrete Dataset
+```R
+library(rcausal)
+data("audiology")    #Load the charity dataset
+#Compute FGS search
+fgs.discrete <- fgs.discrete(df=audiology,structurePrior=1.0,samplePrior=1.0, 
+depth = -1, faithfulness = TRUE, numOfThreads = 2,verbose = TRUE)
+fgs.discrete$parameters #Show the FGS's parameters
+fgs.discrete$datasets #Show the dataset
+fgs.discrete$nodes #Show the result's nodes
+fgs.discrete$edges #Show the result's edges
+library(Rgraphviz)
+plot(fgs.discrete$graphNEL) #Plot the causal model
 ```
 
 ## Useful `rJava` Trouble-shooting Installation in Mac OS X Links

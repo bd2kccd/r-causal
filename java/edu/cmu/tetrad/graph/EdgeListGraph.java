@@ -490,7 +490,7 @@ public class EdgeListGraph implements Graph {
      * @return the edge connecting node1 and node2, provided a unique such edge
      * exists.
      */
-    public Edge getEdge(Node node1, Node node2) {
+    public synchronized Edge getEdge(Node node1, Node node2) {
         List<Edge> edges1 = edgeLists.get(node1);
 
         if (edges1 == null) return null;
@@ -593,17 +593,18 @@ public class EdgeListGraph implements Graph {
      * Determines whether one node is an ancestor of another.
      */
     public boolean isAncestorOf(Node node1, Node node2) {
-        if (ancestors != null) {
-            return ancestors.get(node2).contains(node1);
-        } else {
-            ancestors = new HashMap<>();
-
-            for (Node node : nodes) {
-                ancestors.put(node, new HashSet<>(getAncestors(Collections.singletonList(node))));
-            }
-
-            return ancestors.get(node2).contains(node1);
-        }
+        return getAncestors(Collections.singletonList(node2)).contains(node1);
+//        if (ancestors == null) {
+//            ancestors = new HashMap<>();
+//        }
+//
+//        if (ancestors.get(node2) != null) {
+//            return ancestors.get(node2).contains(node1);
+//        }
+//
+//        ancestors.put(node2, new HashSet<>(getAncestors(Collections.singletonList(node2))));
+//
+//        return ancestors.get(node2).contains(node1);
     }
 
     public boolean possibleAncestor(Node node1, Node node2) {
@@ -1176,9 +1177,18 @@ public class EdgeListGraph implements Graph {
 //                    "That edge is already in the graph: " + edge);
         }
 
+        edgeList1 = new ArrayList<>(edgeList1);
+        edgeList2 = new ArrayList<>(edgeList2);
+
         edgeList1.add(edge);
         edgeList2.add(edge);
+
+        edgeLists.put(edge.getNode1(), edgeList1);
+        edgeLists.put(edge.getNode2(), edgeList2);
+
         edgesSet.add(edge);
+
+
 
         if (Edges.isDirectedEdge(edge)) {
             Node node = Edges.getDirectedEdgeTail(edge);
@@ -1448,7 +1458,7 @@ public class EdgeListGraph implements Graph {
      * @param edge the edge to remove.
      * @return true if the edge was removed, false if not.
      */
-    public boolean removeEdge(Edge edge) {
+    public synchronized boolean removeEdge(Edge edge) {
         if (edgesSet.contains(edge) && !checkRemoveEdge(edge)) {
             return false;
         }
@@ -1456,9 +1466,16 @@ public class EdgeListGraph implements Graph {
         List<Edge> edgeList1 = edgeLists.get(edge.getNode1());
         List<Edge> edgeList2 = edgeLists.get(edge.getNode2());
 
+        edgeList1 = new ArrayList<>(edgeList1);
+        edgeList2 = new ArrayList<>(edgeList2);
+
         edgesSet.remove(edge);
         edgeList1.remove(edge);
         edgeList2.remove(edge);
+
+        edgeLists.put(edge.getNode1(), edgeList1);
+        edgeLists.put(edge.getNode2(), edgeList2);
+
         highlightedEdges.remove(edge);
         stuffRemovedSinceLastTripleAccess = true;
 
@@ -1552,63 +1569,7 @@ public class EdgeListGraph implements Graph {
      * @return a string representation of the graph.
      */
     public String toString() {
-        StringBuilder buf = new StringBuilder();
-
-        buf.append("\nGraph Nodes:\n");
-
-        for (int i = 0; i < nodes.size(); i++) {
-//            buf.append("\n" + (i + 1) + ". " + nodes.get(i));
-            buf.append(nodes.get(i)).append(" ");
-            if ((i + 1) % 30 == 0) buf.append("\n");
-        }
-
-        buf.append("\n\nGraph Edges: ");
-
-        List<Edge> edges = new ArrayList<>(this.edgesSet);
-        Edges.sortEdges(edges);
-
-        for (int i = 0; i < edges.size(); i++) {
-            Edge edge = edges.get(i);
-            buf.append("\n").append(i + 1).append(". ").append(edge);
-        }
-
-        buf.append("\n");
-        buf.append("\n");
-
-//        Set<Triple> ambiguousTriples = getAmbiguousTriples();
-
-        if (!ambiguousTriples.isEmpty()) {
-            buf.append("Ambiguous triples (i.e. list of triples for which there is ambiguous data" +
-                    "\nabout whether they are colliders or not): \n");
-
-            for (Triple triple : ambiguousTriples) {
-                buf.append(triple).append("\n");
-            }
-        }
-
-        if (!underLineTriples.isEmpty()) {
-            buf.append("Underline triples: \n");
-
-            for (Triple triple : underLineTriples) {
-                buf.append(triple).append("\n");
-            }
-        }
-
-        if (!dottedUnderLineTriples.isEmpty()) {
-            buf.append("Dotted underline triples: \n");
-
-            for (Triple triple : dottedUnderLineTriples) {
-                buf.append(triple).append("\n");
-            }
-        }
-//
-//        buf.append("\nNode positions\n");
-//
-//        for (Node node : getNodes()) {
-//            buf.append("\n" + node + ": (" + node.getCenterX() + ", " + node.getCenterY() + ")");
-//        }
-
-        return buf.toString();
+        return GraphUtils.graphToText(this).toString();
     }
 
     public Graph subgraph(List<Node> nodes) {

@@ -35,11 +35,11 @@ import java.util.concurrent.ConcurrentMap;
 
 
 /**
- * Extends Erin Korber's implementation of the Fast Causal Inference algorithm (found in Fci.java) with Jiji Zhang's
+ * Extends Erin Korber's implementation of the Fast Causal Inference algorithm (found in FCI.java) with Jiji Zhang's
  * Augmented FCI rules (found in sec. 4.1 of Zhang's 2006 PhD dissertation, "Causal Inference and Reasoning in Causally
  * Insufficient Systems").
  * <p>
- * This class is based off a copy of Fci.java taken from the repository on 2008/12/16, revision 7306. The extension is
+ * This class is based off a copy of FCI.java taken from the repository on 2008/12/16, revision 7306. The extension is
  * done by extending doFinalOrientation() with methods for Zhang's rules R5-R10 which implements the augmented search.
  * (By a remark of Zhang's, the rule applications can be staged in this way.)
  *
@@ -207,7 +207,7 @@ public final class FciMax implements GraphSearch {
 
 //        SepsetProducer sp = new SepsetsPossibleDsep(graph, independenceTest, knowledge, depth, maxPathLength);
         SepsetProducer sp = new SepsetsMaxPValuePossDsep(graph, independenceTest, null, depth, maxPathLength);
-        SepsetProducer sp2 = new SepsetsMaxPValue(graph, independenceTest, null, depth);
+        SepsetProducer sp2 = new SepsetsMaxScore(graph, independenceTest, null, depth);
 
         // The original FCI, with or without JiJi Zhang's orientation rules
         //        // Optional step: Possible Dsep. (Needed for correctness but very time consuming.)
@@ -314,21 +314,21 @@ public final class FciMax implements GraphSearch {
                 if (sepset == null) continue;
 
 //
-                if (sepsetProducer.getPValue() < getIndependenceTest().getAlpha()) continue;
+                if (sepsetProducer.getScore() < getIndependenceTest().getAlpha()) continue;
 
                 if (!sepset.contains(b)) {
-                    System.out.println("sepset = " + sepset + " b = " + b + " p = " + sepsetProducer.getPValue());
+                    System.out.println("sepset = " + sepset + " b = " + b + " p = " + sepsetProducer.getScore());
 
                     if (verbose) {
                         System.out.println("Collider orientation <" + a + ", " + b + ", " + c + "> sepset = " + sepset);
                     }
 
                     IndependenceTest test2 = new IndTestDSep(trueDag);
-                    SepsetProducer sp2 = new SepsetsMaxPValue(graph, test2, null, depth);
+                    SepsetProducer sp2 = new SepsetsMaxScore(graph, test2, null, depth);
 
                     System.out.println("Dsep sepset = " + sp2.getSepset(a, c));
 
-                    colliders.put(new Triple(a, b, c), sepsetProducer.getPValue());
+                    colliders.put(new Triple(a, b, c), sepsetProducer.getScore());
 
 //                    colliders.add(new Triple(a, b, c));
                     TetradLogger.getInstance().log("colliderOrientations", SearchLogUtils.colliderOrientedMsg(a, b, c, sepset));

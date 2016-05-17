@@ -1095,7 +1095,7 @@ public class FindTwoFactorClusters {
 //        IntSextad[] sextads = new IntSextad[]{t1, t2, t3, t4, t5, t6, t7, t8, t9, t10};
 //
 //        for (IntSextad sextad : sextads) {
-//            if (test.getPValue(sextad) < alpha) return false;
+//            if (test.getScore(sextad) < alpha) return false;
 //        }
 
         return true;
@@ -1106,7 +1106,7 @@ public class FindTwoFactorClusters {
 
         List<Node> latents = new ArrayList<>();
         for (int i = 0; i < clusters.size(); i++) {
-            Node latent = new GraphNode(MimBuild.LATENT_PREFIX + (i + 1));
+            Node latent = new GraphNode(ClusterUtils.LATENT_PREFIX + (i + 1));
             latent.setNodeType(NodeType.LATENT);
             latents.add(latent);
             graph.addNode(latent);
@@ -1153,7 +1153,7 @@ public class FindTwoFactorClusters {
     private void log(String s, boolean toLog) {
         if (toLog) {
             TetradLogger.getInstance().log("info", s);
-            System.out.println(s);
+//            System.out.println(s);
         }
     }
 }

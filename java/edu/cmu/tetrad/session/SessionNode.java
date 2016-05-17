@@ -115,7 +115,7 @@ public class SessionNode implements TetradSerializable {
 
     /**
      * Stores a clone of the model being edited, in case the user wants to
-     * cancel.
+     * cancelAll.
      */
     private transient SessionModel savedModel;
 
@@ -313,7 +313,7 @@ public class SessionNode implements TetradSerializable {
     /**
      * Same as addParent except tests if this has already been created. If so
      * the user is asked whether to add parent and update parent's desendents or
-     * to cancel the operation.
+     * to cancelAll the operation.
      */
     public boolean addParent2(SessionNode parent) {
         if (this.parents.contains(parent)) {
@@ -576,7 +576,7 @@ public class SessionNode implements TetradSerializable {
 
         if (this.model == null) {
             TetradLogger.getInstance().log("info", getDisplayName() + " was not created.");
-            throw new CouldNotCreateModelException(modelClass);
+                throw new CouldNotCreateModelException(modelClass);
         }
 
         // If we're running a simulation, try executing the model.
@@ -1554,14 +1554,23 @@ public class SessionNode implements TetradSerializable {
             // Restart the getModel param object if necessary.
             Object model = getModel();
 
-            if (model != null) {
-                Object param = getParam(model.getClass());
+            for (Class clazz : modelClasses) {
+                Object param = getParam(clazz);
 
                 if (param instanceof ExecutionRestarter) {
                     ExecutionRestarter restarter = (ExecutionRestarter) param;
                     restarter.newExecution();
                 }
             }
+//
+//            if (model != null) {
+//                Object param = getParam(model.getClass());
+//
+//                if (param instanceof ExecutionRestarter) {
+//                    ExecutionRestarter restarter = (ExecutionRestarter) param;
+//                    restarter.newExecution();
+//                }
+//            }
 
             // Pass the message along.
             getSessionSupport().fireSessionEvent(event);

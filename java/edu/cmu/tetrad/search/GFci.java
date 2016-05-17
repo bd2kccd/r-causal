@@ -43,11 +43,11 @@ import java.util.concurrent.ConcurrentMap;
  * utilize unshielded colliders found by GES. 5/31/2015
  * <p>
  * Previous:
- * Extends Erin Korber's implementation of the Fast Causal Inference algorithm (found in Fci.java) with Jiji Zhang's
+ * Extends Erin Korber's implementation of the Fast Causal Inference algorithm (found in FCI.java) with Jiji Zhang's
  * Augmented FCI rules (found in sec. 4.1 of Zhang's 2006 PhD dissertation, "Causal Inference and Reasoning in Causally
  * Insufficient Systems").
  * <p>
- * This class is based off a copy of Fci.java taken from the repository on 2008/12/16, revision 7306. The extension is
+ * This class is based off a copy of FCI.java taken from the repository on 2008/12/16, revision 7306. The extension is
  * done by extending doFinalOrientation() with methods for Zhang's rules R5-R10 which implements the augmented search.
  * (By a remark of Zhang's, the rule applications can be staged in this way.)
  *
@@ -119,7 +119,7 @@ public final class GFci {
     int sampleSize;
 
     /**
-     * The penalty discount for the GES search. By default 2.
+     * The penalty penaltyDiscount for the GES search. By default 2.
      */
     private double penaltyDiscount = 2;
 
@@ -129,7 +129,7 @@ public final class GFci {
     private double samplePrior = 10;
 
     /**
-     * The structure prior for the Bdeu score (discrete data).
+     * The structure prior for the BDeu score (discrete data).
      */
     private double structurePrior = 1;
 
@@ -194,14 +194,14 @@ public final class GFci {
         // Adjacency phase
 
         // Run GES to get an initial graph.
-        Fgs ges;
+        Fgs2 ges;
         Graph gesGraph;
 
         if (dataSet == null || dataSet.isContinuous()) {
             covarianceMatrix = independenceTest.getCov();
-            ges = new Fgs(covarianceMatrix);
+            Score score = new SemBicScore(covarianceMatrix, penaltyDiscount);
+            ges = new Fgs2(score);
             ges.setKnowledge(getKnowledge());
-            ges.setPenaltyDiscount(penaltyDiscount);
             ges.setVerbose(verbose);
             ges.setDepth(getDepth());
             ges.setNumPatternsToStore(0);
@@ -209,12 +209,11 @@ public final class GFci {
             graph = ges.search();
             gesGraph = new EdgeListGraphSingleConnections(graph);
         } else if (dataSet.isDiscrete()) {
-            ges = new Fgs(dataSet);
+            BDeuScore score = new BDeuScore(dataSet);
+            score.setSamplePrior(samplePrior);
+            score.setStructurePrior(structurePrior);
+            ges = new Fgs2(score);
             ges.setKnowledge(getKnowledge());
-            ges.setPenaltyDiscount(penaltyDiscount);
-            ges.setSamplePrior(samplePrior);
-            ges.setStructurePrior(structurePrior);
-            ges.setStructurePrior(1);
             ges.setVerbose(false);
             ges.setDepth(getDepth());
             ges.setNumPatternsToStore(0);
@@ -228,7 +227,7 @@ public final class GFci {
         if (verbose) {
             System.out.println("GES done " + gesGraph.getNumEdges() + " edges in graph");
         }
-        SepsetProducer sepsets = new SepsetsConservative(gesGraph, getIndependenceTest(), null, depth);
+        SepsetProducer sepsets = new SepsetsMinScore(gesGraph, getIndependenceTest(), null, depth);
 
 //        if (possibleDsepSearchDone) {
 //            sepsets = new SepsetsPossibleDsep(gesGraph, getIndependenceTest(), knowledge, depth,
@@ -250,7 +249,7 @@ public final class GFci {
 //                if (!j.isEmpty()) {
 //                    sepsets.getSepset(i, k);
 //
-//                    if (sepsets.getPValue() > getIndependenceTest().getAlpha()) {
+//                    if (sepsets.getScore() > getIndependenceTest().getParameter1()) {
 //                        gesGraph.removeEdge(edge);
 //                    }
 //                }
@@ -270,25 +269,24 @@ public final class GFci {
             if (!j.isEmpty()) {
                 sepsets.getSepset(i, k);
 
-                if (sepsets.getPValue() > getIndependenceTest().getAlpha()) {
+                if (sepsets.getScore() < 0) {
                     graph.removeEdge(edge);
                 }
             }
         }
-//        }
 
         // Orientation phase.
 
-        // Step CI C, modified collider orientation step for FCI-GES due to Spirtes.
-        ruleR0Special(graph, gesGraph, sepsets, ges);
-
+//        // Step CI C, modified collider orientation step for FCI-GES due to Spirtes.
+        ruleR0Special(graph, gesGraph, sepsets);
+//
         FciOrient fciOrient = new FciOrient(sepsets);
         fciOrient.setKnowledge(getKnowledge());
         fciOrient.setCompleteRuleSetUsed(completeRuleSetUsed);
         fciOrient.setMaxPathLength(maxPathLength);
         fciOrient.doFinalOrientation(graph);
-
-        GraphUtils.replaceNodes(graph, independenceTest.getVariables());
+//
+//        GraphUtils.replaceNodes(graph, independenceTest.getVariables());
 
         //end.
 
@@ -319,8 +317,10 @@ public final class GFci {
         return false;
     }
 
-    public void ruleR0Special(Graph graph, Graph gesGraph, SepsetProducer sepsets, Fgs ges) {
-        SepsetsMaxPValue sepsetProducer = new SepsetsMaxPValue(graph, independenceTest, null, getDepth());
+    public void ruleR0Special(Graph graph, Graph gesGraph, SepsetProducer sepsets) {
+//        SepsetsMaxScore sepsetProducer = new SepsetsMaxScore(graph, independenceTest, null, getDepth());
+
+        System.out.println("AAA " + graph + " " + gesGraph  );
 
         graph.reorientAllWith(Endpoint.CIRCLE);
         fciOrientbk(knowledge, graph, graph.getNodes());
@@ -341,15 +341,14 @@ public final class GFci {
                 Node a = adjacentNodes.get(combination[0]);
                 Node c = adjacentNodes.get(combination[1]);
 
-                // Skip triples that are shielded.
                 if (graph.isAdjacentTo(a, c)) {
                     continue;
                 }
 
                 // Skip triples already oriented as colliders
-//                if (graph.isDefCollider(a, b, c)) {
-//                    continue;
-//                }
+                if (graph.isDefCollider(a, b, c)) {
+                    continue;
+                }
 
                 // Skip triple where collider orientations are forbidden by background knowledge
                 if (!isArrowpointAllowed(a, b, graph)) {
@@ -370,9 +369,12 @@ public final class GFci {
 //                        System.out.println("Copying from GES: " + SearchLogUtils.colliderOrientedMsg(a, b, c));
 //                    }
 
-                    if (sepsetProducer.isCollider(a, b, c)) {
+                    if (sepsets.isCollider(a, b, c)) {
+                        System.out.println("Collider " + a + " " + b + " " + c);
+
                         graph.setEndpoint(a, b, Endpoint.ARROW);
                         graph.setEndpoint(c, b, Endpoint.ARROW);
+//                        graph.removeEdge(a, c);
 
                         if (verbose) {
                             logger.log("colliderOrientations", "Copying from GES: " + SearchLogUtils.colliderOrientedMsg(a, b, c));
@@ -380,6 +382,12 @@ public final class GFci {
                         }
                     }
                 } else {
+
+                    // Skip triples that are shielded.
+                    if (graph.isAdjacentTo(a, c)) {
+                        continue;
+                    }
+
                     if (gesGraph.isDefCollider(a, b, c)) {
                         graph.setEndpoint(a, b, Endpoint.ARROW);
                         graph.setEndpoint(c, b, Endpoint.ARROW);

@@ -61,7 +61,7 @@ dataFrame2TetradBDeuScore <- function(df,structurePrior = 1.0,
         for(j in 1:length(cate)){
             cate_list$add(as.character(cate[j]))
         }
-        cate_list <- .jcast(cate_list, "java.util.List")
+        cate_list <- .jcast(cate_list, "java/util/List")
 		nodi <- .jnew("edu/cmu/tetrad/data/DiscreteVariable", 
                     nodname, cate_list)
 		node_list$add(nodi)
@@ -73,7 +73,7 @@ dataFrame2TetradBDeuScore <- function(df,structurePrior = 1.0,
         new_col = as.integer(new_col - 1)
         df[,i] <- (data.frame(new_col))[,1]
 	}
-	node_list <- .jcast(node_list, "java.util.List")
+	node_list <- .jcast(node_list, "java/util/List")
 	mt <- as.matrix(df)
 	mat <- .jarray(t(mt), dispatch=TRUE)
 	data <- .jnew("edu/cmu/tetrad/data/VerticalIntDataBox", mat)
@@ -102,7 +102,7 @@ dataFrame2TetradSemBicScore <- function(df,penaltydiscount = 4.0){
 		nodi <- .jnew("edu/cmu/tetrad/data/ContinuousVariable", nodname)
 		node_list$add(nodi)
 	}
-	node_list <- .jcast(node_list, "java.util.List")
+	node_list <- .jcast(node_list, "java/util/List")
 	mt <- as.matrix(df)
 	mat <- .jarray(mt, dispatch=TRUE)
     

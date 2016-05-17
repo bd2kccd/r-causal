@@ -23,16 +23,14 @@ package edu.cmu.tetrad.search;
 
 import edu.cmu.tetrad.data.*;
 import edu.cmu.tetrad.graph.*;
-import edu.cmu.tetrad.util.ChoiceGenerator;
-import edu.cmu.tetrad.util.CombinationGenerator;
-import edu.cmu.tetrad.util.StatUtils;
-import edu.cmu.tetrad.util.TetradLogger;
+import edu.cmu.tetrad.util.*;
 import org.apache.commons.collections4.map.MultiKeyMap;
 
 import java.io.PrintStream;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.*;
+import java.util.concurrent.RecursiveTask;
 
 /**
  * Graph utilities for search algorithms. Lots of orientation method, for instance.
@@ -1372,7 +1370,7 @@ public final class SearchGraphUtils {
      */
     public static Graph patternFromDag(Graph dag) {
 //        IndTestDSep test = new IndTestDSep(dag);
-//        return new Pc(test).search();
+//        return new PC(test).search();
 //
         Graph graph = new EdgeListGraph(dag);
         SearchGraphUtils.basicPattern(graph, false);
@@ -1503,12 +1501,12 @@ public final class SearchGraphUtils {
     }
 
     /**
-     * @param initialNodes  The nodes that reachability undirectedPaths start from.
-     * @param legalPairs    Specifies initial edges (given initial nodes) and legal edge pairs.
-     * @param c             a set of vertices (intuitively, the set of variables to be conditioned on.
-     * @param d             a set of vertices (intuitively to be used in tests of legality, for example, the set of
-     *                      ancestors of c).
-     * @param graph         the graph with respect to which reachability is
+     * @param initialNodes The nodes that reachability undirectedPaths start from.
+     * @param legalPairs   Specifies initial edges (given initial nodes) and legal edge pairs.
+     * @param c            a set of vertices (intuitively, the set of variables to be conditioned on.
+     * @param d            a set of vertices (intuitively to be used in tests of legality, for example, the set of
+     *                     ancestors of c).
+     * @param graph        the graph with respect to which reachability is
      * @return the set of nodes reachable from the given set of initial nodes in the given graph according to the
      * criteria in the given legal pairs object.
      * <p>
@@ -1813,64 +1811,60 @@ public final class SearchGraphUtils {
         }
         _depth = Math.min(_depth, _nodes.size());
 
-        while (true) {
-            for (int d = 0; d <= _depth; d++) {
-                ChoiceGenerator cg = new ChoiceGenerator(_nodes.size(), d);
-                int[] choice;
+        for (int d = 0; d <= _depth; d++) {
+            ChoiceGenerator cg = new ChoiceGenerator(_nodes.size(), d);
+            int[] choice;
 
-                while ((choice = cg.next()) != null) {
-                    List<Node> cond = GraphUtils.asList(choice, _nodes);
+            while ((choice = cg.next()) != null) {
+                List<Node> cond = GraphUtils.asList(choice, _nodes);
 
-                    if (test.isIndependent(x, z, cond)) {
-                        if (verbose) {
-                            System.out.println("Indep: " + x + " _||_ " + z + " | " + cond);
-                        }
-
-                        if (cond.contains(y)) {
-                            numSepsetsContainingY++;
-                        } else {
-                            numSepsetsNotContainingY++;
-                        }
+                if (test.isIndependent(x, z, cond)) {
+                    if (verbose) {
+                        System.out.println("Indep: " + x + " _||_ " + z + " | " + cond);
                     }
 
-                    if (numSepsetsContainingY > 0 && numSepsetsNotContainingY > 0) {
-                        return CpcTripleType.AMBIGUOUS;
+                    if (cond.contains(y)) {
+                        numSepsetsContainingY++;
+                    } else {
+                        numSepsetsNotContainingY++;
                     }
                 }
-            }
 
-            _nodes = graph.getAdjacentNodes(z);
-            _nodes.remove(x);
-            TetradLogger.getInstance().log("adjacencies", "Adjacents for " + x + "--" + y + "--" + z + " = " + _nodes);
-
-            _depth = depth;
-            if (_depth == -1) {
-                _depth = 1000;
-            }
-            _depth = Math.min(_depth, _nodes.size());
-
-            for (int d = 0; d <= _depth; d++) {
-                ChoiceGenerator cg = new ChoiceGenerator(_nodes.size(), d);
-                int[] choice;
-
-                while ((choice = cg.next()) != null) {
-                    List<Node> cond = GraphUtils.asList(choice, _nodes);
-
-                    if (test.isIndependent(x, z, cond)) {
-                        if (cond.contains(y)) {
-                            numSepsetsContainingY++;
-                        } else {
-                            numSepsetsNotContainingY++;
-                        }
-                    }
-
-                    if (numSepsetsContainingY > 0 && numSepsetsNotContainingY > 0) {
-                        return CpcTripleType.AMBIGUOUS;
-                    }
+                if (numSepsetsContainingY > 0 && numSepsetsNotContainingY > 0) {
+                    return CpcTripleType.AMBIGUOUS;
                 }
             }
+        }
 
-            break;
+        _nodes = graph.getAdjacentNodes(z);
+        _nodes.remove(x);
+        TetradLogger.getInstance().log("adjacencies", "Adjacents for " + x + "--" + y + "--" + z + " = " + _nodes);
+
+        if (_depth == -1) {
+            _depth = 1000;
+        }
+
+        _depth = Math.min(_depth, _nodes.size());
+
+        for (int d = 0; d <= _depth; d++) {
+            ChoiceGenerator cg = new ChoiceGenerator(_nodes.size(), d);
+            int[] choice;
+
+            while ((choice = cg.next()) != null) {
+                List<Node> cond = GraphUtils.asList(choice, _nodes);
+
+                if (test.isIndependent(x, z, cond)) {
+                    if (cond.contains(y)) {
+                        numSepsetsContainingY++;
+                    } else {
+                        numSepsetsNotContainingY++;
+                    }
+                }
+
+                if (numSepsetsContainingY > 0 && numSepsetsNotContainingY > 0) {
+                    return CpcTripleType.AMBIGUOUS;
+                }
+            }
         }
 
         if (numSepsetsContainingY > 0) {
@@ -2137,13 +2131,13 @@ public final class SearchGraphUtils {
 
     public static Graph patternForDag(final Graph dag) {
 //        IndTestDSep test = new IndTestDSep(dag);
-//        return new Pc(test).search();
+//        return new PC(test).search();
 //
-        Graph pattern = new EdgeListGraph(dag);
+        Graph pattern = new EdgeListGraphSingleConnections(dag);
         SearchGraphUtils.basicPattern(pattern, false);
         MeekRules rules = new MeekRules();
         rules.orientImplied(pattern);
-        GraphUtils.replaceNodes(pattern, dag.getNodes());
+//        GraphUtils.replaceNodes(pattern, dag.getNodes());
         return pattern;
     }
 
@@ -2282,7 +2276,7 @@ public final class SearchGraphUtils {
         List<Node> estLatents = estGraph.getNodes();
 
 //        List<Node> trueLatents = GraphUtils.getLatents(trueGraph);
-//        List<Node> estLatents = GraphUtils.getLatents(estGraph);
+//        List<Node> estLatents = GraphUtils.getLatents(graph);
 
         Graph u = trueGraph.subgraph(trueLatents);
         Graph t = estGraph.subgraph(estLatents);
@@ -2382,6 +2376,11 @@ public final class SearchGraphUtils {
         int arrowptFp = GraphUtils.countArrowptErrors(graph, trueGraph);
         int arrowptCorrect = GraphUtils.getNumCorrectArrowpts(trueGraph, graph);
 
+        double adjPrec = (double) adjCorrect / (adjCorrect + adjFp);
+        double adjRec = (double) adjCorrect / (adjCorrect + adjFn);
+        double arrowptPrec = (double) arrowptCorrect / (arrowptCorrect + arrowptFp);
+        double arrowptRec = (double) arrowptCorrect / (arrowptCorrect + arrowptFn);
+
         int twoCycleCorrect = 0;
         int twoCycleFn = 0;
         int twoCycleFp = 0;
@@ -2421,10 +2420,14 @@ public final class SearchGraphUtils {
 
         int shd = structuralHammingDistance(trueGraph, graph);
 
+        int[][] counts = graphComparison(graph, trueGraph, null);
+
         return new GraphUtils.GraphComparison(
-                adjFn, adjFp, adjCorrect, arrowptFn, arrowptFp, arrowptCorrect, shd,
+                adjFn, adjFp, adjCorrect, arrowptFn, arrowptFp, arrowptCorrect,
+                adjPrec, adjRec, arrowptPrec, arrowptRec, shd,
                 twoCycleCorrect, twoCycleFn, twoCycleFp,
-                edgesAdded, edgesRemoved, edgesReorientedFrom, edgesReorientedTo);
+                edgesAdded, edgesRemoved, edgesReorientedFrom, edgesReorientedTo,
+                counts);
     }
 
     /**
@@ -2539,12 +2542,25 @@ public final class SearchGraphUtils {
             }
         }
 
+        double adjPrec = (double) adjCorrect / (adjCorrect + adjFp);
+        double adjRec = (double) adjCorrect / (adjCorrect + adjFn);
+        double arrowptPrec = (double) arrowptCorrect / (arrowptCorrect + arrowptFp);
+        double arrowptRec = (double) arrowptCorrect / (arrowptCorrect + arrowptFn);
+
+
         int shd = structuralHammingDistance(trueGraph, graph);
 
+        graph = GraphUtils.replaceNodes(graph, trueGraph.getNodes());
+
+        int[][] counts = GraphUtils.edgeMisclassificationCounts(trueGraph, graph, false);
+
         return new GraphUtils.GraphComparison(
-                adjFn, adjFp, adjCorrect, arrowptFn, arrowptFp, arrowptCorrect, shd,
+                adjFn, adjFp, adjCorrect, arrowptFn, arrowptFp, arrowptCorrect,
+                adjPrec, adjRec, arrowptPrec, arrowptRec,
+                shd,
                 twoCycleErrors.twoCycCor, twoCycleErrors.twoCycFn, twoCycleErrors.twoCycFp,
-                edgesAdded, edgesRemoved, edgesReorientedFrom, edgesReorientedTo);
+                edgesAdded, edgesRemoved, edgesReorientedFrom, edgesReorientedTo,
+                counts);
     }
 
     /**
@@ -2661,10 +2677,19 @@ public final class SearchGraphUtils {
             }
         }
 
+        double adjPrec = (double) adjCorrect / (adjCorrect + adjFp);
+        double adjRec = (double) adjCorrect / (adjCorrect + adjFn);
+        double arrowptPrec = (double) arrowptCorrect / (arrowptCorrect + arrowptFp);
+        double arrowptRec = (double) arrowptCorrect / (arrowptCorrect + arrowptFn);
+
+        int[][] counts = graphComparison(graph, trueGraph, null);
+
         return new GraphUtils.GraphComparison(
-                adjFn, adjFp, adjCorrect, arrowptFn, arrowptFp, arrowptCorrect, shd,
+                adjFn, adjFp, adjCorrect, arrowptFn, arrowptFp, arrowptCorrect,
+                adjPrec, adjRec, arrowptPrec, arrowptRec,
+                shd,
                 twoCycleErrors.twoCycCor, twoCycleErrors.twoCycFn, twoCycleErrors.twoCycFp,
-                edgesAdded, edgesRemoved, edgesReorientedFrom, edgesReorientedTo);
+                edgesAdded, edgesRemoved, edgesReorientedFrom, edgesReorientedTo, counts);
     }
 
     /**
@@ -2781,10 +2806,19 @@ public final class SearchGraphUtils {
             }
         }
 
+        double adjPrec = (double) adjCorrect / (adjCorrect + adjFp);
+        double adjRec = (double) adjCorrect / (adjCorrect + adjFn);
+        double arrowptPrec = (double) arrowptCorrect / (arrowptCorrect + arrowptFp);
+        double arrowptRec = (double) arrowptCorrect / (arrowptCorrect + arrowptFn);
+
+        int[][] counts = graphComparison(graph, trueGraph, null);
+
         return new GraphUtils.GraphComparison(
-                adjFn, adjFp, adjCorrect, arrowptFn, arrowptFp, arrowptCorrect, shd,
+                adjFn, adjFp, adjCorrect, arrowptFn, arrowptFp, arrowptCorrect,
+                adjPrec, adjRec, arrowptPrec, arrowptRec,
+                shd,
                 twoCycleErrors.twoCycCor, twoCycleErrors.twoCycFn, twoCycleErrors.twoCycFp,
-                edgesAdded, edgesRemoved, edgesReorientedFrom, edgesReorientedTo);
+                edgesAdded, edgesRemoved, edgesReorientedFrom, edgesReorientedTo, counts);
     }
 
     public static int structuralHammingDistance3(Graph trueGraph, Graph estGraph) {
@@ -2809,6 +2843,43 @@ public final class SearchGraphUtils {
             }
         }
         return error;
+    }
+
+
+    private static class AhdCounts {
+        private int ahdFp = 0;
+        private int ahdFn = 0;
+        private int ahdCorrect = 0;
+
+        public void incrementFp() {
+            ahdFp++;
+        }
+
+        public void incrementFn() {
+            ahdFn++;
+        }
+
+        public void incrementCorrect() {
+            ahdCorrect++;
+        }
+
+        public void addAll(AhdCounts ahdCounts2) {
+            ahdFp += ahdCounts2.getAhdFp();
+            ahdFn += ahdCounts2.getAhdFn();
+            ahdCorrect += ahdCounts2.getAhdCorrect();
+        }
+
+        public int getAhdFp() {
+            return ahdFp;
+        }
+
+        public int getAhdFn() {
+            return ahdFn;
+        }
+
+        public int getAhdCorrect() {
+            return ahdCorrect;
+        }
     }
 
     private static int structuralHammingDistanceOneEdge3(Edge e1, Edge e2) {
@@ -2942,25 +3013,27 @@ public final class SearchGraphUtils {
     }
 
     public static int[][] graphComparison(Graph estPattern, Graph truePattern, PrintStream out) {
-        GraphUtils.GraphComparison comparison = getGraphComparison(estPattern, truePattern);
+        GraphUtils.GraphComparison comparison = getGraphComparison2(estPattern, truePattern);
 
         if (out != null) {
             out.println("Adjacencies:");
         }
 
-        int adjTp = comparison.getAdjCorrect();
+        int adjTp = comparison.getAdjCor();
         int adjFp = comparison.getAdjFp();
         int adjFn = comparison.getAdjFn();
 
-        int arrowptTp = comparison.getArrowptCorrect();
-        int arrowptFp = comparison.getArrowptFp();
-        int arrowptFn = comparison.getArrowptFn();
+        int arrowptTp = comparison.getAhdCor();
+        int arrowptFp = comparison.getAhdFp();
+        int arrowptFn = comparison.getAhdFn();
 
         if (out != null) {
             out.println("TP " + adjTp + " FP = " + adjFp + " FN = " + adjFn);
             out.println("Arrow Orientations:");
             out.println("TP " + arrowptTp + " FP = " + arrowptFp + " FN = " + arrowptFn);
         }
+
+        estPattern = GraphUtils.replaceNodes(estPattern, truePattern.getNodes());
 
         int[][] counts = GraphUtils.edgeMisclassificationCounts(truePattern, estPattern, false);
 
@@ -2979,9 +3052,9 @@ public final class SearchGraphUtils {
 
         if (out != null) {
             out.println();
-            out.println("AREC\tAPRE\tOREC\tOPRE");
-            out.println(nf.format(adjRecall * 100) + "%\t" + nf.format(adjPrecision * 100)
-                    + "%\t" + nf.format(arrowRecall * 100) + "%\t" + nf.format(arrowPrecision * 100) + "%");
+            out.println("APRE\tAREC\tOPRE\tOREC");
+            out.println(nf.format(adjPrecision * 100) + "%\t" + nf.format(adjRecall * 100)
+                    + "%\t" + nf.format(arrowPrecision * 100) + "%\t" + nf.format(arrowRecall * 100) + "%");
             out.println();
         }
 
@@ -3041,10 +3114,10 @@ public final class SearchGraphUtils {
 
 
             for (DataModel _dataModel : list) {
-                dataSets.add((DataSet) _dataModel);
+                dataSets.add(_dataModel);
             }
 
-            FastImages images = new FastImages(dataSets);
+            Fgs2 images = new Fgs2(new SemBicScoreImages(dataSets));
 
             images.setBoundGraph(graph);
             images.setKnowledge(knowledge);
@@ -3052,15 +3125,26 @@ public final class SearchGraphUtils {
         } else if (dataModel instanceof DataSet) {
             DataSet dataSet = (DataSet) dataModel;
 
-            Fgs ges = new Fgs(dataSet);
+            Score score;
+
+            if (((DataSet) dataModel).isContinuous()) {
+                score = new SemBicScore(new CovarianceMatrixOnTheFly(dataSet));
+            } else if (dataSet.isDiscrete()) {
+                score = new BDeuScore(dataSet);
+            } else {
+                throw new NullPointerException();
+            }
+
+            Fgs2 ges = new Fgs2(score);
 
             ges.setBoundGraph(graph);
             ges.setKnowledge(knowledge);
             return ges.search();
         } else if (dataModel instanceof CovarianceMatrix) {
             ICovarianceMatrix cov = (CovarianceMatrix) dataModel;
+            Score score = new SemBicScore(cov);
 
-            Fgs ges = new Fgs(cov);
+            Fgs2 ges = new Fgs2(score);
 
             ges.setBoundGraph(graph);
             ges.setKnowledge(knowledge);

@@ -1,4 +1,4 @@
-fgs.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, depth = -1, faithfulness = TRUE, numOfThreads = 2,
+fgs.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, depth = 3, faithfulness = TRUE, numOfThreads = 2,
     verbose = FALSE, java.parameters = NULL){
 
     params <- list(NULL)

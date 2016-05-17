@@ -726,7 +726,7 @@ public final class DataUtils {
         return continuousData;
     }
 
-    public static DataSet concatenateData(DataSet dataSet1, DataSet dataSet2) {
+    public static DataSet concatenate(DataSet dataSet1, DataSet dataSet2) {
         List<Node> vars1 = dataSet1.getVariables();
         List<Node> vars2 = dataSet2.getVariables();
         Map<String, Integer> varMap2 = new HashMap<>();
@@ -754,7 +754,7 @@ public final class DataUtils {
         return ColtDataSet.makeData(vars1, concatMatrix);
     }
 
-//    public static TetradMatrix concatenateData(TetradMatrix dataSet1, TetradMatrix dataSet2) {
+//    public static TetradMatrix concatenate(TetradMatrix dataSet1, TetradMatrix dataSet2) {
 //        int rows1 = dataSet1.rows();
 //        int rows2 = dataSet2.rows();
 //        int cols1 = dataSet1.columns();
@@ -774,12 +774,12 @@ public final class DataUtils {
 //    }
 
 
-    public static DataSet concatenateData(DataSet... dataSets) {
+    public static DataSet concatenate(DataSet... dataSets) {
         List<DataSet> _dataSets = new ArrayList<>();
 
         Collections.addAll(_dataSets, dataSets);
 
-        return concatenateData(_dataSets);
+        return concatenate(_dataSets);
     }
 
     public static TetradMatrix concatenate(TetradMatrix... dataSets) {
@@ -810,7 +810,7 @@ public final class DataUtils {
     }
 
     // Trying to optimize some.
-    public static DataSet concatenateData(List<DataSet> dataSets) {
+    public static DataSet concatenate(List<DataSet> dataSets) {
         int totalSampleSize = 0;
 
         for (DataSet dataSet : dataSets) {
@@ -1006,12 +1006,18 @@ public final class DataUtils {
 
         for (int j = 0; j < means.size(); j++) {
             double sum = 0.0;
+            int count = 0;
 
             for (int i = 0; i < data.rows(); i++) {
+                if (Double.isNaN(data.get(i, j))) {
+                    continue;
+                }
+
                 sum += data.get(i, j);
+                count++;
             }
 
-            double mean = sum / data.rows();
+            double mean = sum / count;
 
             means.set(j, mean);
         }
@@ -1028,12 +1034,18 @@ public final class DataUtils {
 
         for (int j = 0; j < means.size(); j++) {
             double sum = 0.0;
+            int count = 0;
 
             for (int i = 0; i < rows; i++) {
+                if (Double.isNaN(data[j][i])) {
+                    continue;
+                }
+
                 sum += data[j][i];
+                count++;
             }
 
-            double mean = sum / rows;
+            double mean = sum / count;
 
             means.set(j, mean);
         }

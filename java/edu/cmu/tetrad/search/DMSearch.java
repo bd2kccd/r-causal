@@ -28,15 +28,15 @@ public class DMSearch {
     private double alphaPC = .05;
 
 
-    //Starting ges penalty discount.
+    //Starting ges penalty penaltyDiscount.
     private double gesDiscount = 10;
     private int gesDepth = 0;
 
-    //Minimum ges penalty discount to use in recursive search.
+    //Minimum ges penalty penaltyDiscount to use in recursive search.
     private int minDiscount = 4;
 
     //If true, use GES, else use PC.
-    private boolean useGES = true;
+    private boolean useFgs = true;
 
     //Lets the user select a subset of the inputs in the dataset to search over.
     //If not subseting, should be set to the entire input set.
@@ -115,8 +115,8 @@ public class DMSearch {
         this.gesDiscount = discount;
     }
 
-    public void setUseGES(boolean set) {
-        this.useGES = set;
+    public void setUseFgs(boolean set) {
+        this.useFgs = set;
     }
 
 
@@ -161,13 +161,14 @@ public class DMSearch {
 
         Graph pattern = new EdgeListGraph();
 
-        if (useGES == true) {
-            Fgs ges = new Fgs(cov);
+        if (useFgs) {
+            Score score = new SemBicScore(cov);
+            Fgs2 fgs = new Fgs2(score);
 
-            pattern = recursiveGES(pattern, knowledge, this.gesDiscount, getMinDepth(), data, inputString);
+            pattern = recursiveFgs(pattern, knowledge, this.gesDiscount, getMinDepth(), data, inputString);
         } else {
             this.cov = new CovarianceMatrixOnTheFly(data);
-//            Pc pc = new Pc(new IndTestFisherZ(cov, this.alphaPC));
+//            PC pc = new PC(new IndTestFisherZ(cov, this.alphaPC));
 //            pc.setKnowledge(knowledge);
 //            pc.setDepth(0);
             if (verbose) {
@@ -626,28 +627,21 @@ public class DMSearch {
     }
 
     // Uses previous runs of GES as new knowledge for a additional runs of GES with lower penalty discounts.
-    private Graph recursiveGES(Graph previousGES, Knowledge2 knowledge, double penalty, double minPenalty, DataSet data, Set<String> inputString) {
+    private Graph recursiveFgs(Graph previousGES, Knowledge2 knowledge, double penalty, double minPenalty, DataSet data, Set<String> inputString) {
 
         for (Edge edge : previousGES.getEdges()) {
             knowledge.setRequired(edge.getNode1().getName(), edge.getNode2().getName());
         }
 
-        previousGES = null;
-
         this.cov = new CovarianceMatrixOnTheFly(data);
 
+        SemBicScore score = new SemBicScore(cov, penalty);
+        Fgs2 fgs = new Fgs2(score);
+        fgs.setKnowledge(knowledge);
+        fgs.setDepth(this.gesDepth);
+        fgs.setIgnoreLinearDependent(true);
 
-        Fgs ges = new Fgs((ICovarianceMatrix) cov);
-
-        ges.setKnowledge(knowledge);
-        ges.setDepth(this.gesDepth);
-        ges.setPenaltyDiscount(penalty);
-
-        ges.setIgnoreLinearDependent(true);
-
-
-        Graph pattern = ges.search();
-
+        Graph pattern = fgs.search();
 
         //Saves GES output in case is needed.
         File file = new File("src/edu/cmu/tetradproj/amurrayw/ges_output_" + penalty + "_.txt");
@@ -664,7 +658,7 @@ public class DMSearch {
 
         if (penalty > minPenalty) {
             applyDmSearch(pattern, inputString, penalty);
-            return (recursiveGES(pattern, knowledge, penalty - 1, minPenalty, data, inputString));
+            return (recursiveFgs(pattern, knowledge, penalty - 1, minPenalty, data, inputString));
         } else {
             applyDmSearch(pattern, inputString, penalty);
             return (pattern);

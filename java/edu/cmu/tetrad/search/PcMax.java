@@ -216,16 +216,18 @@ public class PcMax implements GraphSearch {
                     "be in the domain of the independence test provided.");
         }
 
-        IFas fas = new Fas(getIndependenceTest());
+        IFas fas = new FasStableConcurrent(getIndependenceTest());
         fas.setInitialGraph(initialGraph);
         fas.setKnowledge(getKnowledge());
         fas.setDepth(getDepth());
-        fas.setVerbose(verbose);
+        fas.setVerbose(false);
         graph = fas.search();
 
         SearchGraphUtils.pcOrientbk(knowledge, graph, nodes);
 
-        SepsetsMaxPValue sepsetProducer = new SepsetsMaxPValue(graph, independenceTest, null, getDepth());
+//        independenceTest.setAlpha(0.6);
+
+        SepsetsMinScore sepsetProducer = new SepsetsMinScore(graph, independenceTest, null, getDepth());
 
         addColliders(graph, sepsetProducer, knowledge);
 
@@ -250,7 +252,7 @@ public class PcMax implements GraphSearch {
 
         List<Triple> colliders = new ArrayList<>(collidersPs.keySet());
 
-        Collections.shuffle(colliders);
+//        Collections.shuffle(colliders);
 
         Collections.sort(colliders, new Comparator<Triple>() {
             public int compare(Triple o1, Triple o2) {
@@ -269,7 +271,8 @@ public class PcMax implements GraphSearch {
                 continue;
             }
 
-            if (!graph.getEdge(a, b).pointsTowards(a) && !graph.getEdge(b, c).pointsTowards(c)) {
+            if (!graph.isAncestorOf(b, a) && !graph.isAncestorOf(b, c)) {
+//            if (!graph.getEdge(a, b).pointsTowards(a) && !graph.getEdge(b, c).pointsTowards(c)) {
                 graph.setEndpoint(a, b, Endpoint.ARROW);
                 graph.setEndpoint(c, b, Endpoint.ARROW);
             }
@@ -287,44 +290,46 @@ public class PcMax implements GraphSearch {
         List<Node> nodes = graph.getNodes();
 
         for (Node b : nodes) {
-            List<Node> adjacentNodes = graph.getAdjacentNodes(b);
-
-            if (adjacentNodes.size() < 2) {
-                continue;
-            }
-
-            ChoiceGenerator cg = new ChoiceGenerator(adjacentNodes.size(), 2);
-            int[] combination;
-
-            while ((combination = cg.next()) != null) {
-                Node a = adjacentNodes.get(combination[0]);
-                Node c = adjacentNodes.get(combination[1]);
-
-                // Skip triples that are shielded.
-                if (graph.isAdjacentTo(a, c)) {
-                    continue;
-                }
-
-                List<Node> sepset = sepsetProducer.getSepset(a, c);
-
-                if (sepset == null) continue;
-
-//                if (sepsetProducer.getPValue() < 0.5) continue;
-
-                if (!sepset.contains(b)) {
-                    if (verbose) {
-                        System.out.println("\nCollider orientation <" + a + ", " + b + ", " + c + "> sepset = " + sepset);
-                    }
-
-                    colliders.put(new Triple(a, b, c), sepsetProducer.getPValue());
-
-                    TetradLogger.getInstance().log("colliderOrientations", SearchLogUtils.colliderOrientedMsg(a, b, c, sepset));
-                }
-            }
+            findColliders(sepsetProducer, graph, verbose, colliders, b);
         }
 
         TetradLogger.getInstance().log("details", "Finishing Collider Orientation.");
         return colliders;
+    }
+
+    private void findColliders(SepsetProducer sepsetProducer, Graph graph, boolean verbose, Map<Triple, Double> colliders, Node b) {
+        List<Node> adjacentNodes = graph.getAdjacentNodes(b);
+
+        if (adjacentNodes.size() < 2) {
+            return;
+        }
+
+        ChoiceGenerator cg = new ChoiceGenerator(adjacentNodes.size(), 2);
+        int[] combination;
+
+        while ((combination = cg.next()) != null) {
+            Node a = adjacentNodes.get(combination[0]);
+            Node c = adjacentNodes.get(combination[1]);
+
+            // Skip triples that are shielded.
+            if (graph.isAdjacentTo(a, c)) {
+                continue;
+            }
+
+            List<Node> sepset = sepsetProducer.getSepset(a, c);
+
+            if (sepset == null) continue;
+
+            if (!sepset.contains(b)) {
+                if (verbose) {
+                    System.out.println("\nCollider orientation <" + a + ", " + b + ", " + c + "> sepset = " + sepset);
+                }
+
+                colliders.put(new Triple(a, b, c), sepsetProducer.getScore());
+
+                TetradLogger.getInstance().log("colliderOrientations", SearchLogUtils.colliderOrientedMsg(a, b, c, sepset));
+            }
+        }
     }
 
 

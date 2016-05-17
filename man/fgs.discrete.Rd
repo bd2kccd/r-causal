@@ -57,10 +57,10 @@ data("audiology")    #Load the charity dataset
 #Compute FGS search
 fgs.discrete <- fgs.discrete(df=audiology,structurePrior=1.0,samplePrior=1.0, 
 depth = -1, faithfulness = TRUE, numOfThreads = 2,verbose = TRUE)
-fgs$parameters #Show the FGS's parameters
-fgs$datasets #Show the dataset
-fgs$nodes #Show the result's nodes
-fgs$edges #Show the result's edges
+fgs.discrete$parameters #Show the FGS's parameters
+fgsfgs.discretedatasets #Show the dataset
+fgs.discrete$nodes #Show the result's nodes
+fgs.discrete$edges #Show the result's edges
 }
 \keyword{fgs}
 \keyword{ges}

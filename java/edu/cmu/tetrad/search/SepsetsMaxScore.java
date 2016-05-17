@@ -33,16 +33,16 @@ import java.util.List;
  * <p>
  * Created by josephramsey on 3/24/15.
  */
-public class SepsetsMaxPValue implements SepsetProducer {
+public class SepsetsMaxScore implements SepsetProducer {
     private final Graph graph;
     private final IndependenceTest independenceTest;
     private final SepsetMap extraSepsets;
     private int depth = 3;
     private double p = Double.NaN;
-//    private IndependenceTest dsep = null;
+    //    private IndependenceTest dsep = null;
     private boolean verbose = false;
 
-    public SepsetsMaxPValue(Graph graph, IndependenceTest independenceTest, SepsetMap extraSepsets, int depth) {
+    public SepsetsMaxScore(Graph graph, IndependenceTest independenceTest, SepsetMap extraSepsets, int depth) {
         this.graph = graph;
         this.independenceTest = independenceTest;
         this.extraSepsets = extraSepsets;
@@ -53,22 +53,20 @@ public class SepsetsMaxPValue implements SepsetProducer {
      * Pick out the sepset from among adj(i) or adj(k) with the highest p value.
      */
     public List<Node> getSepset(Node i, Node k) {
-        return getMaxPValueSet(i, k);
+        return getMaxScoreSet(i, k);
     }
 
     public boolean isCollider(Node i, Node j, Node k) {
-        List<Node> set = getMaxPValueSet(i, k);
+        List<Node> set = getMaxScoreSet(i, k);
         return set != null && !set.contains(j);
     }
 
     public boolean isNoncollider(Node i, Node j, Node k) {
-        List<Node> set = getMaxPValueSet(i, k);
+        List<Node> set = getMaxScoreSet(i, k);
         return set != null && set.contains(j);
     }
 
-    double cutoff = .2;
-
-    private List<Node> getMaxPValueSet(Node i, Node k) {
+    private List<Node> getMaxScoreSet(Node i, Node k) {
         double _p = 0.0;
         List<Node> _v = null;
 
@@ -76,9 +74,7 @@ public class SepsetsMaxPValue implements SepsetProducer {
             final List<Node> v = extraSepsets.get(i, k);
             if (v != null) {
                 independenceTest.isIndependent(i, k, v);
-                double p = independenceTest.getPValue();
-
-//                printDsepP(i, k, v, p);
+                double p = independenceTest.getScore();
 
                 if (p > _p) {
                     _p = p;
@@ -92,7 +88,6 @@ public class SepsetsMaxPValue implements SepsetProducer {
         adji.remove(k);
         adjk.remove(i);
 
-        D1:
         for (int d = 0; d <= Math.min((depth == -1 ? 1000 : depth), adji.size()); d++) {
             ChoiceGenerator gen = new ChoiceGenerator(adji.size(), d);
             int[] choice;
@@ -101,39 +96,28 @@ public class SepsetsMaxPValue implements SepsetProducer {
                 List<Node> v = GraphUtils.asList(choice, adji);
 
                 getIndependenceTest().isIndependent(i, k, v);
-                double p = getIndependenceTest().getPValue();
-
-//                printDsepP(i, k, v, p);
+                double p = getIndependenceTest().getScore();
 
                 if (p > _p) {
                     _p = p;
                     _v = v;
                 }
-
-                if (_p > cutoff) break D1;
             }
         }
 
-        if (_p < cutoff) {
-            D2:
-            for (int d = 0; d <= Math.min((depth == -1 ? 1000 : depth), adjk.size()); d++) {
-                ChoiceGenerator gen = new ChoiceGenerator(adjk.size(), d);
-                int[] choice;
+        for (int d = 0; d <= Math.min((depth == -1 ? 1000 : depth), adjk.size()); d++) {
+            ChoiceGenerator gen = new ChoiceGenerator(adjk.size(), d);
+            int[] choice;
 
-                while ((choice = gen.next()) != null) {
-                    List<Node> v = GraphUtils.asList(choice, adjk);
+            while ((choice = gen.next()) != null) {
+                List<Node> v = GraphUtils.asList(choice, adjk);
 
-                    getIndependenceTest().isIndependent(i, k, v);
-                    double p = getIndependenceTest().getPValue();
+                getIndependenceTest().isIndependent(i, k, v);
+                double p = getIndependenceTest().getScore();
 
-//                    printDsepP(i, k, v, p);
-
-                    if (p > _p) {
-                        _p = p;
-                        _v = v;
-                    }
-
-                    if (_p > cutoff) break D2;
+                if (p > _p) {
+                    _p = p;
+                    _v = v;
                 }
             }
         }
@@ -142,24 +126,13 @@ public class SepsetsMaxPValue implements SepsetProducer {
         return _v;
     }
 
-//    private void  printDsepP(Node i, Node k, List<Node> v, double p) {
-//        if (dsep != null) {
-////                        System.out.println("RRR " + p + " dsep = " + dsep.isIndependent(i, k, v));
-//
-//            if (dsep.isIndependent(i, k, v)) {
-//                System.out.println("HHH " + p);
-//            }
-//        }
-//    }
-
-
     @Override
     public boolean isIndependent(Node a, Node b, List<Node> c) {
         return independenceTest.isIndependent(a, b, c);
     }
 
     @Override
-    public double getPValue() {
+    public double getScore() {
         return p;
     }
 
@@ -180,13 +153,5 @@ public class SepsetsMaxPValue implements SepsetProducer {
     public void setVerbose(boolean verbose) {
         this.verbose = verbose;
     }
-
-//    public IndependenceTest getDsep() {
-//        return dsep;
-//    }
-//
-//    public void setDsep(IndependenceTest dsep) {
-//        this.dsep = dsep;
-//    }
 }
 

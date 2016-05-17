@@ -277,7 +277,7 @@ public final class BuildPureClusters {
 //            print("chisq = " +
 //                    estimator.getEstimatedSem().getChiSquare());
 //            print("p-value = " +
-//                    estimator.getEstimatedSem().getPValue());
+//                    estimator.getEstimatedSem().getScore());
 //        }
 
         this.logger.log("graph", "\nReturning this graph: " + graph);
@@ -301,7 +301,7 @@ public final class BuildPureClusters {
 
         List<Node> latents = new ArrayList<Node>();
         for (int i = 0; i < clusters.size(); i++) {
-            Node latent = new GraphNode(MimBuild.LATENT_PREFIX + (i + 1));
+            Node latent = new GraphNode(ClusterUtils.LATENT_PREFIX + (i + 1));
             latent.setNodeType(NodeType.LATENT);
             latents.add(latent);
             graph.addNode(latent);
@@ -2067,8 +2067,8 @@ public final class BuildPureClusters {
             }
         }*/
 
-        //double oldSig = this.tetradTest.getAlpha();
-        //this.tetradTest.setAlpha(oldSig / 3.);
+        //double oldSig = this.tetradTest.getParameter1();
+        //this.tetradTest.setParameter1(oldSig / 3.);
 
 //        print(">> Stage 0");
 //        print(
@@ -2374,7 +2374,7 @@ public final class BuildPureClusters {
         }
 //        printlnMessage();
 
-        //this.tetradTest.setAlpha(oldSig);
+        //this.tetradTest.setParameter1(oldSig);
 
         return finalPureModel;
     }
