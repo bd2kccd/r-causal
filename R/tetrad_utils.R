@@ -223,8 +223,8 @@ priorKnowledge <- function(forbiddirect = NULL, requiredirect = NULL, addtempora
             require <- requiredirect[[i]]
             from <- require[1]
             to <- require[2]
-            #prior$setRequired(from, to)
-            .jcall(prior, "II", "setRequired", from, to)
+            prior$setRequired(from, to)
+            #.jcall(prior, "II", "setRequired", from, to)
         }
     }
     
@@ -242,7 +242,7 @@ priorKnowledge <- function(forbiddirect = NULL, requiredirect = NULL, addtempora
                 node <- gsub(" ", ".", node)
                 #name <- .jnew("java/lang/String", node)
                 #prior$addToTier((i-1), name)
-                .jcall(prior, "II", "addToTier", (i-1), node)
+                .jcall(prior, "ILjava/lang/String;", "addToTier", (i-1), name)
             }
         }
     }
