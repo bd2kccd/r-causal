@@ -203,31 +203,37 @@ extractTetradEdges <- function(resultGraph){
 
 ########################################################
 # converter: lists of prior knowledge to IKnowledge object
-priorKnowledge <- function(forbiddirect = NULL, requiredirect = NULL, addtemporal = NULL){
+priorKnowledge <- function(forbiddirect = NULL, requiredirect = NULL, 
+    addtemporal = NULL){
     prior <- .jnew("edu/cmu/tetrad/data/Knowledge2")
     
     # forbiddirect
     if(!is.null(forbiddirect)){
+        cat("Forbidden Directions: ", length(forbiddirect), "\n")
         for(i in 1:length(forbiddirect)){
             forbid <- forbiddirect[[i]]
             from <- forbid[1]
             to <- forbid[2]
             prior$setForbidden(from, to)
+            cat("Between ", from, " And ", to, "\n")
         }
     }
     
     # requiredirect
     if(!is.null(requiredirect)){
+        cat("Required Directions: ", length(requiredirect), "\n")
         for(i in 1:length(requiredirect)){
             require <- requiredirect[[i]]
             from <- require[1]
             to <- require[2]
             prior$setRequired(from, to)
+            cat("From ", from, " To ", to, "\n")
         }
     }
     
     # addtemporal
     if(!is.null(addtemporal)){
+        cat("Temporal Tiers: ", length(addtemporal), "\n")
         for(i in 1:length(addtemporal)){
             tier = as.integer(i-1)
             cat("Tier: ", tier, "\n")
@@ -235,7 +241,7 @@ priorKnowledge <- function(forbiddirect = NULL, requiredirect = NULL, addtempora
             tempClass <- class(temporal)
             if(identical(all.equal(tempClass, "forbiddenWithin"), TRUE)){
                 prior$setTierForbiddenWithin(tier, TRUE)
-                #.jcall(prior, "V", "setTierForbiddenWithin", tier, TRUE)
+                cat("forbiddenWithin\n")
             }
             for(j in 1:length(temporal)){
                 node <- temporal[j]
@@ -251,5 +257,13 @@ priorKnowledge <- function(forbiddirect = NULL, requiredirect = NULL, addtempora
     prior <- .jcast(prior, "edu/cmu/tetrad/data/IKnowledge", 
                             check=TRUE)
     
+    return(prior)
+}
+
+priorKnowledgeFile <- function(knowlegeFile){
+    knowlegePath <- .jcall("java/nio/file/Paths", "Ljava/nio/file/Path;", 
+        "get", knowlegeFile)
+    prior <- .jcall("edu/cmu/tetrad/cli/data/IKnowledgeFactory", 
+        "Ledu/cmu/tetrad/data/IKnowledge;", "readInKnowledge", knowlegePath)
     return(prior)
 }

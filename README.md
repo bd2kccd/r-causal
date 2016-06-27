@@ -33,8 +33,18 @@ install_github("bd2kccd/r-causal")
 ```R
 library(rcausal)
 data("charity")   #Load the charity dataset
+
+# Create PriorKnowledge Object
+forbid <- list(c('TangibilityCondition','Impact')) # List of forbidden directions
+require <- list(c('Sympathy','TangibilityCondition'))
+forbiddenWithin <- c('TangibilityCondition','Imaginability')
+class(forbiddenWithin) <- 'forbiddenWithin'
+temporal <- list(forbiddenWithin, c('Sympathy','AmountDonated'),c('Impact'))
+prior <- priorKnowledge(forbiddirect = forbid, requiredirect = require, addtemporal = temporal)
+# 
+
 fgs <- fgs(df = charity, penaltydiscount = 2, depth = -1, faithfulness = TRUE, numOfThreads = 2,
-verbose = TRUE)    #Compute FGS search
+verbose = TRUE, priorKnowledge = prior)    #Compute FGS search
 fgs$parameters #Show the FGS's parameters
 fgs$datasets #Show the dataset
 fgs$nodes #Show the result's nodes
