@@ -229,7 +229,7 @@ priorKnowledge <- function(forbiddirect = NULL, requiredirect = NULL, addtempora
     # addtemporal
     if(!is.null(addtemporal)){
         for(i in 1:length(addtemporal)){
-            tier = i-1
+            tier = as.integer(i-1)
             cat("Tier: ", tier, "\n")
             temporal <- addtemporal[[i]]
             tempClass <- class(temporal)
@@ -241,9 +241,9 @@ priorKnowledge <- function(forbiddirect = NULL, requiredirect = NULL, addtempora
                 node <- temporal[j]
                 node <- gsub(" ", ".", node)
                 cat("temporal node: ", node, "\n")
-                name <- .jnew("java/lang/String", node)
-                # prior$addToTier(tier, name)
-                .jcall(prior, "(ILjava/lang/String;)V", "addToTier", tier, name)
+                # name <- .jnew("java/lang/String", node)
+                prior$addToTier(tier, node)
+                # .jcall(prior, "V", "addToTier", tier, name)
             }
         }
     }
