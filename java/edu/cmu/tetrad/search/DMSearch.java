@@ -163,14 +163,14 @@ public class DMSearch {
 
         if (useFgs) {
             Score score = new SemBicScore(cov);
-            Fgs2 fgs = new Fgs2(score);
+            Fgs fgs = new Fgs(score);
 
             pattern = recursiveFgs(pattern, knowledge, this.gesDiscount, getMinDepth(), data, inputString);
         } else {
             this.cov = new CovarianceMatrixOnTheFly(data);
 //            PC pc = new PC(new IndTestFisherZ(cov, this.alphaPC));
 //            pc.setKnowledge(knowledge);
-//            pc.setDepth(0);
+//            pc.setMaxIndegree(0);
             if (verbose) {
                 if (verbose) {
                     System.out.println("Running PC Search");
@@ -635,8 +635,9 @@ public class DMSearch {
 
         this.cov = new CovarianceMatrixOnTheFly(data);
 
-        SemBicScore score = new SemBicScore(cov, penalty);
-        Fgs2 fgs = new Fgs2(score);
+        SemBicScore score = new SemBicScore(cov);
+        score.setPenaltyDiscount(penalty);
+        Fgs fgs = new Fgs(score);
         fgs.setKnowledge(knowledge);
         fgs.setDepth(this.gesDepth);
         fgs.setIgnoreLinearDependent(true);

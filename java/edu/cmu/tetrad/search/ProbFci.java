@@ -201,7 +201,7 @@ public final class ProbFci implements GraphSearch {
 ////        // Step FCI B.  (Zhang's step F2.)
 //        Fas adj = new Fas(graph, independenceTest);
 //        adj.setKnowledge(getKnowledge());
-//        adj.setDepth(depth);
+//        adj.setMaxIndegree(depth);
 //        adj.setFci(true);
 //        graph = adj.search();
 //        this.sepsets = adj.getSepsets();
@@ -557,7 +557,7 @@ public final class ProbFci implements GraphSearch {
         // (for example, setting independent1 and independent2 in ruleR0_RFCI)
         /*
 		// background knowledge requires this edge
-		if (knowledge.noEdgeRequired(x.getName(), y.getName()))
+		if (knowledge.noEdgeRequired(x.getNode(), y.getNode()))
 		{
 			return;
 		}

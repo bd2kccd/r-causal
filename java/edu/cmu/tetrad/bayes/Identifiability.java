@@ -168,7 +168,7 @@ public final class Identifiability implements ManipulatingBayesUpdater {
 
         this.evidence = evidence;
 
-        Dag graph = bayesIm.getBayesPm().getDag();
+        Graph graph = bayesIm.getBayesPm().getDag();
         Dag manipulatedGraph = createManipulatedGraph(graph);
         BayesPm manipulatedPm = createUpdatedBayesPm(manipulatedGraph);
 
@@ -232,7 +232,7 @@ public final class Identifiability implements ManipulatingBayesUpdater {
 				/*
 				int[] variableValues = getVariableValues(i);
 				 
-				String nodeName = getVariables().get(j).getName();
+				String nodeName = getVariables().get(j).getNode();
 				Node node = bayesIm.getNode(nodeName);
 				targetProp.setCategory(bayesIm.getNodeIndex(node), 
 									   variableValues[j]);		
@@ -354,7 +354,7 @@ public final class Identifiability implements ManipulatingBayesUpdater {
 
         //////////////////////////////////////
 
-        // full joint probability of all the measured variables
+        // allowUnfaithfulness joint probability of all the measured variables
         int[] probTermV = new int[nNodes];
         for (int i = 0; i < nNodes; i++) {
             if (bayesIm.getNode(i).getNodeType() == NodeType.MEASURED) {
@@ -374,7 +374,7 @@ public final class Identifiability implements ManipulatingBayesUpdater {
         QList[] cFactors = new QList[nCComponents];
 
         for (int i = 0; i < nCComponents; i++) {
-            // Q[V]: full joint probTermV
+            // Q[V]: allowUnfaithfulness joint probTermV
             QList qV = new QList(nNodes, probTermV);
 
             if (debug) {

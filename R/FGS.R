@@ -28,8 +28,7 @@ fgs <- function(df, penaltydiscount = 4.0, depth = 3, faithfulness = TRUE,
     .jcall(fgs_instance, "V", "setVerbose", verbose)
 
     if(!is.null(priorKnowledge)){
-        .jcall(fgs_instance, "Ledu/cmu/tetrad/data/IKnowledge;", 
-            "setKnowledge", priorKnowledge)
+        .jcall(fgs_instance, "V", "setKnowledge", priorKnowledge)
     }
 
     params <- c(params, penaltydiscount = as.double(penaltydiscount))

@@ -162,12 +162,14 @@ public class TimeSeriesUtils {
         if (timeLags.isDiscrete()) {
             score = new BDeuScore(timeLags);
         } else if (timeLags.isContinuous()) {
-            score = new SemBicScore(new CovarianceMatrixOnTheFly(timeLags), 2.0);
+            SemBicScore semBicScore = new SemBicScore(new CovarianceMatrixOnTheFly(timeLags));
+            semBicScore.setPenaltyDiscount(2.0);
+            score = semBicScore;
         } else {
             throw new IllegalArgumentException("Mixed data set");
         }
 
-        Fgs2 search = new Fgs2(score);
+        Fgs search = new Fgs(score);
         search.setKnowledge(knowledge);
         Graph graph = search.search();
 
@@ -408,7 +410,7 @@ public class TimeSeriesUtils {
         knowledge.setDefaultToKnowledgeLayout(true);
 //        knowledge.setLagged(true);
         laggedData.setKnowledge(knowledge);
-//        laggedData.setName(data.getName());
+//        laggedData.setName(data.getNode());
         return laggedData;
     }
 }

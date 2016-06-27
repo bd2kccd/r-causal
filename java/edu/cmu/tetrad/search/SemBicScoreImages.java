@@ -39,7 +39,7 @@ import java.util.List;
  *
  * @author Joseph Ramsey
  */
-public class SemBicScoreImages implements ISemBicScore {
+public class SemBicScoreImages implements ISemBicScore, Score {
 
     // The covariance matrix.
     private List<SemBicScore> semBicScores;
@@ -80,9 +80,13 @@ public class SemBicScoreImages implements ISemBicScore {
                     throw new IllegalArgumentException("Datasets must be continuous.");
                 }
 
-                semBicScores.add(new SemBicScore(new CovarianceMatrixOnTheFly(dataSet), penaltyDiscount));
+                SemBicScore semBicScore = new SemBicScore(new CovarianceMatrixOnTheFly(dataSet));
+                semBicScore.setPenaltyDiscount(penaltyDiscount);
+                semBicScores.add(semBicScore);
             } else if (model instanceof ICovarianceMatrix) {
-                semBicScores.add(new SemBicScore((ICovarianceMatrix) model, penaltyDiscount));
+                SemBicScore semBicScore = new SemBicScore((ICovarianceMatrix) model);
+                semBicScore.setPenaltyDiscount(penaltyDiscount);
+                semBicScores.add(semBicScore);
             } else {
                 throw new IllegalArgumentException("Only continuous data sets and covariance matrices may be used as input.");
             }
@@ -104,12 +108,18 @@ public class SemBicScoreImages implements ISemBicScore {
     @Override
     public double localScoreDiff(int x, int y, int[] z) {
         double sum = 0.0;
+        int count = 0;
 
         for (SemBicScore score : semBicScores) {
-            sum += score.localScoreDiff(x, y, z);
+            double _score = score.localScoreDiff(x, y, z);
+
+            if (!Double.isNaN(_score)) {
+                sum += _score;
+                count++;
+            }
         }
 
-        return sum / semBicScores.size();
+        return sum / count;
     }
 
     @Override
@@ -129,6 +139,7 @@ public class SemBicScoreImages implements ISemBicScore {
 
             if (!Double.isNaN(_score)) {
                 sum += _score;
+                count++;
             }
         }
 
@@ -156,12 +167,18 @@ public class SemBicScoreImages implements ISemBicScore {
      */
     public double localScore(int i, int parent) {
         double sum = 0.0;
+        int count = 0;
 
         for (SemBicScore score : semBicScores) {
-            sum += score.localScore(i, parent);
+            double _score = score.localScore(i, parent);
+
+            if (!Double.isNaN(_score)) {
+                sum += _score;
+                count++;
+            }
         }
 
-        return sum / semBicScores.size();
+        return sum / count;
     }
 
     /**
@@ -169,12 +186,18 @@ public class SemBicScoreImages implements ISemBicScore {
      */
     public double localScore(int i) {
         double sum = 0.0;
+        int count = 0;
 
         for (SemBicScore score : semBicScores) {
-            sum += score.localScore(i);
+            double _score = score.localScore(i);
+
+            if (!Double.isNaN(_score)) {
+                sum += _score;
+                count++;
+            }
         }
 
-        return sum / semBicScores.size();
+        return sum / count;
     }
 
     public void setOut(PrintStream out) {
@@ -274,6 +297,22 @@ public class SemBicScoreImages implements ISemBicScore {
                 out.println("### Linear dependence among variables: " + _sel);
             }
         }
+    }
+
+    @Override
+    public Node getVariable(String targetName) {
+        for (Node node : variables) {
+            if (node.getName().equals(targetName)) {
+                return node;
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public int getMaxIndegree() {
+        return 1000;
     }
 }
 

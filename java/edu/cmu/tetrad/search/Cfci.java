@@ -43,7 +43,7 @@ import java.util.*;
  * @author Erin Korber, June 2004
  * @author Alex Smith, December 2008
  */
-public final class Cfci {
+public final class Cfci implements GraphSearch {
 
     /**
      * The PAG being constructed.
@@ -152,7 +152,7 @@ public final class Cfci {
 //        for (Node node1 : this.variables) {
 //            boolean search = false;
 //            for (Node node2 : searchVars) {
-//                if (node1.getName().equals(node2.getName())) {
+//                if (node1.getNode().equals(node2.getNode())) {
 //                    search = true;
 //                }
 //            }
@@ -1376,8 +1376,8 @@ public final class Cfci {
 //     * knowledge.
 //     */
 //    private boolean isDirEdgeAllowed(Node from, Node to) {
-//        return !getKnowledge().edgeRequired(to.getName(), from.getName()) &&
-//                !getKnowledge().edgeForbidden(from.getName(), to.getName());
+//        return !getKnowledge().edgeRequired(to.getNode(), from.getNode()) &&
+//                !getKnowledge().edgeForbidden(from.getNode(), to.getNode());
 //    }
 
     public boolean isPossibleDsepSearchDone() {

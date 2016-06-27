@@ -2473,8 +2473,8 @@ public final class SearchGraphUtils {
                 Node x = nodes.get(i);
                 Node y = nodes.get(j);
 
-//                Node _x = graph.getNode(x.getName());
-//                Node _y = graph.getNode(y.getName());
+//                Node _x = graph.getNode(x.getNode());
+//                Node _y = graph.getNode(y.getNode());
 
                 Edge edge = trueGraph.getEdge(x, y);
                 Edge _edge = graph.getEdge(x, y);
@@ -2606,8 +2606,8 @@ public final class SearchGraphUtils {
                 Node x = nodes.get(i);
                 Node y = nodes.get(j);
 
-//                Node _x = graph.getNode(x.getName());
-//                Node _y = graph.getNode(y.getName());
+//                Node _x = graph.getNode(x.getNode());
+//                Node _y = graph.getNode(y.getNode());
 
                 Edge edge = trueGraph.getEdge(x, y);
                 Edge _edge = graph.getEdge(x, y);
@@ -2735,8 +2735,8 @@ public final class SearchGraphUtils {
                 Node x = nodes.get(i);
                 Node y = nodes.get(j);
 
-//                Node _x = graph.getNode(x.getName());
-//                Node _y = graph.getNode(y.getName());
+//                Node _x = graph.getNode(x.getNode());
+//                Node _y = graph.getNode(y.getNode());
 
                 Edge edge = trueGraph.getEdge(x, y);
                 Edge _edge = graph.getEdge(x, y);
@@ -3117,7 +3117,7 @@ public final class SearchGraphUtils {
                 dataSets.add(_dataModel);
             }
 
-            Fgs2 images = new Fgs2(new SemBicScoreImages(dataSets));
+            Fgs images = new Fgs(new SemBicScoreImages(dataSets));
 
             images.setBoundGraph(graph);
             images.setKnowledge(knowledge);
@@ -3135,7 +3135,7 @@ public final class SearchGraphUtils {
                 throw new NullPointerException();
             }
 
-            Fgs2 ges = new Fgs2(score);
+            Fgs ges = new Fgs(score);
 
             ges.setBoundGraph(graph);
             ges.setKnowledge(knowledge);
@@ -3144,7 +3144,7 @@ public final class SearchGraphUtils {
             ICovarianceMatrix cov = (CovarianceMatrix) dataModel;
             Score score = new SemBicScore(cov);
 
-            Fgs2 ges = new Fgs2(score);
+            Fgs ges = new Fgs(score);
 
             ges.setBoundGraph(graph);
             ges.setKnowledge(knowledge);

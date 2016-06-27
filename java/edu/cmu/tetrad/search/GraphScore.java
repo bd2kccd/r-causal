@@ -183,6 +183,11 @@ public class GraphScore implements Score {
         throw new IllegalArgumentException("No variable by that name: " + name);
     }
 
+    @Override
+    public int getMaxIndegree() {
+        return 1000;
+    }
+
     public int getSampleSize() {
         return 0;
     }
@@ -198,6 +203,10 @@ public class GraphScore implements Score {
 
     public void setParameter1(double alpha) {
         throw new UnsupportedOperationException("No alpha can be set when searching usign d-separation.");
+    }
+
+    public Graph getDag() {
+        return dag;
     }
 }
 

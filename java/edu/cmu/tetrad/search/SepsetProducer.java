@@ -21,6 +21,7 @@
 
 package edu.cmu.tetrad.search;
 
+import edu.cmu.tetrad.graph.Graph;
 import edu.cmu.tetrad.graph.Node;
 
 import java.util.List;
@@ -36,6 +37,8 @@ public interface SepsetProducer {
     boolean isNoncollider(Node a, Node b, Node c);
 
     boolean isIndependent(Node a, Node b, List<Node> c);
+
+    double getPValue();
 
     double getScore();
 

@@ -50,5 +50,9 @@ public interface Score {
     void setParameter1(double alpha);
 
     int getSampleSize();
+
+    Node getVariable(String targetName);
+
+    int getMaxIndegree();
 }
 

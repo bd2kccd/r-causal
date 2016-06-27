@@ -170,10 +170,10 @@ public class PerformanceTestsDan {
             GFci gFci = new GFci(independenceTestGFci);
             gFci.setVerbose(false);
             gFci.setPenaltyDiscount(penaltyDiscount);
-            gFci.setDepth(depth);
+            gFci.setMaxIndegree(depth);
             gFci.setMaxPathLength(maxPathLength);
-            gFci.setPossibleDsepSearchDone(true);
-            gFci.setCompleteRuleSetUsed(true);
+//            gFci.setPossibleDsepSearchDone(true);
+            gFci.setCompleteRuleSetUsed(false);
 
             Graph pag = gFci.search();
 

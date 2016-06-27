@@ -272,7 +272,6 @@ public final class Cpc implements GraphSearch {
                     "be in the domain of the independence test provided.");
         }
 
-
 //        Fas fas = new Fas(graph, getIndependenceTest());
 //        FasStableConcurrent fas = new FasStableConcurrent(graph, getIndependenceTest());
 //        Fas6 fas = new Fas6(graph, getIndependenceTest());
@@ -301,7 +300,7 @@ public final class Cpc implements GraphSearch {
         }
         SearchGraphUtils.pcOrientbk(knowledge, graph, nodes);
         orientUnshieldedTriples(knowledge);
-//            orientUnshieldedTriplesConcurrent(knowledge, getIndependenceTest(), getDepth());
+//            orientUnshieldedTriplesConcurrent(knowledge, getIndependenceTest(), getMaxIndegree());
         MeekRules meekRules = new MeekRules();
 
         meekRules.setAggressivelyPreventCycles(this.aggressivelyPreventCycles);
@@ -352,8 +351,8 @@ public final class Cpc implements GraphSearch {
 //            Node nodeA = edge.getNode1();
 //            Node nodeB = edge.getNode2();
 //
-//            Node _nodeA = independenceTest.getVariable(nodeA.getName());
-//            Node _nodeB = independenceTest.getVariable(nodeB.getName());
+//            Node _nodeA = independenceTest.getVariable(nodeA.getNode());
+//            Node _nodeB = independenceTest.getVariable(nodeB.getNode());
 //
 //            graph.addUndirectedEdge(_nodeA, _nodeB);
 //        }

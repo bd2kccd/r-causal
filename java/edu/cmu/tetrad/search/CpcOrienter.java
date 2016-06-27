@@ -194,14 +194,14 @@ public final class CpcOrienter implements Reorienter {
 //        Fas fas =
 //                new Fas(graph, getIndependenceTest());
 //        fas.setKnowledge(getKnowledge());
-//        fas.setDepth(getDepth());
+//        fas.setMaxIndegree(getMaxIndegree());
 //        graph = fas.search();
 //        this.sepsetMap = fas.getSepsets();
 
 //        FastAdjacencySearchLo fas =
 //                new FastAdjacencySearchLo(graph, getIndependenceTest());
 //        fas.setKnowledge(getKnowledge());
-//        fas.setDepth(depth());
+//        fas.setMaxIndegree(depth());
 //        fas.search();
 
 //        if (!sepsetMap.equals(sepsetPc)) {
@@ -257,8 +257,8 @@ public final class CpcOrienter implements Reorienter {
 //            Node nodeA = edge.getNode1();
 //            Node nodeB = edge.getNode2();
 //
-//            Node _nodeA = independenceTest.getVariable(nodeA.getName());
-//            Node _nodeB = independenceTest.getVariable(nodeB.getName());
+//            Node _nodeA = independenceTest.getVariable(nodeA.getNode());
+//            Node _nodeB = independenceTest.getVariable(nodeB.getNode());
 //
 //            graph.addUndirectedEdge(_nodeA, _nodeB);
 //        }

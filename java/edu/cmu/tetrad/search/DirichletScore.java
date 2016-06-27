@@ -344,6 +344,22 @@ public class DirichletScore implements LocalDiscreteScore, Score {
     public void setSamplePrior(double samplePrior) {
         this.samplePrior = samplePrior;
     }
+
+    @Override
+    public Node getVariable(String targetName) {
+        for (Node node : variables) {
+            if (node.getName().equals(targetName)) {
+                return node;
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public int getMaxIndegree() {
+        return 1000;
+    }
 }
 
 

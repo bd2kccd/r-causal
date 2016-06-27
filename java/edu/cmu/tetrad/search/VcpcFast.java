@@ -319,7 +319,7 @@ public final class VcpcFast implements GraphSearch {
             }
             SearchGraphUtils.pcOrientbk(knowledge, graph, allNodes);
             orientUnshieldedTriples(knowledge, getIndependenceTest(), getDepth());
-//            orientUnshieldedTriplesConcurrent(knowledge, getIndependenceTest(), getDepth());
+//            orientUnshieldedTriplesConcurrent(knowledge, getIndependenceTest(), getMaxIndegree());
             MeekRules meekRules = new MeekRules();
 
             meekRules.setAggressivelyPreventCycles(this.aggressivelyPreventCycles);
@@ -1120,8 +1120,8 @@ public final class VcpcFast implements GraphSearch {
     public CpcTripleType getPopulationTripleType(Node x, Node y, Node z,
                                                  IndependenceTest test, int depth,
                                                  Graph graph, boolean verbose) {
-//        if ((x.getName().equals("X5") && z.getName().equals("X7"))
-//            || (x.getName().equals("X7") && z.getName().equals("X5"))) {
+//        if ((x.getNode().equals("X5") && z.getNode().equals("X7"))
+//            || (x.getNode().equals("X7") && z.getNode().equals("X5"))) {
 //            System.out.println();
 //        }
 
