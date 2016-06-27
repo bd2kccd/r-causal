@@ -234,8 +234,8 @@ priorKnowledge <- function(forbiddirect = NULL, requiredirect = NULL, addtempora
             temporal <- addtemporal[[i]]
             tempClass <- class(temporal)
             if(identical(all.equal(tempClass, "forbiddenWithin"), TRUE)){
-                #prior$setTierForbiddenWithin(tier, TRUE)
-                .jcall(prior, "IZ", "setTierForbiddenWithin", tier, TRUE)
+                prior$setTierForbiddenWithin(tier, TRUE)
+                #.jcall(prior, "V", "setTierForbiddenWithin", tier, TRUE)
             }
             for(j in 1:length(temporal)){
                 node <- temporal[j]
