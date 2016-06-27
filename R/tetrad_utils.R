@@ -213,7 +213,6 @@ priorKnowledge <- function(forbiddirect = NULL, requiredirect = NULL, addtempora
             from <- forbid[1]
             to <- forbid[2]
             prior$setForbidden(from, to)
-            #.jcall(prior, "Ljava/lang/String;Ljava/lang/String;", "setForbidden", from, to)
         }
     }
     
@@ -224,32 +223,32 @@ priorKnowledge <- function(forbiddirect = NULL, requiredirect = NULL, addtempora
             from <- require[1]
             to <- require[2]
             prior$setRequired(from, to)
-            #.jcall(prior, "II", "setRequired", from, to)
         }
     }
     
     # addtemporal
     if(!is.null(addtemporal)){
         for(i in 1:length(addtemporal)){
+            tier = i-1
             temporal <- addtemporal[[i]]
             tempClass <- class(temporal)
             if(identical(all.equal(tempClass, "forbiddenWithin"), TRUE)){
-                #prior$setTierForbiddenWithin((i-1), TRUE)
-                .jcall(prior, "IZ", "setTierForbiddenWithin", (i-1), TRUE)
+                #prior$setTierForbiddenWithin(tier, TRUE)
+                .jcall(prior, "IZ", "setTierForbiddenWithin", tier, TRUE)
             }
             for(j in 1:length(temporal)){
                 node <- temporal[j]
                 node <- gsub(" ", ".", node)
                 cat("temporal node: ", node, "\n")
-                name <- .jnew("java/lang/String", node)
-                prior$addToTier((i-1), name)
-                #.jcall(prior, "IV", "addToTier", (i-1), name)
+                #name <- .jnew("java/lang/String", node)
+                prior$addToTier(tier, node)
+                #.jcall(prior, "IV", "addToTier", tier, name)
             }
         }
     }
     
-    #prior <- .jcast(prior, "edu/cmu/tetrad/data/IKnowledge", 
-    #                        check=TRUE)
+    prior <- .jcast(prior, "edu/cmu/tetrad/data/IKnowledge", 
+                            check=TRUE)
     
     return(prior)
 }
