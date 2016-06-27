@@ -1,9 +1,9 @@
 fgs.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, depth = 3, faithfulness = TRUE, numOfThreads = 2,
-    verbose = FALSE, java.parameters = NULL){
+    verbose = FALSE, java.parameters = NULL, priorKnowledge = NULL){
 
     params <- list(NULL)
     
-    if(!is.null(java.parameters != NULL)){
+    if(!is.null(java.parameters)){
         options(java.parameters = java.parameters)
         params <- c(java.parameters = java.parameters)
     }
@@ -27,18 +27,27 @@ fgs.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, depth = 3,
     .jcall(fgs_instance, "V", "setParallelism", as.integer(numOfThreads))
     .jcall(fgs_instance, "V", "setVerbose", verbose)
 
+    if(!is.null(priorKnowledge)){
+        .jcall(fgs_instance, "Ledu/cmu/tetrad/data/IKnowledge;", 
+            "setKnowledge", priorKnowledge)
+    }
+
     params <- c(params, depth = as.integer(depth))
     params <- c(params, faithfulness = as.logical(faithfulness))
     params <- c(params, numOfThreads = numOfThreads)
     params <- c(params, verbose = as.logical(verbose))
 
+    if(!is.null(priorKnowledge)){
+        params <- c(params, prior = priorKnowledge)
+    }
+    
     fgs$parameters <- params
 
     cat("Graph Parameters:\n")
     cat("depth = ", as.integer(depth),"\n")
     cat("faithfulness = ", faithfulness,"\n")
     cat("numOfThreads = ", numOfThreads,"\n")
-    cat("\n")
+    cat("verbose = ", as.logical(verbose),"\n")
 
     # Search
     tetrad_graph <- .jcall(fgs_instance, "Ledu/cmu/tetrad/graph/Graph;", 

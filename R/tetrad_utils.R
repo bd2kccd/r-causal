@@ -200,3 +200,51 @@ extractTetradEdges <- function(resultGraph){
     }
     return(fgs_edges)
 }
+
+########################################################
+# converter: lists of prior knowledge to IKnowledge object
+priorKnowledge <- function(forbiddirect = NULL, requiredirect = NULL, addtemporal = NULL){
+    prior <- .jnew("edu/cmu/tetrad/data/Knowledge2")
+    
+    # forbiddirect
+    if(!is.null(forbiddirect)){
+        for(i in 1:length(forbiddirect)){
+            forbid <- forbiddirect[[i]]
+            from <- forbid[1]
+            to <- forbid[2]
+            prior$setForbidden(from, to)
+        }
+    }
+    
+    # requiredirect
+    if(!is.null(requiredirect)){
+        for(i in 1:length(requiredirect)){
+            require <- requiredirect[[i]]
+            from <- require[1]
+            to <- require[2]
+            prior$setRequired(from, to)
+        }
+    }
+    
+    # addtemporal
+    if(!is.null(addtemporal)){
+        for(i in 1:length(addtemporal)){
+            temporal <- addtemporal[[i]]
+            tempClass <- class(temporal)
+            if(identical(all.equal(tempClass, "forbiddenWithin"), TRUE)){
+                prior$setTierForbiddenWithin((i-1), TRUE)
+            }
+            for(j in 1:length(temporal)){
+                node <- temporal[j]
+                node <- gsub(" ", ".", node)
+                name <- .jnew("java/lang/String", node)
+                prior$addToTier((i-1), name)
+            }
+        }
+    }
+    
+    prior <- .jcast(prior, "edu/cmu/tetrad/data/IKnowledge", 
+                            check=TRUE)
+    
+    return(prior)
+}

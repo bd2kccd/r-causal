@@ -1,9 +1,9 @@
 fgs <- function(df, penaltydiscount = 4.0, depth = 3, faithfulness = TRUE, 
-    numOfThreads = 2,verbose = FALSE, java.parameters = NULL){
+    numOfThreads = 2,verbose = FALSE, java.parameters = NULL, priorKnowledge = NULL){
     
     params <- list(NULL)
     
-    if(!is.null(java.parameters != NULL)){
+    if(!is.null(java.parameters)){
         options(java.parameters = java.parameters)
         params <- c(java.parameters = java.parameters)
     }
@@ -27,12 +27,20 @@ fgs <- function(df, penaltydiscount = 4.0, depth = 3, faithfulness = TRUE,
     .jcall(fgs_instance, "V", "setParallelism", as.integer(numOfThreads))
     .jcall(fgs_instance, "V", "setVerbose", verbose)
 
+    if(!is.null(priorKnowledge)){
+        .jcall(fgs_instance, "Ledu/cmu/tetrad/data/IKnowledge;", 
+            "setKnowledge", priorKnowledge)
+    }
+
     params <- c(params, penaltydiscount = as.double(penaltydiscount))
     params <- c(params, depth = as.integer(depth))
     params <- c(params, faithfulness = as.logical(faithfulness))
     params <- c(params, numOfThreads = as.integer(numOfThreads))
     params <- c(params, verbose = as.logical(verbose))
 
+    if(!is.null(priorKnowledge)){
+        params <- c(params, prior = priorKnowledge)
+    }
     fgs$parameters <- params
 
     cat("Graph Parameters:\n")
@@ -40,6 +48,7 @@ fgs <- function(df, penaltydiscount = 4.0, depth = 3, faithfulness = TRUE,
     cat("depth = ", as.integer(depth),"\n")
     cat("faithfulness = ", faithfulness,"\n\n")
     cat("numOfThreads = ", as.integer(numOfThreads),"\n")
+    cat("verbose = ", as.logical(verbose),"\n")
 
     # Search
     tetrad_graph <- .jcall(fgs_instance, "Ledu/cmu/tetrad/graph/Graph;", 

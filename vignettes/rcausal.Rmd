@@ -1,7 +1,7 @@
 ---
 title: "rcausal"
 author: "Chirayu Wongchokprasitti"
-date: "April 20, 2016"
+date: "June 23, 2016"
 abstract: >
   This package is a R wrapper containing the Tetrad Library.
 output: 
