@@ -230,6 +230,7 @@ priorKnowledge <- function(forbiddirect = NULL, requiredirect = NULL, addtempora
     if(!is.null(addtemporal)){
         for(i in 1:length(addtemporal)){
             tier = i-1
+            cat("Tier: ", tier)
             temporal <- addtemporal[[i]]
             tempClass <- class(temporal)
             if(identical(all.equal(tempClass, "forbiddenWithin"), TRUE)){
@@ -241,7 +242,7 @@ priorKnowledge <- function(forbiddirect = NULL, requiredirect = NULL, addtempora
                 node <- gsub(" ", ".", node)
                 cat("temporal node: ", node, "\n")
                 #name <- .jnew("java/lang/String", node)
-                prior$addToTier(tier, node)
+                #prior$addToTier(tier, node)
                 #.jcall(prior, "IV", "addToTier", tier, name)
             }
         }
