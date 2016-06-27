@@ -212,7 +212,8 @@ priorKnowledge <- function(forbiddirect = NULL, requiredirect = NULL, addtempora
             forbid <- forbiddirect[[i]]
             from <- forbid[1]
             to <- forbid[2]
-            prior$setForbidden(from, to)
+            #prior$setForbidden(from, to)
+            .jcall(prior, "Ljava/lang/String;Ljava/lang/String;", "setForbidden", from, to)
         }
     }
     
@@ -222,7 +223,8 @@ priorKnowledge <- function(forbiddirect = NULL, requiredirect = NULL, addtempora
             require <- requiredirect[[i]]
             from <- require[1]
             to <- require[2]
-            prior$setRequired(from, to)
+            #prior$setRequired(from, to)
+            .jcall(prior, "Ljava/lang/String;Ljava/lang/String;", "setRequired", from, to)
         }
     }
     
@@ -232,13 +234,15 @@ priorKnowledge <- function(forbiddirect = NULL, requiredirect = NULL, addtempora
             temporal <- addtemporal[[i]]
             tempClass <- class(temporal)
             if(identical(all.equal(tempClass, "forbiddenWithin"), TRUE)){
-                prior$setTierForbiddenWithin((i-1), TRUE)
+                #prior$setTierForbiddenWithin((i-1), TRUE)
+                .jcall(prior, "IZ", "setTierForbiddenWithin", (i-1), TRUE)
             }
             for(j in 1:length(temporal)){
                 node <- temporal[j]
                 node <- gsub(" ", ".", node)
-                name <- .jnew("java/lang/String", node)
-                prior$addToTier((i-1), name)
+                #name <- .jnew("java/lang/String", node)
+                #prior$addToTier((i-1), name)
+                .jcall(prior, "IZ", "addToTier", (i-1), node)
             }
         }
     }
