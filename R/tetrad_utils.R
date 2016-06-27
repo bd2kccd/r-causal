@@ -247,8 +247,8 @@ priorKnowledge <- function(forbiddirect = NULL, requiredirect = NULL, addtempora
         }
     }
     
-    prior <- .jcast(prior, "edu/cmu/tetrad/data/IKnowledge", 
-                            check=TRUE)
+    #prior <- .jcast(prior, "edu/cmu/tetrad/data/IKnowledge", 
+    #                        check=TRUE)
     
     return(prior)
 }
