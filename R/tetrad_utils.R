@@ -241,9 +241,9 @@ priorKnowledge <- function(forbiddirect = NULL, requiredirect = NULL, addtempora
                 node <- temporal[j]
                 node <- gsub(" ", ".", node)
                 cat("temporal node: ", node, "\n")
-                #name <- .jnew("java/lang/String", node)
-                #prior$addToTier(tier, node)
-                .jcall(prior, "V", "addToTier", tier, node)
+                name <- .jnew("java/lang/String", node)
+                prior$addToTier(tier, name)
+                .jcall(prior, "(ILjava/lang/String;)V", "addToTier", tier, name)
             }
         }
     }
