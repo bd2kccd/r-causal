@@ -1,4 +1,4 @@
-fgs.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, depth = 3, faithfulness = TRUE, numOfThreads = 2,
+fgs.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, depth = 3, heuristicSpeedup = TRUE, numOfThreads = 2,
     verbose = FALSE, java.parameters = NULL, priorKnowledge = NULL){
 
     params <- list(NULL)
@@ -23,7 +23,7 @@ fgs.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, depth = 3,
     fgs_instance <- .jnew("edu/cmu/tetrad/search/Fgs", score)
     .jcall(fgs_instance, "V", "setDepth", as.integer(depth))
     .jcall(fgs_instance, "V", "setNumPatternsToStore", as.integer(0))
-    .jcall(fgs_instance, "V", "setFaithfulnessAssumed", faithfulness)
+    .jcall(fgs_instance, "V", "setHeuristicSpeedup", heuristicSpeedup)
     .jcall(fgs_instance, "V", "setParallelism", as.integer(numOfThreads))
     .jcall(fgs_instance, "V", "setVerbose", verbose)
 
@@ -32,7 +32,7 @@ fgs.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, depth = 3,
     }
 
     params <- c(params, depth = as.integer(depth))
-    params <- c(params, faithfulness = as.logical(faithfulness))
+    params <- c(params, heuristicSpeedup = as.logical(heuristicSpeedup))
     params <- c(params, numOfThreads = numOfThreads)
     params <- c(params, verbose = as.logical(verbose))
 
@@ -44,9 +44,9 @@ fgs.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, depth = 3,
 
     cat("Graph Parameters:\n")
     cat("depth = ", as.integer(depth),"\n")
-    cat("faithfulness = ", faithfulness,"\n")
+    cat("heuristicSpeedup = ", heuristicSpeedup,"\n")
     cat("numOfThreads = ", numOfThreads,"\n")
-    cat("verbose = ", as.logical(verbose),"\n")
+    cat("verbose = ", averbose,"\n")
 
     # Search
     tetrad_graph <- .jcall(fgs_instance, "Ledu/cmu/tetrad/graph/Graph;", 

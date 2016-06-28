@@ -1,5 +1,6 @@
-fgs <- function(df, penaltydiscount = 4.0, depth = 3, faithfulness = TRUE, 
-    numOfThreads = 2,verbose = FALSE, java.parameters = NULL, priorKnowledge = NULL){
+fgs <- function(df, penaltydiscount = 4.0, depth = 3, 
+    ignoreLinearDependence = TRUE, heuristicSpeedup = TRUE, numOfThreads = 2, 
+    verbose = FALSE, java.parameters = NULL, priorKnowledge = NULL){
     
     params <- list(NULL)
     
@@ -23,7 +24,8 @@ fgs <- function(df, penaltydiscount = 4.0, depth = 3, faithfulness = TRUE,
     fgs_instance <- .jnew("edu/cmu/tetrad/search/Fgs", score)
     .jcall(fgs_instance, "V", "setDepth", as.integer(depth))
     .jcall(fgs_instance, "V", "setNumPatternsToStore", as.integer(0))
-    .jcall(fgs_instance, "V", "setFaithfulnessAssumed", faithfulness)
+    .jcall(fgs_instance, "V", "setIgnoreLinearDependent", ignoreLinearDependence)
+    .jcall(fgs_instance, "V", "setHeuristicSpeedup", heuristicSpeedup)
     .jcall(fgs_instance, "V", "setParallelism", as.integer(numOfThreads))
     .jcall(fgs_instance, "V", "setVerbose", verbose)
 
@@ -33,7 +35,8 @@ fgs <- function(df, penaltydiscount = 4.0, depth = 3, faithfulness = TRUE,
 
     params <- c(params, penaltydiscount = as.double(penaltydiscount))
     params <- c(params, depth = as.integer(depth))
-    params <- c(params, faithfulness = as.logical(faithfulness))
+    params <- c(params, ignoreLinearDependence = as.logical(ignoreLinearDependence))
+    params <- c(params, heuristicSpeedup = as.logical(heuristicSpeedup))
     params <- c(params, numOfThreads = as.integer(numOfThreads))
     params <- c(params, verbose = as.logical(verbose))
 
@@ -45,9 +48,10 @@ fgs <- function(df, penaltydiscount = 4.0, depth = 3, faithfulness = TRUE,
     cat("Graph Parameters:\n")
     cat("penalty discount = ", penaltydiscount,"\n")
     cat("depth = ", as.integer(depth),"\n")
-    cat("faithfulness = ", faithfulness,"\n\n")
+    cat("ignoreLinearDependence = ", ignoreLinearDependence,"\n")
+    cat("heuristicSpeedup = ", heuristicSpeedup,"\n")
     cat("numOfThreads = ", as.integer(numOfThreads),"\n")
-    cat("verbose = ", as.logical(verbose),"\n")
+    cat("verbose = ", verbose,"\n")
 
     # Search
     tetrad_graph <- .jcall(fgs_instance, "Ledu/cmu/tetrad/graph/Graph;", 
