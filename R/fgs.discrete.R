@@ -46,7 +46,7 @@ fgs.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, depth = 3,
     cat("depth = ", as.integer(depth),"\n")
     cat("heuristicSpeedup = ", heuristicSpeedup,"\n")
     cat("numOfThreads = ", numOfThreads,"\n")
-    cat("verbose = ", averbose,"\n")
+    cat("verbose = ", verbose,"\n")
 
     # Search
     tetrad_graph <- .jcall(fgs_instance, "Ledu/cmu/tetrad/graph/Graph;", 

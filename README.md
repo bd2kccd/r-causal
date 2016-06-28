@@ -43,8 +43,9 @@ temporal <- list(forbiddenWithin, c('Sympathy','AmountDonated'),c('Impact')) # L
 prior <- priorKnowledge(forbiddirect = forbid, requiredirect = require, addtemporal = temporal)
 # 
 
-fgs <- fgs(df = charity, penaltydiscount = 2, depth = -1, faithfulness = TRUE, numOfThreads = 2,
-verbose = TRUE, priorKnowledge = prior)    #Compute FGS search
+#Compute FGS search
+fgs <- fgs(df = charity, penaltydiscount = 2, depth = -1, ignoreLinearDependence = TRUE, 
+heuristicSpeedup = TRUE, numOfThreads = 2, verbose = TRUE, priorKnowledge = prior)    
 fgs$parameters #Show the FGS's parameters
 fgs$datasets #Show the dataset
 fgs$nodes #Show the result's nodes
@@ -58,8 +59,8 @@ library(rcausal)
 data("audiology")    #Load the charity dataset
 #Compute FGS search
 fgs.discrete <- fgs.discrete(df=audiology,structurePrior=1.0,samplePrior=1.0, 
-depth = -1, faithfulness = TRUE, numOfThreads = 2,verbose = TRUE)
-fgs.discrete$parameters #Show the FGS's parameters
+depth = -1, heuristicSpeedup = TRUE, numOfThreads = 2,verbose = TRUE)
+fgs.discrete$parameters #Show the FGS Discrete's parameters
 fgs.discrete$datasets #Show the dataset
 fgs.discrete$nodes #Show the result's nodes
 fgs.discrete$edges #Show the result's edges

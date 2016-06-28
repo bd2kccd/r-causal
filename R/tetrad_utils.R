@@ -209,7 +209,7 @@ priorKnowledge <- function(forbiddirect = NULL, requiredirect = NULL,
     
     # forbidden directed edges
     if(!is.null(forbiddirect)){
-        cat("Forbidden Directions: ", length(forbiddirect), "\n")
+        cat("Forbidden Directed Edges: ", length(forbiddirect), "\n")
         for(i in 1:length(forbiddirect)){
             forbid <- forbiddirect[[i]]
             from <- forbid[1]
@@ -221,7 +221,7 @@ priorKnowledge <- function(forbiddirect = NULL, requiredirect = NULL,
     
     # required directed edges
     if(!is.null(requiredirect)){
-        cat("Required Directions: ", length(requiredirect), "\n")
+        cat("Required Directed Edges: ", length(requiredirect), "\n")
         for(i in 1:length(requiredirect)){
             require <- requiredirect[[i]]
             from <- require[1]
@@ -236,13 +236,14 @@ priorKnowledge <- function(forbiddirect = NULL, requiredirect = NULL,
         cat("Temporal Tiers: ", length(addtemporal), "\n")
         for(i in 1:length(addtemporal)){
             tier = as.integer(i-1)
-            cat("Tier: ", tier, "\n")
+            cat("Tier: ", tier)
             temporal <- addtemporal[[i]]
             tempClass <- class(temporal)
             if(identical(all.equal(tempClass, "forbiddenWithin"), TRUE)){
                 prior$setTierForbiddenWithin(tier, TRUE)
-                cat("forbiddenWithin\n")
+                cat("forbiddenWithin")
             }
+            cat("\n")
             for(j in 1:length(temporal)){
                 node <- temporal[j]
                 node <- gsub(" ", ".", node)
