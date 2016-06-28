@@ -202,12 +202,12 @@ extractTetradEdges <- function(resultGraph){
 }
 
 ########################################################
-# converter: lists of prior knowledge to IKnowledge object
+# Create an IKnowledge object from lists of prior knowledge
 priorKnowledge <- function(forbiddirect = NULL, requiredirect = NULL, 
     addtemporal = NULL){
     prior <- .jnew("edu/cmu/tetrad/data/Knowledge2")
     
-    # forbiddirect
+    # forbidden directed edges
     if(!is.null(forbiddirect)){
         cat("Forbidden Directions: ", length(forbiddirect), "\n")
         for(i in 1:length(forbiddirect)){
@@ -219,7 +219,7 @@ priorKnowledge <- function(forbiddirect = NULL, requiredirect = NULL,
         }
     }
     
-    # requiredirect
+    # required directed edges
     if(!is.null(requiredirect)){
         cat("Required Directions: ", length(requiredirect), "\n")
         for(i in 1:length(requiredirect)){
@@ -231,7 +231,7 @@ priorKnowledge <- function(forbiddirect = NULL, requiredirect = NULL,
         }
     }
     
-    # addtemporal
+    # add temporal nodes' tiers
     if(!is.null(addtemporal)){
         cat("Temporal Tiers: ", length(addtemporal), "\n")
         for(i in 1:length(addtemporal)){
@@ -260,7 +260,7 @@ priorKnowledge <- function(forbiddirect = NULL, requiredirect = NULL,
     return(prior)
 }
 
-priorKnowledgeFile <- function(knowlegeFile){
+priorKnowledgeFromFile <- function(knowlegeFile){
     knowlegePath <- .jcall("java/nio/file/Paths", "Ljava/nio/file/Path;", 
         "get", knowlegeFile)
     prior <- .jcall("edu/cmu/tetrad/cli/data/IKnowledgeFactory", 

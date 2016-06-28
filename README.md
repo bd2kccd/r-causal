@@ -35,11 +35,11 @@ library(rcausal)
 data("charity")   #Load the charity dataset
 
 # Create PriorKnowledge Object
-forbid <- list(c('TangibilityCondition','Impact')) # List of forbidden directions
-require <- list(c('Sympathy','TangibilityCondition'))
+forbid <- list(c('TangibilityCondition','Impact')) # List of forbidden directed edges
+require <- list(c('Sympathy','TangibilityCondition')) # List of required directed edges
 forbiddenWithin <- c('TangibilityCondition','Imaginability')
-class(forbiddenWithin) <- 'forbiddenWithin'
-temporal <- list(forbiddenWithin, c('Sympathy','AmountDonated'),c('Impact'))
+class(forbiddenWithin) <- 'forbiddenWithin' # Make this tier forbidden within
+temporal <- list(forbiddenWithin, c('Sympathy','AmountDonated'),c('Impact')) # List of temporal node tiers
 prior <- priorKnowledge(forbiddirect = forbid, requiredirect = require, addtemporal = temporal)
 # 
 

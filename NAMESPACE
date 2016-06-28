@@ -5,5 +5,6 @@ importFrom(stringr, str_split_fixed)
 export("fgs")
 export("fgs.discrete")
 export("priorKnowledge")
+export("priorKnowledgeFromFile")
 # Export all names
 # exportPattern(".")
