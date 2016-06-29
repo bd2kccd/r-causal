@@ -68,6 +68,12 @@ library(Rgraphviz)
 plot(fgs.discrete$graphNEL) #Plot the causal model
 ```
 
+### Convert Rgraphviz to igraph
+```R
+ig <- igraph.from.graphNEL(fgs.discrete$graphNEL)
+plot(ig)
+```
+
 ## Useful `rJava` Trouble-shooting Installation in Mac OS X Links
 
 1. [http://stackoverflow.com/questions/26948777/how-can-i-make-rjava-use-the-newer-version-of-java-on-osx/32544358#32544358](http://stackoverflow.com/questions/26948777/how-can-i-make-rjava-use-the-newer-version-of-java-on-osx/32544358#32544358)

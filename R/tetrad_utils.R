@@ -261,10 +261,12 @@ priorKnowledge <- function(forbiddirect = NULL, requiredirect = NULL,
     return(prior)
 }
 
-#priorKnowledgeFromFile <- function(knowlegeFile){
-#    knowlegePath <- .jcall("java/nio/file/Paths", "Ljava/nio/file/Path;", 
-#        "get", knowlegeFile)
-#    prior <- .jcall("edu/cmu/tetrad/cli/data/IKnowledgeFactory", 
-#        "Ledu/cmu/tetrad/data/IKnowledge;", "readInKnowledge", knowlegePath)
-#    return(prior)
-#}
+priorKnowledgeFromFile <- function(knowlegeFile){
+    knowledgeFile <- paste0("file:///",knowledgeFile)
+    uri <- .jnew("java/net/URI", knowledgeFile)
+    knowlegePath <- .jcall("java/nio/file/Paths", "Ljava/nio/file/Path;", 
+        "get", uri)
+    prior <- .jcall("edu/cmu/tetrad/cli/data/IKnowledgeFactory", 
+        "Ledu/cmu/tetrad/data/IKnowledge;", "readInKnowledge", knowlegePath)
+    return(prior)
+}
