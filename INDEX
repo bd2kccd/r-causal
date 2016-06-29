@@ -3,5 +3,4 @@ charity                     Donations and Charity Data
 fgs                         Fast Greedy Search for Causal and Statistical Model Discovery on Continuous Data
 fgs.discrete                Fast Greedy Search for Causal and Statistical Model Discovery on Discrete Data
 priorKnowledge              Prior Knowledge Object Creation Function
-priorKnowledgeFromFile      Load Prior Knowledge File Function
 rcausal                     R Wrapper for Tetrad Library
