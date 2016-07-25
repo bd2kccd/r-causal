@@ -261,6 +261,8 @@ priorKnowledge <- function(forbiddirect = NULL, requiredirect = NULL,
     return(prior)
 }
 
+########################################################
+# Create an IKnowledge object from the knowledge file
 priorKnowledgeFromFile <- function(knowlegeFile){
     file <- .jnew("java/io/File", knowlegeFile)
     reader <- .jnew("edu/cmu/tetrad/data/DataReader")
