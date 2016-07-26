@@ -8,7 +8,7 @@ fgs.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, depth = 3,
         params <- c(java.parameters = java.parameters)
     }
     
-    # Data Frame to BDeuScore
+    # Data Frame to Tetrad Dataset
     score <- dataFrame2TetradBDeuScore(df, structurePrior, samplePrior)
 
     fgs <- list()
