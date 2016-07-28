@@ -1,4 +1,4 @@
-fci <- function(df, continuous = TRUE, depth = 3, significance = 0.05, verbose = FALSE, 
+rfci <- function(df, continuous = TRUE, depth = 3, significance = 0.05, verbose = FALSE, 
 	java.parameters = NULL, priorKnowledge = NULL){
     
     params <- list(NULL)
@@ -35,7 +35,7 @@ fci <- function(df, continuous = TRUE, depth = 3, significance = 0.05, verbose =
     .jcall(rfci_instance, "V", "setVerbose", verbose)
 
     if(!is.null(priorKnowledge)){
-        .jcall(fci_instance, "V", "setKnowledge", priorKnowledge)
+        .jcall(rfci_instance, "V", "setKnowledge", priorKnowledge)
     }
 
 	params <- c(params, continuous = as.logical(continuous))
