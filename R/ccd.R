@@ -1,5 +1,5 @@
-fci <- function(df, continuous = TRUE, depth = 3, significance = 0.05,
-    noDSepSearch = FALSE, verbose = FALSE, java.parameters = NULL, priorKnowledge = NULL){
+ccd <- function(df, continuous = TRUE, depth = 3, significance = 0.05,
+    verbose = FALSE, java.parameters = NULL, priorKnowledge = NULL){
     
     params <- list(NULL)
     
@@ -21,54 +21,51 @@ fci <- function(df, continuous = TRUE, depth = 3, significance = 0.05,
     
 	indTest <- .jcast(indTest, "edu/cmu/tetrad/search/IndependenceTest")
 
-    fci <- list()
-    class(fci) <- "fci"
+    ccd <- list()
+    class(ccd) <- "ccd"
 
-    fci$datasets <- deparse(substitute(df))
+    ccd$datasets <- deparse(substitute(df))
 
     cat("Datasets:\n")
     cat(deparse(substitute(df)),"\n\n")
 
-    # Initiate FCI
-    fci_instance <- .jnew("edu/cmu/tetrad/search/Fci", indTest)
-    .jcall(fci_instance, "V", "setDepth", as.integer(depth))
-    .jcall(fci_instance, "V", "setPossibleDsepSearchDone", !noDSepSearch)
-    .jcall(fci_instance, "V", "setVerbose", verbose)
+    # Initiate CCD
+    ccd_instance <- .jnew("edu/cmu/tetrad/search/Ccd", indTest)
+    .jcall(ccd_instance, "V", "setDepth", as.integer(depth))
+    .jcall(ccd_instance, "V", "setVerbose", verbose)
 
     if(!is.null(priorKnowledge)){
-        .jcall(fci_instance, "V", "setKnowledge", priorKnowledge)
+        .jcall(ccd_instance, "V", "setKnowledge", priorKnowledge)
     }
 
-	params <- c(params, continuous = as.logical(continuous))
+    params <- c(params, continuous = as.logical(continuous))
     params <- c(params, depth = as.integer(depth))
-    params <- c(params, noDSepSearch = as.logical(noDSepSearch))
     params <- c(params, significance = significance)
     params <- c(params, verbose = as.logical(verbose))
 
     if(!is.null(priorKnowledge)){
         params <- c(params, prior = priorKnowledge)
     }
-    fci$parameters <- params
+    ccd$parameters <- params
 
     cat("Graph Parameters:\n")
     cat("continuous = ", continuous,"\n")
     cat("depth = ", as.integer(depth),"\n")
-    cat("noDSepSearch = ", noDSepSearch,"\n")
     cat("significance = ", significance,"\n")
     cat("verbose = ", verbose,"\n")
 
     # Search
-    tetrad_graph <- .jcall(fci_instance, "Ledu/cmu/tetrad/graph/Graph;", 
+    tetrad_graph <- .jcall(ccd_instance, "Ledu/cmu/tetrad/graph/Graph;", 
         "search")
 
     V <- extractTetradNodes(tetrad_graph)
 
-    fci$nodes <- V
+    ccd$nodes <- V
 
     # extract edges
-    fci_edges <- extractTetradEdges(tetrad_graph)
+    ccd_edges <- extractTetradEdges(tetrad_graph)
 
-    fci$edges <- fci_edges
+    ccd$edges <- ccd_edges
 
-    return(fci)
+    return(ccd)
 }

@@ -15,7 +15,8 @@ cfci <- function(df, continuous = TRUE, depth = 3, significance = 0.05,
     	indTest <- .jnew("edu/cmu/tetrad/search/IndTestFisherZ", tetradData, significance)
     }else{
     	tetradData <- loadDiscreteData(df)
-    	indTest <- .jnew("edu/cmu/tetrad/search/IndTestChiSquare", tetradData, significance)
+    	indTest <- .jnew("edu/cmu/tetrad/search/IndTestChiSquare", tetradData, 
+    		significance)
     }
     
 	indTest <- .jcast(indTest, "edu/cmu/tetrad/search/IndependenceTest")
@@ -37,8 +38,9 @@ cfci <- function(df, continuous = TRUE, depth = 3, significance = 0.05,
         .jcall(cfci_instance, "V", "setKnowledge", priorKnowledge)
     }
 
+	params <- c(params, continuous = as.logical(continuous))
     params <- c(params, depth = as.integer(depth))
-    params <- c(params, significance = as.integer(significance))
+    params <- c(params, significance = significance)
     params <- c(params, verbose = as.logical(verbose))
 
     if(!is.null(priorKnowledge)){
@@ -47,8 +49,9 @@ cfci <- function(df, continuous = TRUE, depth = 3, significance = 0.05,
     cfci$parameters <- params
 
     cat("Graph Parameters:\n")
+    cat("continuous = ", continuous,"\n")
     cat("depth = ", as.integer(depth),"\n")
-    cat("significance = ", as.integer(significance),"\n")
+    cat("significance = ", significance,"\n")
     cat("verbose = ", verbose,"\n")
 
     # Search

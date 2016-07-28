@@ -1,5 +1,6 @@
-fgs.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, depth = 3, heuristicSpeedup = TRUE, numOfThreads = 2,
-    verbose = FALSE, java.parameters = NULL, priorKnowledge = NULL){
+fgs.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, depth = 3, 
+	heuristicSpeedup = TRUE, numOfThreads = 2, verbose = FALSE, java.parameters = NULL, 
+	priorKnowledge = NULL){
 
     params <- list(NULL)
     
@@ -31,6 +32,8 @@ fgs.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, depth = 3,
         .jcall(fgs_instance, "V", "setKnowledge", priorKnowledge)
     }
 
+    params <- c(params, structurePrior = as.double(structurePrior))
+    params <- c(params, samplePrior = as.double(samplePrior))
     params <- c(params, depth = as.integer(depth))
     params <- c(params, heuristicSpeedup = as.logical(heuristicSpeedup))
     params <- c(params, numOfThreads = numOfThreads)

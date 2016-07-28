@@ -1,7 +1,18 @@
 audiology                   The standardized version of the audiology Data
+bayesEst					Bayesian estimation algorithm
 charity                     Donations and Charity Data
+pc							"Peter/Clark" algorithm
+pcstable					PC Stable modification to PC has been included
+cpc							Convervative version of PC
+cpcstable					Convervative version of PC Stable
+ccd							Cyclic Causal Discovery algorithm
+cfci						Convervative version of FCI
+fci							Fast Causal Inference algorithm
+rfci						FCI algorithm with Augmented Rules
 fgs                         Fast Greedy Search for Causal and Statistical Model Discovery on Continuous Data
 fgs.discrete                Fast Greedy Search for Causal and Statistical Model Discovery on Discrete Data
 priorKnowledge              Prior Knowledge Object Creation Function
 priorKnowledgeFromFile      Load Prior Knowledge File Function
+randomDag					Generating a Random Directed Acyclic Graph algorithm
 rcausal                     R Wrapper for Tetrad Library
+sim_discrete_data_20vars_100cases	The simulated discrete dataset with 20 variables and 100 cases
