@@ -1,5 +1,5 @@
-cfci <- function(df, continuous = TRUE, depth = 3, significance = 0.05,
-    verbose = FALSE, java.parameters = NULL, priorKnowledge = NULL){
+cfci <- function(df, continuous = TRUE, depth = 3, significance = 0.05, verbose = FALSE, 
+	java.parameters = NULL, priorKnowledge = NULL){
     
     params <- list(NULL)
     
