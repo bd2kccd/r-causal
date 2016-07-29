@@ -10,7 +10,7 @@ randomDag <- function(seed = NULL, numNodes = 10, numEdges = 10, java.parameters
     if(!is.null(seed)){
     	random_util <- .jcall("edu/cmu/tetrad/util/RandomUtil", 
     		"Ledu/cmu/tetrad/util/RandomUtil;", "getInstance")
-    	.jcall(random_util, "V", "setSeed", as.integer(seed))
+    	.jcall(random_util, "V", "setSeed", .jlong(seed))
     	params <- c(seed = as.integer(seed))
     }
 
@@ -24,7 +24,8 @@ randomDag <- function(seed = NULL, numNodes = 10, numEdges = 10, java.parameters
     				"edu/cmu/tetrad/graph/GraphUtils", 
     				"Ledu/cmu/tetrad/graph/Graph;", 
     				"randomGraph", 
-    				as.Integer(numNodes),0,as.Integer(numEdges),30,15,15,FALSE)
+    				as.integer(numNodes),as.integer(0),as.integer(numEdges),
+    				as.integer(30),as.integer(15),as.integer(15),FALSE)
     	dag <- .jnew("edu/cmu/tetrad/graph/Dag", graph)
     	initEdges <- .jcall(dag, "I", "getNumEdges")
     }
