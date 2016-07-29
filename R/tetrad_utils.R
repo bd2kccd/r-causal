@@ -47,40 +47,7 @@ ugraphToTetradGraph <- function(ugmat, node_list){
 # latest Tetrad jar.
 dataFrame2TetradBDeuScore <- function(df,structurePrior = 1.0, 
     samplePrior = 1.0){
-    node_names <- colnames(df)
-	node_list <- .jnew("java/util/ArrayList")
-	for (i in 1:length(node_names)){
-		nodname <- .jnew("java/lang/String", node_names[i])
-        cat("node_names: ", node_names[i],"\n")
-        cate <- unique(df[[node_names[i]]])
-        cate <- sort(cate)
-        cat("value: ")
-        print(cate)
-        cat("\n")
-        cate_list <- .jnew("java/util/ArrayList")
-        for(j in 1:length(cate)){
-            cate_list$add(as.character(cate[j]))
-        }
-        cate_list <- .jcast(cate_list, "java/util/List")
-		nodi <- .jnew("edu/cmu/tetrad/data/DiscreteVariable", 
-                    nodname, cate_list)
-		node_list$add(nodi)
-        
-        # Substitute a new categorial value
-        cate <- data.frame(cate)
-        new_col <- sapply(df[,i],function(x,cate) 
-                    as.integer(which(cate[,1] == x)),cate=cate)
-        new_col = as.integer(new_col - 1)
-        df[,i] <- (data.frame(new_col))[,1]
-	}
-	node_list <- .jcast(node_list, "java/util/List")
-	mt <- as.matrix(df)
-	mat <- .jarray(t(mt), dispatch=TRUE)
-	data <- .jnew("edu/cmu/tetrad/data/VerticalIntDataBox", mat)
-    data <- .jcast(data, "edu/cmu/tetrad/data/DataBox")
-    boxData <- .jnew("edu/cmu/tetrad/data/BoxDataSet", 
-                            data, node_list)
-    boxData <- .jcast(boxData, "edu/cmu/tetrad/data/DataSet")
+    boxData <- loadDiscreteData(df)
     score <- .jnew("edu/cmu/tetrad/search/BDeuScore", boxData)
     score$setStructurePrior(as.double(structurePrior))
     score$setSamplePrior(as.double(samplePrior))
@@ -95,25 +62,9 @@ dataFrame2TetradBDeuScore <- function(df,structurePrior = 1.0,
 # requires rJava, assumes the JVM is running from the
 # latest Tetrad jar.
 dataFrame2TetradSemBicScore <- function(df,penaltydiscount = 4.0){
-	node_names <- colnames(df)
-	node_list <- .jnew("java/util/ArrayList")
-	for (i in 1:length(node_names)){
-		nodname <- .jnew("java/lang/String", node_names[i])
-		nodi <- .jnew("edu/cmu/tetrad/data/ContinuousVariable", nodname)
-		node_list$add(nodi)
-	}
-	node_list <- .jcast(node_list, "java/util/List")
-	mt <- as.matrix(df)
-	mat <- .jarray(mt, dispatch=TRUE)
-    
-    data <- .jnew("edu/cmu/tetrad/data/DoubleDataBox", mat)
-    data <- .jcast(data, "edu/cmu/tetrad/data/DataBox")
-    boxData <- .jnew("edu/cmu/tetrad/data/BoxDataSet", 
-                            data, node_list)
-    boxData <- .jcast(boxData, "edu/cmu/tetrad/data/DataSet")
+    boxData <- loadContinuousData(df)
     covMat <- .jnew("edu/cmu/tetrad/data/CovarianceMatrixOnTheFly", boxData)
     covMat <- .jcast(covMat, "edu/cmu/tetrad/data/ICovarianceMatrix")
-    
     score <- .jnew("edu/cmu/tetrad/search/SemBicScore", covMat)
 	score$setPenaltyDiscount(penaltydiscount)
     score <- .jcast(score, "edu/cmu/tetrad/search/Score")
@@ -201,7 +152,7 @@ extractTetradEdges <- function(resultGraph){
     return(fgs_edges)
 }
 
-########################################################
+############################################################
 # Create an IKnowledge object from lists of prior knowledge
 priorKnowledge <- function(forbiddirect = NULL, requiredirect = NULL, 
     addtemporal = NULL){
@@ -261,9 +212,71 @@ priorKnowledge <- function(forbiddirect = NULL, requiredirect = NULL,
     return(prior)
 }
 
+############################################################
+# Create an IKnowledge object from the knowledge file
 priorKnowledgeFromFile <- function(knowlegeFile){
     file <- .jnew("java/io/File", knowlegeFile)
     reader <- .jnew("edu/cmu/tetrad/data/DataReader")
     prior <- .jcall(reader, "Ledu/cmu/tetrad/data/IKnowledge;", "parseKnowledge", file)
     return(prior)
+}
+
+############################################################
+loadContinuousData <- function(df){
+	node_names <- colnames(df)
+	node_list <- .jnew("java/util/ArrayList")
+	for (i in 1:length(node_names)){
+		nodname <- .jnew("java/lang/String", node_names[i])
+		nodi <- .jnew("edu/cmu/tetrad/data/ContinuousVariable", nodname)
+		node_list$add(nodi)
+	}
+	node_list <- .jcast(node_list, "java/util/List")
+	mt <- as.matrix(df)
+	mat <- .jarray(mt, dispatch=TRUE)
+    
+    data <- .jnew("edu/cmu/tetrad/data/DoubleDataBox", mat)
+    data <- .jcast(data, "edu/cmu/tetrad/data/DataBox")
+    boxData <- .jnew("edu/cmu/tetrad/data/BoxDataSet", 
+                            data, node_list)
+    boxData <- .jcast(boxData, "edu/cmu/tetrad/data/DataSet")
+	return(boxData)
+}
+
+############################################################
+loadDiscreteData <- function(df){
+	node_names <- colnames(df)
+	node_list <- .jnew("java/util/ArrayList")
+	for (i in 1:length(node_names)){
+		nodname <- .jnew("java/lang/String", node_names[i])
+        cat("node_names: ", node_names[i],"\n")
+        cate <- unique(df[[node_names[i]]])
+        cate <- sort(cate)
+        cat("value: ")
+        print(cate)
+        cat("\n")
+        cate_list <- .jnew("java/util/ArrayList")
+        for(j in 1:length(cate)){
+            cate_list$add(as.character(cate[j]))
+        }
+        cate_list <- .jcast(cate_list, "java/util/List")
+		nodi <- .jnew("edu/cmu/tetrad/data/DiscreteVariable", 
+                    nodname, cate_list)
+		node_list$add(nodi)
+        
+        # Substitute a new categorial value
+        cate <- data.frame(cate)
+        new_col <- sapply(df[,i],function(x,cate) 
+                    as.integer(which(cate[,1] == x)),cate=cate)
+        new_col = as.integer(new_col - 1)
+        df[,i] <- (data.frame(new_col))[,1]
+	}
+	node_list <- .jcast(node_list, "java/util/List")
+	mt <- as.matrix(df)
+	mat <- .jarray(t(mt), dispatch=TRUE)
+	data <- .jnew("edu/cmu/tetrad/data/VerticalIntDataBox", mat)
+    data <- .jcast(data, "edu/cmu/tetrad/data/DataBox")
+    boxData <- .jnew("edu/cmu/tetrad/data/BoxDataSet", 
+                            data, node_list)
+    boxData <- .jcast(boxData, "edu/cmu/tetrad/data/DataSet")
+	return(boxData)
 }

@@ -88,7 +88,7 @@ heuristicSpeedup = TRUE, numOfThreads = 2, verbose = TRUE, priorKnowledge = prio
 # history_noise class
 #
 # addtemporal
-# 0 bser late_wave_poor tymp notch_at_4k o_ar_c ar_c airBoneGap air bone o_ar_u airBoneGap
+# 0* bser late_wave_poor tymp notch_at_4k o_ar_c ar_c airBoneGap air bone o_ar_u airBoneGap
 # 1 history_noise history_dizziness history_buzzing history_roaring history_recruitment history_fluctuating history_heredity history_nausea
 # 2 class
 
