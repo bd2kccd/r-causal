@@ -57,7 +57,7 @@ cpcstable <- function(df, continuous = TRUE, depth = 3, aggressivelyPreventCycle
     cat("verbose = ", verbose, "\n")
 
     # Search
-    tetrad_graph <- .jcall(cpc_instance, "Ledu/cmu/tetrad/graph/Graph;", 
+    tetrad_graph <- .jcall(cpcstable_instance, "Ledu/cmu/tetrad/graph/Graph;", 
         "search")
 
     V <- extractTetradNodes(tetrad_graph)
