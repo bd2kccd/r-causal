@@ -1,4 +1,4 @@
-gfci <- function(df, penaltydiscount = 4.0, depth = -1, maxPathLength = -1, significance = 0.05,
+gfci <- function(df, penaltydiscount = 2.0, depth = -1, maxPathLength = -1, significance = 0.05,
     completeRuleSetUsed = FALSE, faithfulness = TRUE, verbose = FALSE, java.parameters = NULL, 
     priorKnowledge = NULL){
     
@@ -24,7 +24,7 @@ gfci <- function(df, penaltydiscount = 4.0, depth = -1, maxPathLength = -1, sign
     cat(deparse(substitute(df)),"\n\n")
 
     # Initiate GFCI
-    gfci_instance <- .jnew("edu/cmu/tetrad/search/Gfci", indTest)
+    gfci_instance <- .jnew("edu/cmu/tetrad/search/GFci", indTest)
     .jcall(gfci_instance, "V", "setPenaltyDiscount", penaltydiscount)
     .jcall(gfci_instance, "V", "setMaxIndegree", as.integer(depth))
     .jcall(gfci_instance, "V", "setMaxPathLength", as.integer(maxPathLength))

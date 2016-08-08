@@ -22,7 +22,7 @@ gfci.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0,
     cat(deparse(substitute(df)),"\n\n")
 
     # Initiate GFCI Discrete
-    gfci_instance <- .jnew("edu/cmu/tetrad/search/Gfci", score)
+    gfci_instance <- .jnew("edu/cmu/tetrad/search/GFci", score)
     .jcall(gfci_instance, "V", "setMaxIndegree", as.integer(depth))
     .jcall(gfci_instance, "V", "setMaxPathLength", as.integer(maxPathLength))
     .jcall(gfci_instance, "V", "setCompleteRuleSetUsed", completeRuleSetUsed)
