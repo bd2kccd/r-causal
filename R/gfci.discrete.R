@@ -51,7 +51,6 @@ gfci.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0,
     cat("samplePrior = ", samplePrior,"\n")
     cat("depth = ", as.integer(depth),"\n")
     cat("maxPathLength = ", as.integer(maxPathLength),"\n")
-    cat("significance = ", significance,"\n")
     cat("completeRuleSetUsed = ", completeRuleSetUsed,"\n")
     cat("faithfulness = ", faithfulness,"\n")
     cat("verbose = ", verbose,"\n")

@@ -56,7 +56,7 @@ rfci <- function(df, continuous = TRUE, depth = 3, significance = 0.05,
     cat("continuous = ", continuous,"\n")
     cat("depth = ", as.integer(depth),"\n")
     cat("significance = ", significance,"\n")
-    cat("completeRuleSetUsed = ", completeRuleSetUsed. "\n")
+    cat("completeRuleSetUsed = ", completeRuleSetUsed, "\n")
     cat("verbose = ", verbose,"\n")
 
     # Search
