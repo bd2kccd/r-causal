@@ -46,6 +46,8 @@ fgs.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, depth = 3,
     fgs$parameters <- params
 
     cat("Graph Parameters:\n")
+    cat("structurePrior = ", structurePrior,"\n")
+    cat("samplePrior = ", samplePrior,"\n")
     cat("depth = ", as.integer(depth),"\n")
     cat("heuristicSpeedup = ", heuristicSpeedup,"\n")
     cat("numOfThreads = ", numOfThreads,"\n")
