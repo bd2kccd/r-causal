@@ -99,6 +99,7 @@ depth = -1, heuristicSpeedup = TRUE, numOfThreads = 2,verbose = TRUE, priorKnowl
 
 ### Convert Rgraphviz to igraph one
 ```R
+library(igraph)
 igraph <- igraph.from.graphNEL(fgs.discrete$graphNEL)
 plot(igraph)
 ```
