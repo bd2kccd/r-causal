@@ -1,5 +1,6 @@
-rfci <- function(df, continuous = TRUE, depth = 3, significance = 0.05, verbose = FALSE, 
-	java.parameters = NULL, priorKnowledge = NULL){
+rfci <- function(df, continuous = TRUE, depth = 3, significance = 0.05, 
+    completeRuleSetUsed = FALSE, verbose = FALSE, java.parameters = NULL, 
+    priorKnowledge = NULL){
     
     params <- list(NULL)
     
@@ -12,7 +13,8 @@ rfci <- function(df, continuous = TRUE, depth = 3, significance = 0.05, verbose 
     indTest = NULL
     if(continuous){
     	tetradData <- loadContinuousData(df)
-    	indTest <- .jnew("edu/cmu/tetrad/search/IndTestFisherZ", tetradData, significance)
+    	indTest <- .jnew("edu/cmu/tetrad/search/IndTestFisherZ", tetradData, 
+            significance)
     }else{
     	tetradData <- loadDiscreteData(df)
     	indTest <- .jnew("edu/cmu/tetrad/search/IndTestChiSquare", tetradData, 
@@ -32,6 +34,7 @@ rfci <- function(df, continuous = TRUE, depth = 3, significance = 0.05, verbose 
     # Initiate RFCI
     rfci_instance <- .jnew("edu/cmu/tetrad/search/Rfci", indTest)
     .jcall(rfci_instance, "V", "setDepth", as.integer(depth))
+    .jcall(rfci_instance, "V", "setCompleteRuleSetUsed", completeRuleSetUsed)
     .jcall(rfci_instance, "V", "setVerbose", verbose)
 
     if(!is.null(priorKnowledge)){
@@ -41,6 +44,7 @@ rfci <- function(df, continuous = TRUE, depth = 3, significance = 0.05, verbose 
 	params <- c(params, continuous = as.logical(continuous))
     params <- c(params, depth = as.integer(depth))
     params <- c(params, significance = significance)
+    params <- c(params, completeRuleSetUsed = as.logical(completeRuleSetUsed))
     params <- c(params, verbose = as.logical(verbose))
 
     if(!is.null(priorKnowledge)){
@@ -52,6 +56,7 @@ rfci <- function(df, continuous = TRUE, depth = 3, significance = 0.05, verbose 
     cat("continuous = ", continuous,"\n")
     cat("depth = ", as.integer(depth),"\n")
     cat("significance = ", significance,"\n")
+    cat("completeRuleSetUsed = ", completeRuleSetUsed, "\n")
     cat("verbose = ", verbose,"\n")
 
     # Search
