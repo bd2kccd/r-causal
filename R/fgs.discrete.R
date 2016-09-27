@@ -1,5 +1,5 @@
 fgs.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, maxDegree = 3, 
-	heuristicSpeedup = TRUE, numOfThreads = 2, verbose = FALSE, java.parameters = NULL, 
+	faithfulnessAssumed = TRUE, numOfThreads = 2, verbose = FALSE, java.parameters = NULL, 
 	priorKnowledge = NULL){
 
     params <- list(NULL)
@@ -24,7 +24,7 @@ fgs.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, maxDegree 
     fgs_instance <- .jnew("edu/cmu/tetrad/search/Fgs", score)
     .jcall(fgs_instance, "V", "setMaxDegree", as.integer(maxDegree))
     .jcall(fgs_instance, "V", "setNumPatternsToStore", as.integer(0))
-    .jcall(fgs_instance, "V", "setHeuristicSpeedup", heuristicSpeedup)
+    .jcall(fgs_instance, "V", "setFaithfulnessAssumed", faithfulnessAssumed)
     .jcall(fgs_instance, "V", "setParallelism", as.integer(numOfThreads))
     .jcall(fgs_instance, "V", "setVerbose", verbose)
 
@@ -49,7 +49,7 @@ fgs.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, maxDegree 
     cat("structurePrior = ", structurePrior,"\n")
     cat("samplePrior = ", samplePrior,"\n")
     cat("maxDegree = ", as.integer(maxDegree),"\n")
-    cat("heuristicSpeedup = ", heuristicSpeedup,"\n")
+    cat("faithfulnessAssumed = ", faithfulnessAssumed,"\n")
     cat("numOfThreads = ", numOfThreads,"\n")
     cat("verbose = ", verbose,"\n")
 
