@@ -35,7 +35,7 @@ fgs.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, maxDegree 
     params <- c(params, structurePrior = as.double(structurePrior))
     params <- c(params, samplePrior = as.double(samplePrior))
     params <- c(params, maxDegree = as.integer(maxDegree))
-    params <- c(params, heuristicSpeedup = as.logical(heuristicSpeedup))
+    params <- c(params, faithfulnessAssumed = as.logical(faithfulnessAssumed))
     params <- c(params, numOfThreads = numOfThreads)
     params <- c(params, verbose = as.logical(verbose))
 
