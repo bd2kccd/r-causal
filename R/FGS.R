@@ -1,4 +1,4 @@
-fgs <- function(df, penaltydiscount = 4.0, depth = 3, 
+fgs <- function(df, penaltydiscount = 4.0, maxDegree = 3, 
     ignoreLinearDependence = TRUE, heuristicSpeedup = TRUE, numOfThreads = 2, 
     verbose = FALSE, java.parameters = NULL, priorKnowledge = NULL){
     
@@ -22,7 +22,7 @@ fgs <- function(df, penaltydiscount = 4.0, depth = 3,
 
     # Initiate FGS
     fgs_instance <- .jnew("edu/cmu/tetrad/search/Fgs", score)
-    .jcall(fgs_instance, "V", "setDepth", as.integer(depth))
+    .jcall(fgs_instance, "V", "setMaxDegree", as.integer(maxDegree))
     .jcall(fgs_instance, "V", "setNumPatternsToStore", as.integer(0))
     .jcall(fgs_instance, "V", "setIgnoreLinearDependent", ignoreLinearDependence)
     .jcall(fgs_instance, "V", "setHeuristicSpeedup", heuristicSpeedup)
@@ -34,7 +34,7 @@ fgs <- function(df, penaltydiscount = 4.0, depth = 3,
     }
 
     params <- c(params, penaltydiscount = as.double(penaltydiscount))
-    params <- c(params, depth = as.integer(depth))
+    params <- c(params, maxDegree = as.integer(maxDegree))
     params <- c(params, ignoreLinearDependence = as.logical(ignoreLinearDependence))
     params <- c(params, heuristicSpeedup = as.logical(heuristicSpeedup))
     params <- c(params, numOfThreads = as.integer(numOfThreads))
@@ -47,7 +47,7 @@ fgs <- function(df, penaltydiscount = 4.0, depth = 3,
 
     cat("Graph Parameters:\n")
     cat("penalty discount = ", penaltydiscount,"\n")
-    cat("depth = ", as.integer(depth),"\n")
+    cat("maxDegree = ", as.integer(maxDegree),"\n")
     cat("ignoreLinearDependence = ", ignoreLinearDependence,"\n")
     cat("heuristicSpeedup = ", heuristicSpeedup,"\n")
     cat("numOfThreads = ", as.integer(numOfThreads),"\n")
