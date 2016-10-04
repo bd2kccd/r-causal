@@ -34,7 +34,6 @@ fgs <- function(df, penaltydiscount = 4.0, maxDegree = 3,
 
     params <- c(params, penaltydiscount = as.double(penaltydiscount))
     params <- c(params, maxDegree = as.integer(maxDegree))
-    params <- c(params, ignoreLinearDependence = as.logical(ignoreLinearDependence))
     params <- c(params, faithfulnessAssumed = as.logical(faithfulnessAssumed))
     params <- c(params, numOfThreads = as.integer(numOfThreads))
     params <- c(params, verbose = as.logical(verbose))
