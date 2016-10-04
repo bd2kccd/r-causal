@@ -6,8 +6,8 @@
  by Joseph D. Ramsey, Director of Research Computing, Department of Philosophy,
  Carnegie Mellon University, Pittsburgh, PA.
 }
-\usage{fgs(df, structurePrior = 1.0, samplePrior = 1.0, depth = -1, 
-faithfulness = TRUE, numOfThreads = NULL,verbose = FALSE, 
+\usage{fgs(df, structurePrior = 1.0, samplePrior = 1.0, maxDegree = -1, 
+faithfulnessAssumed = TRUE, numOfThreads = NULL,verbose = FALSE, 
 java.parameters = NULL)
 }
 \arguments{
@@ -16,11 +16,11 @@ java.parameters = NULL)
   \code{structurePrior}=1.0. }
   \item{samplePrior}{ Sample Prior.  By default, 
   \code{samplePrior}=1.0. }
-  \item{depth}{ integer indicating the search depth for the forward 
-  reevaluation step. It ranges from -1 for unlimited depth, otherwise a number 
-  >= 0. In the forward reevaluation step, subsets of neighbors up to depth 
-  in size are considered. Limiting depth can speed up the algorithm. 
-  By default, \code{depth}=3. }
+  \item{maxDegree}{ integer indicating a number of degree of any node for the forward 
+  reevaluation step. It ranges from -1 for unlimited degree, otherwise a number 
+  >= 0. In the forward reevaluation step, subsets of neighbors up to degree 
+  in size are considered. Limiting degree can speed up the algorithm. 
+  By default, \code{maxDegree}=3. }
   \item{faithfulness}{ boolean indicating whether or not the search assumes 
   that zero effect adjacencies are not in the graph.  \code{faithfulness} is 
   \code{TRUE} by default. }
@@ -56,7 +56,7 @@ the result's edges, and the graphNEL causal graph result.
 data("audiology")    #Load the charity dataset
 #Compute FGS search
 fgs.discrete <- fgs.discrete(df=audiology,structurePrior=1.0,samplePrior=1.0, 
-depth = -1, faithfulness = TRUE, numOfThreads = 2,verbose = TRUE)
+maxDegree = -1, faithfulnessAssumed = TRUE, numOfThreads = 2,verbose = TRUE)
 fgs.discrete$parameters #Show the FGS's parameters
 fgsfgs.discretedatasets #Show the dataset
 fgs.discrete$nodes #Show the result's nodes

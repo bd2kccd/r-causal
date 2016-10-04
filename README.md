@@ -35,8 +35,8 @@ library(rcausal)
 data("charity")   #Load the charity dataset
 
 #Compute FGS search
-fgs <- fgs(df = charity, penaltydiscount = 2, depth = -1, ignoreLinearDependence = TRUE, 
-heuristicSpeedup = TRUE, numOfThreads = 2, verbose = TRUE)    
+fgs <- fgs(df = charity, penaltydiscount = 2, maxDegree = -1,  
+faithfulnessAssumed = TRUE, numOfThreads = 2, verbose = TRUE)    
 
 fgs$parameters #Show the FGS's parameters
 fgs$datasets #Show the dataset
@@ -52,7 +52,7 @@ library(rcausal)
 data("audiology")    #Load the charity dataset
 #Compute FGS search
 fgs.discrete <- fgs.discrete(df=audiology,structurePrior=1.0,samplePrior=1.0, 
-depth = -1, heuristicSpeedup = TRUE, numOfThreads = 2,verbose = TRUE)
+maxDegree = -1, faithfulnessAssumed = TRUE, numOfThreads = 2,verbose = TRUE)
 fgs.discrete$parameters #Show the FGS Discrete's parameters
 fgs.discrete$datasets #Show the dataset
 fgs.discrete$nodes #Show the result's nodes

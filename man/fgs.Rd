@@ -7,21 +7,21 @@
  Carnegie Mellon University, Pittsburgh, PA.
 }
 \usage{
-fgs(df, penaltydiscount = 4.0, depth = 3, faithfulness = TRUE, verbose = FALSE,
-java.parameters = NULL)
+fgs(df, penaltydiscount = 4.0, maxDegree = 3, faithfulnessAssumed = TRUE, numOfThreads = 2, 
+verbose = FALSE, java.parameters = NULL)
 }
 \arguments{
   \item{df}{ Data Frame of the dataset. }
   \item{penaltydiscount}{ floating point indicating the (BIC score) 
   penalty term for continuous searches.  By default, 
   \code{penaltydiscount}=4.0. }
-  \item{depth}{ integer indicating the search depth for the forward 
-  reevaluation step. It ranges from -1 for unlimited depth, otherwise a number 
-  >= 0. In the forward reevaluation step, subsets of neighbors up to depth 
-  in size are considered. Limiting depth can speed up the algorithm. 
-  By default, \code{depth}=3. }
-  \item{faithfulness}{ boolean indicating whether or not the search assumes 
-  that zero effect adjacencies are not in the graph.  \code{faithfulness} is 
+  \item{maxDegree}{ integer indicating a number of degree of any node for the forward 
+  reevaluation step. It ranges from -1 for unlimited degree, otherwise a number 
+  >= 0. In the forward reevaluation step, subsets of neighbors up to degree 
+  in size are considered. Limiting degree can speed up the algorithm. 
+  By default, \code{maxDegree}=3. }
+  \item{faithfulnessAssumed}{ boolean indicating whether or not the search assumes 
+  that zero effect adjacencies are not in the graph.  \code{faithfulnessAssumed} is 
   \code{TRUE} by default. }
   \item{verbose}{ boolean indicating whether or not if verbose output should 
   be printed.  \code{verbose} is \code{FALSE} by default. }
@@ -50,7 +50,7 @@ the result's edges, and the graphNEL causal graph result.
 }
 \examples{
 data("charity")    #Load the charity dataset
-fgs <- fgs(df = charity, penaltydiscount = 2, depth = -1, faithfulness = TRUE,
+fgs <- fgs(df = charity, penaltydiscount = 2, maxDegree = -1, faithfulnessAsummed = TRUE,
     numOfThreads = 2, verbose = TRUE)    #Compute FGS search
 fgs$parameters #Show the FGS's parameters
 fgs$datasets #Show the dataset
