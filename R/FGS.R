@@ -1,5 +1,5 @@
 fgs <- function(df, penaltydiscount = 4.0, maxDegree = 3, 
-    ignoreLinearDependence = TRUE, faithfulnessAssumed = TRUE, numOfThreads = 2, 
+    faithfulnessAssumed = TRUE, numOfThreads = 2, 
     verbose = FALSE, java.parameters = NULL, priorKnowledge = NULL){
     
     params <- list(NULL)
@@ -24,7 +24,6 @@ fgs <- function(df, penaltydiscount = 4.0, maxDegree = 3,
     fgs_instance <- .jnew("edu/cmu/tetrad/search/Fgs", score)
     .jcall(fgs_instance, "V", "setMaxDegree", as.integer(maxDegree))
     .jcall(fgs_instance, "V", "setNumPatternsToStore", as.integer(0))
-    .jcall(fgs_instance, "V", "setIgnoreLinearDependent", ignoreLinearDependence)
     .jcall(fgs_instance, "V", "setFaithfulnessAssumed", faithfulnessAssumed)
     .jcall(fgs_instance, "V", "setParallelism", as.integer(numOfThreads))
     .jcall(fgs_instance, "V", "setVerbose", verbose)
