@@ -47,7 +47,6 @@ fgs <- function(df, penaltydiscount = 4.0, maxDegree = 3,
     cat("Graph Parameters:\n")
     cat("penalty discount = ", penaltydiscount,"\n")
     cat("maxDegree = ", as.integer(maxDegree),"\n")
-    cat("ignoreLinearDependence = ", ignoreLinearDependence,"\n")
     cat("faithfulnessAssumed = ", faithfulnessAssumed,"\n")
     cat("numOfThreads = ", as.integer(numOfThreads),"\n")
     cat("verbose = ", verbose,"\n")
