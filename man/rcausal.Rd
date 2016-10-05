@@ -45,6 +45,12 @@ the program, with substantial assistance from Frank Wimberly.
 }
 \examples{
 data("charity")    #Load the charity dataset
+fgs <- fgs(df = charity, penaltydiscount = 2, maxDegree = -1, faithfulnessAsummed = TRUE,
+    numOfThreads = 2, verbose = TRUE)    #Compute FGS search
+fgs$parameters #Show the FGS's parameters
+fgs$datasets #Show the dataset
+fgs$nodes #Show the result's nodes
+fgs$edges #Show the result's edges
 }
 \keyword{causal graphs}
 \keyword{causality}
