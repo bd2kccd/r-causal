@@ -42,7 +42,7 @@ gfci.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0,
 
     params <- c(params, structurePrior = as.double(structurePrior))
     params <- c(params, samplePrior = as.double(samplePrior))
-    params <- c(params, depth = as.integer(depth))
+    params <- c(params, maxInDegree = as.integer(maxInDegree))
     params <- c(params, maxPathLength = as.integer(maxPathLength))
     params <- c(params, completeRuleSetUsed = as.logical(completeRuleSetUsed))
     params <- c(params, faithfulnessAssumed = as.logical(faithfulnessAssumed))

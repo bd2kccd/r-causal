@@ -39,7 +39,7 @@ gfci <- function(df, penaltydiscount = 2.0, maxInDegree = -1, maxPathLength = -1
     }
 
 	params <- c(params, penaltydiscount = as.double(penaltydiscount))
-    params <- c(params, depth = as.integer(depth))
+    params <- c(params, maxInDegree = as.integer(maxInDegree))
     params <- c(params, maxPathLength = as.integer(maxPathLength))
     params <- c(params, significance = significance)
     params <- c(params, completeRuleSetUsed = as.logical(completeRuleSetUsed))
