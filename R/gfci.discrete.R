@@ -1,6 +1,6 @@
 gfci.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, 
     maxInDegree = -1, maxPathLength = -1, completeRuleSetUsed = FALSE, 
-    faithfulness = TRUE, verbose = FALSE, java.parameters = NULL, 
+    faithfulnessAssumed = TRUE, verbose = FALSE, java.parameters = NULL, 
     priorKnowledge = NULL){
     
     params <- list(NULL)
@@ -10,6 +10,13 @@ gfci.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0,
         params <- c(java.parameters = java.parameters)
     }
 
+    # Data Frame to Independence Test
+    tetradData <- loadDiscreteData(df)
+	indTest <- .jnew("edu/cmu/tetrad/search/IndTestChiSquare", tetradData, 
+    		significance)
+    
+	indTest <- .jcast(indTest, "edu/cmu/tetrad/search/IndependenceTest")
+	
     # Data Frame to Tetrad Dataset
     score <- dataFrame2TetradBDeuScore(df, structurePrior, samplePrior)
     
@@ -22,11 +29,11 @@ gfci.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0,
     cat(deparse(substitute(df)),"\n\n")
 
     # Initiate GFCI Discrete
-    gfci_instance <- .jnew("edu/cmu/tetrad/search/GFci", score)
+    gfci_instance <- .jnew("edu/cmu/tetrad/search/GFci", indTest, score)
     .jcall(gfci_instance, "V", "setMaxIndegree", as.integer(maxInDegree))
     .jcall(gfci_instance, "V", "setMaxPathLength", as.integer(maxPathLength))
     .jcall(gfci_instance, "V", "setCompleteRuleSetUsed", completeRuleSetUsed)
-    .jcall(gfci_instance, "V", "setFaithfulnessAssumed", faithfulness)
+    .jcall(gfci_instance, "V", "setFaithfulnessAssumed", faithfulnessAssumed)
     .jcall(gfci_instance, "V", "setVerbose", verbose)
 
     if(!is.null(priorKnowledge)){
@@ -38,7 +45,7 @@ gfci.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0,
     params <- c(params, depth = as.integer(depth))
     params <- c(params, maxPathLength = as.integer(maxPathLength))
     params <- c(params, completeRuleSetUsed = as.logical(completeRuleSetUsed))
-    params <- c(params, faithfulness = as.logical(faithfulness))
+    params <- c(params, faithfulnessAssumed = as.logical(faithfulnessAssumed))
     params <- c(params, verbose = as.logical(verbose))
 
     if(!is.null(priorKnowledge)){
@@ -52,7 +59,7 @@ gfci.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0,
     cat("maxInDegree = ", as.integer(maxInDegree),"\n")
     cat("maxPathLength = ", as.integer(maxPathLength),"\n")
     cat("completeRuleSetUsed = ", completeRuleSetUsed,"\n")
-    cat("faithfulness = ", faithfulness,"\n")
+    cat("faithfulnessAssumed = ", faithfulnessAssumed,"\n")
     cat("verbose = ", verbose,"\n")
     
     # Search

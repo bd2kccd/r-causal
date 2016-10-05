@@ -21,8 +21,8 @@ java.parameters = NULL)
   >= 0. In the forward reevaluation step, subsets of neighbors up to degree 
   in size are considered. Limiting degree can speed up the algorithm. 
   By default, \code{maxDegree}=3. }
-  \item{faithfulness}{ boolean indicating whether or not the search assumes 
-  that zero effect adjacencies are not in the graph.  \code{faithfulness} is 
+  \item{faithfulnessAssumed}{ boolean indicating whether or not the search assumes 
+  that zero effect adjacencies are not in the graph.  \code{faithfulnessAssumed} is 
   \code{TRUE} by default. }
   \item{numOfThreads}{ A number of threads.  By default, 
   \code{numOfThreads}=2. }
