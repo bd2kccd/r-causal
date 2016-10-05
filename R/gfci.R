@@ -1,4 +1,4 @@
-gfci <- function(df, penaltydiscount = 2.0, maxInDegree = -1, maxPathLength = -1, significance = 0.05,
+gfci <- function(df, penaltydiscount = 2.0, maxInDegree = 3, maxPathLength = -1, significance = 0.05,
     completeRuleSetUsed = FALSE, faithfulnessAssumed = TRUE, verbose = FALSE, java.parameters = NULL, 
     priorKnowledge = NULL){
     
@@ -61,8 +61,7 @@ gfci <- function(df, penaltydiscount = 2.0, maxInDegree = -1, maxPathLength = -1
     cat("verbose = ", verbose,"\n")
     
     # Search
-    tetrad_graph <- .jcall(gfci_instance, "Ledu/cmu/tetrad/graph/Graph;", 
-        "search")
+    tetrad_graph <- .jcall(gfci_instance, "Ledu/cmu/tetrad/graph/Graph;", "search")
 
     V <- extractTetradNodes(tetrad_graph)
 
