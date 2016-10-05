@@ -35,12 +35,12 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveTask;
 
 /**
- * Implements the "fast adjacency search" used in several causal algorithms in this package. In the fast adjacency
+ * Implements the "fast adjacency search" used in several causal algorithm in this package. In the fast adjacency
  * search, at a given stage of the search, an edge X*-*Y is removed from the graph if X _||_ Y | S, where S is a subset
  * of size d either of adj(X) or of adj(Y), where d is the depth of the search. The fast adjacency search performs this
  * procedure for each pair of adjacent edges in the graph and for each depth d = 0, 1, 2, ..., d1, where d1 is either
  * the maximum depth or else the first such depth at which no edges can be removed. The interpretation of this adjacency
- * search is different for different algorithms, depending on the assumptions of the algorithm. A mapping from {x, y} to
+ * search is different for different algorithm, depending on the assumptions of the algorithm. A mapping from {x, y} to
  * S({x, y}) is returned for edges x *-* y that have been removed.
  * </p>
  * This variant uses the PC-Stable modification, calculating independencies in parallel within each depth.
@@ -102,14 +102,23 @@ public class FasStableConcurrent implements IFas {
 
     int chunk = 50;
 
+    private boolean recordSepsets = true;
 
     //==========================CONSTRUCTORS=============================//
 
     /**
-     * Constructs a new FastAdjacencySearch.
+     * Constructs a new FastAdjacencySearch.    wd
      */
     public FasStableConcurrent(IndependenceTest test) {
         this.test = test;
+    }
+
+    /**
+     * Constructs a new FastAdjacencySearch.
+     */
+    public FasStableConcurrent(Graph initialGraph, IndependenceTest test) {
+        this.test = test;
+        this.initialGraph = initialGraph;
     }
 
     //==========================PUBLIC METHODS===========================//
@@ -298,17 +307,18 @@ public class FasStableConcurrent implements IFas {
                                     knowledge.noEdgeRequired(x.getName(), y.getName());
 
                             if (independent && noEdgeRequired) {
-                                if (!sepsets.isReturnEmptyIfNotSet()) {
+                                if (recordSepsets && !sepsets.isReturnEmptyIfNotSet()) {
                                     getSepsets().set(x, y, empty);
                                 }
 
-                                if (verbose) {
-                                    TetradLogger.getInstance().log("independencies", SearchLogUtils.independenceFact(x, y, empty) + " p = " +
-                                            nf.format(test.getPValue()));
-
-                                    out.println(SearchLogUtils.independenceFact(x, y, empty) + " p = " +
-                                            nf.format(test.getPValue()));
-                                }
+                                // This creates a bottleneck for the parallel search.
+//                                if (verbose) {
+//                                    TetradLogger.getInstance().log("independencies", SearchLogUtils.independenceFact(x, y, empty) + " p = " +
+//                                            nf.format(test.getPValue()));
+//
+//                                    out.println(SearchLogUtils.independenceFact(x, y, empty) + " p = " +
+//                                            nf.format(test.getPValue()));
+//                                }
                             } else if (!forbiddenEdge(x, y)) {
                                 adjacencies.get(x).add(y);
                                 adjacencies.get(y).add(x);
@@ -368,7 +378,7 @@ public class FasStableConcurrent implements IFas {
             Set<Node> opposites = adjacencies.get(x);
 
             for (Node y : opposites) {
-                Set<Node> adjx = new HashSet<Node>(opposites);
+                Set<Node> adjx = new HashSet<>(opposites);
                 adjx.remove(y);
 
                 if (adjx.size() > max) {
@@ -400,7 +410,7 @@ public class FasStableConcurrent implements IFas {
             System.out.println("Searching at depth " + depth);
         }
 
-        final Map<Node, Set<Node>> adjacenciesCopy = new HashMap<Node, Set<Node>>();
+        final Map<Node, Set<Node>> adjacenciesCopy = new HashMap<>();
 
         for (Node node : adjacencies.keySet()) {
             adjacenciesCopy.put(node, new HashSet<>(adjacencies.get(node)));
@@ -458,13 +468,16 @@ public class FasStableConcurrent implements IFas {
                                         adjacencies.get(x).remove(y);
                                         adjacencies.get(y).remove(x);
 
-                                        getSepsets().set(x, y, condSet);
-
-                                        if (verbose) {
-                                            TetradLogger.getInstance().log("independencies", SearchLogUtils.independenceFact(x, y, condSet) + " p = " +
-                                                    nf.format(test.getPValue()));
-                                            out.println(SearchLogUtils.independenceFactMsg(x, y, condSet, test.getPValue()));
+                                        if (recordSepsets) {
+                                            getSepsets().set(x, y, condSet);
                                         }
+
+                                        // This creates a bottleneck for the parallel search.
+//                                        if (verbose) {
+//                                            TetradLogger.getInstance().log("independencies", SearchLogUtils.independenceFact(x, y, condSet) + " p = " +
+//                                                    nf.format(test.getPValue()));
+//                                            out.println(SearchLogUtils.independenceFactMsg(x, y, condSet, test.getPValue()));
+//                                        }
 
                                         continue EDGE;
                                     }
@@ -475,7 +488,7 @@ public class FasStableConcurrent implements IFas {
 
                     return true;
                 } else {
-                    List<DepthTask> tasks = new ArrayList<DepthTask>();
+                    List<DepthTask> tasks = new ArrayList<>();
 
                     final int mid = (to + from) / 2;
 
@@ -502,7 +515,7 @@ public class FasStableConcurrent implements IFas {
 
     private List<Node> possibleParents(Node x, List<Node> adjx,
                                        IKnowledge knowledge) {
-        List<Node> possibleParents = new LinkedList<Node>();
+        List<Node> possibleParents = new LinkedList<>();
         String _x = x.getName();
 
         for (Node z : adjx) {
@@ -583,6 +596,17 @@ public class FasStableConcurrent implements IFas {
 
     public PrintStream getOut() {
         return out;
+    }
+
+    /**
+     * True if sepsets should be recorded. This is not necessary for all algorithms.
+     */
+    public boolean isRecordSepsets() {
+        return recordSepsets;
+    }
+
+    public void setRecordSepsets(boolean recordSepsets) {
+        this.recordSepsets = recordSepsets;
     }
 }
 

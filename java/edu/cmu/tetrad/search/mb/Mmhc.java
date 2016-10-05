@@ -56,10 +56,10 @@ public class Mmhc implements GraphSearch {
 
     //=============================CONSTRUCTORS==========================//
 
-    public Mmhc(IndependenceTest test) {
+    public Mmhc(IndependenceTest test, DataSet dataSet) {
         this.depth = -1;
         this.independenceTest = test;
-        this.data = (DataSet) test.getData();
+        this.data = dataSet;
     }
 
     //==============================PUBLIC METHODS========================//
@@ -84,7 +84,7 @@ public class Mmhc implements GraphSearch {
     public Graph search() {
         List<Node> variables = independenceTest.getVariables();
         Mmmb mmmb = new Mmmb(independenceTest, getDepth(), true);
-        Map<Node, List<Node>> pc = new HashMap<Node, List<Node>>();
+        Map<Node, List<Node>> pc = new HashMap<>();
 
         for (Node x : variables) {
             pc.put(x, mmmb.getPc(x));

@@ -51,11 +51,11 @@ public final class DataWriter {
         NumberFormat nf = NumberFormatUtil.getInstance().getNumberFormat();
         StringBuilder buf = new StringBuilder();
 
-        boolean isCaseMultipliersCollapsed = dataSet.isMulipliersCollapsed();
+//        boolean isCaseMultipliersCollapsed = dataSet.isMulipliersCollapsed();
 
-        if (!isCaseMultipliersCollapsed) {
-            buf.append("MULT").append(separator);
-        }
+//        if (false) {
+//            buf.append("MULT").append(separator);
+//        }
 
         for (int col = 0; col < dataSet.getNumColumns(); col++) {
             String name = dataSet.getVariable(col).getName();
@@ -74,10 +74,10 @@ public final class DataWriter {
         for (int row = 0; row < dataSet.getNumRows(); row++) {
             buf.append("\n");
 
-            if (!isCaseMultipliersCollapsed) {
-                int multiplier = dataSet.getMultiplier(row);
-                buf.append(multiplier).append(separator);
-            }
+//            if (isCaseMultipliersCollapsed) {
+//                int multiplier = dataSet.getMultiplier(row);
+//                buf.append(multiplier).append(separator);
+//            }
 
             for (int col = 0; col < dataSet.getNumColumns(); col++) {
                 Node variable = dataSet.getVariable(col);

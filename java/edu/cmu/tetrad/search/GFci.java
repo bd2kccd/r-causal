@@ -18,46 +18,25 @@
 // along with this program; if not, write to the Free Software               //
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA //
 ///////////////////////////////////////////////////////////////////////////////
-
 package edu.cmu.tetrad.search;
 
 import edu.cmu.tetrad.data.*;
 import edu.cmu.tetrad.graph.*;
 import edu.cmu.tetrad.util.ChoiceGenerator;
-import edu.cmu.tetrad.util.DepthChoiceGenerator;
 import edu.cmu.tetrad.util.TetradLogger;
-
 import java.io.PrintStream;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
+import java.util.Iterator;
+import java.util.List;
 
 /**
- * Replaces the FAS search in the previous version with GES followed by PC adjacency removals for more accuracy.
- * Uses conservative collider orientation. Gets sepsets for X---Y from among adjacents of X or of Y. -jdramsey 3/10/2015
- * <p>
- * Following an idea of Spirtes, now it uses more of the information in GES, to calculating possible dsep paths and to
- * utilize unshielded colliders found by GES. 5/31/2015
- * <p>
- * Previous:
- * Extends Erin Korber's implementation of the Fast Causal Inference algorithm (found in Fci.java) with Jiji Zhang's
- * Augmented FCI rules (found in sec. 4.1 of Zhang's 2006 PhD dissertation, "Causal Inference and Reasoning in Causally
- * Insufficient Systems").
- * <p>
- * This class is based off a copy of Fci.java taken from the repository on 2008/12/16, revision 7306. The extension is
- * done by extending doFinalOrientation() with methods for Zhang's rules R5-R10 which implements the augmented search.
- * (By a remark of Zhang's, the rule applications can be staged in this way.)
+ * J.M. Ogarrio and P. Spirtes and J. Ramsey, "A Hybrid Causal Search Algorithm
+ * for Latent Variable Models," JMLR 2016.
  *
- * @author Erin Korber, June 2004
- * @author Alex Smith, December 2008
- * @author Joseph Ramsey
- * @author Choh-Man Teng
+ * @author Juan Miguel Ogarrio
+ * @author ps7z
+ * @author jdramsey
  */
 public final class GFci implements GraphSearch {
-
-    // If a graph is provided.
-    private Graph dag = null;
 
     // The PAG being constructed.
     private Graph graph;
@@ -65,17 +44,11 @@ public final class GFci implements GraphSearch {
     // The background knowledge.
     private IKnowledge knowledge = new Knowledge2();
 
-    // The variables to search over (optional)
-    private List<Node> variables = new ArrayList<>();
-
     // The conditional independence test.
     private IndependenceTest independenceTest;
 
     // Flag for complete rule set, true if should use complete rule set, false otherwise.
     private boolean completeRuleSetUsed = false;
-
-    // True iff the possible dsep search is done.
-//    private boolean possibleDsepSearchDone = true;
 
     // The maximum length for any discriminating path. -1 if unlimited; otherwise, a positive integer.
     private int maxPathLength = -1;
@@ -95,18 +68,6 @@ public final class GFci implements GraphSearch {
     // The sample size.
     int sampleSize;
 
-    // The penalty discount for the GES search. By default 2.
-    private double penaltyDiscount = 2;
-
-    // The sample prior for the BDeu score (discrete data).
-    private double samplePrior = 10;
-
-    // The structure prior for the Bdeu score (discrete data).
-    private double structurePrior = 1;
-
-    // Map from variables to their column indices in the data set.
-    private ConcurrentMap<Node, Integer> hashIndices;
-
     // The print stream that output is directed to.
     private PrintStream out = System.out;
 
@@ -120,41 +81,16 @@ public final class GFci implements GraphSearch {
     private long elapsedTime;
 
     //============================CONSTRUCTORS============================//
-
-    /**
-     * Constructs a new GFCI search for the given independence test and background knowledge.
-     */
-    public GFci(IndependenceTest independenceTest) {
-        if (independenceTest == null || knowledge == null) {
+    public GFci(IndependenceTest test, Score score) {
+        if (score == null) {
             throw new NullPointerException();
         }
-
-        if (independenceTest instanceof IndTestDSep) {
-            this.dag = ((IndTestDSep) independenceTest).getGraph();
-        }
-
-        this.independenceTest = independenceTest;
-        this.variables = independenceTest.getVariables();
-        buildIndexing(variables);
-    }
-
-    public GFci(Score score) {
-        if (score == null) throw new NullPointerException();
-        this.score = score;
-
-        if (score instanceof GraphScore) {
-            this.dag = ((GraphScore) score).getDag();
-        }
-
         this.sampleSize = score.getSampleSize();
-        this.independenceTest = new IndTestScore(score);
-        this.variables = score.getVariables();
-        buildIndexing(variables);
+        this.score = score;
+        this.independenceTest = test;
     }
 
     //========================PUBLIC METHODS==========================//
-
-
     public Graph search() {
         long time1 = System.currentTimeMillis();
 
@@ -165,28 +101,17 @@ public final class GFci implements GraphSearch {
 
         this.graph = new EdgeListGraphSingleConnections(nodes);
 
-        if (score == null) {
-            setScore();
-        }
-
-        Fgs2 fgs = new Fgs2(score);
+        Fgs fgs = new Fgs(score);
         fgs.setKnowledge(getKnowledge());
         fgs.setVerbose(verbose);
         fgs.setNumPatternsToStore(0);
         fgs.setFaithfulnessAssumed(faithfulnessAssumed);
+        fgs.setMaxDegree(maxIndegree);
+        fgs.setOut(out);
         graph = fgs.search();
         Graph fgsGraph = new EdgeListGraphSingleConnections(graph);
 
-//        System.out.println("GFCI: FGS done");
-
         sepsets = new SepsetsGreedy(fgsGraph, independenceTest, null, maxIndegree);
-//        ((SepsetsGreedy) sepsets).setDepth(3);
-//        sepsets = new SepsetsConservative(fgsGraph, independenceTest, null, maxIndegree);
-//        sepsets = new SepsetsConservativeMajority(fgsGraph, independenceTest, null, maxIndegree);
-//        sepsets = new SepsetsMaxPValue(fgsGraph, independenceTest, null, maxIndegree);
-//        sepsets = new SepsetsMinScore(fgsGraph, independenceTest, null, maxIndegree);
-//
-//        System.out.println("GFCI: Look inside triangles starting");
 
         for (Node b : nodes) {
             List<Node> adjacentNodes = fgsGraph.getAdjacentNodes(b);
@@ -210,54 +135,15 @@ public final class GFci implements GraphSearch {
             }
         }
 
-//        SepsetMap map = new SepsetMap();
-//
-//        for (Edge edge : graph.getEdges()) {
-//            Node a = edge.getNode1();
-//            Node c = edge.getNode2();
-//
-//            Edge e = fgsGraph.getEdge(a, c);
-//
-//            if (e != null && e.isDirected()) {
-//
-//                // Only the ones that are in triangles.
-//                Set<Node> _adj = new HashSet<>(fgsGraph.getAdjacentNodes(a));
-//                _adj.retainAll(fgsGraph.getAdjacentNodes(c));
-//                if (_adj.isEmpty()) continue;
-//
-//                Node f = Edges.getDirectedEdgeHead(e);
-//                List<Node> adj = fgsGraph.getAdjacentNodes(f);
-//                adj.remove(Edges.getDirectedEdgeTail(e));
-//
-//                DepthChoiceGenerator gen = new DepthChoiceGenerator(adj.size(), adj.size());
-//                int[] choice;
-//
-//                while ((choice = gen.next()) != null) {
-//                    List<Node> cond = GraphUtils.asList(choice, adj);
-//
-//                    if (independenceTest.isIndependent(a, c, cond)) {
-//                        graph.removeEdge(a, c);
-//                        map.set(a, c, cond);
-//                    }
-//                }
-//            }
-//        }
-
-//        System.out.println("GFCI: Look inside triangles done");
-
         modifiedR0(fgsGraph);
 
-//    modifiedR0(fgsGraph, map);
-
-//        System.out.println("GFCI: R0 done");
-
         FciOrient fciOrient = new FciOrient(sepsets);
+        fciOrient.setVerbose(verbose);
+        fciOrient.setOut(out);
         fciOrient.setKnowledge(getKnowledge());
         fciOrient.setCompleteRuleSetUsed(completeRuleSetUsed);
         fciOrient.setMaxPathLength(maxPathLength);
         fciOrient.doFinalOrientation(graph);
-
-//        System.out.println("GFCI: Final orientation done");
 
         GraphUtils.replaceNodes(graph, independenceTest.getVariables());
 
@@ -273,42 +159,9 @@ public final class GFci implements GraphSearch {
         return elapsedTime;
     }
 
-    private void setScore() {
-        sampleSize = independenceTest.getSampleSize();
-        double penaltyDiscount = getPenaltyDiscount();
-
-        DataSet dataSet = (DataSet) independenceTest.getData();
-        ICovarianceMatrix cov = independenceTest.getCov();
-        Score score;
-
-        if (independenceTest instanceof IndTestDSep) {
-            score = new GraphScore(dag);
-        } else if (cov != null) {
-            covarianceMatrix = cov;
-            SemBicScore score0 = new SemBicScore(cov);
-            score0.setPenaltyDiscount(penaltyDiscount);
-            score = score0;
-        } else if (dataSet.isContinuous()) {
-            covarianceMatrix = new CovarianceMatrixOnTheFly(dataSet);
-            SemBicScore score0 = new SemBicScore(covarianceMatrix);
-            score0.setPenaltyDiscount(penaltyDiscount);
-            score = score0;
-        } else if (dataSet.isDiscrete()) {
-            BDeuScore score0 = new BDeuScore(dataSet);
-            score0.setSamplePrior(samplePrior);
-            score0.setStructurePrior(structurePrior);
-            score = score0;
-        } else {
-            throw new IllegalArgumentException("Mixed data not supported.");
-        }
-
-        this.score = score;
-    }
-
-    public int getMaxIndegree() {
-        return maxIndegree;
-    }
-
+    /**
+     * @param maxIndegree The maximum indegree of the output graph.
+     */
     public void setMaxIndegree(int maxIndegree) {
         if (maxIndegree < -1) {
             throw new IllegalArgumentException(
@@ -316,6 +169,13 @@ public final class GFci implements GraphSearch {
         }
 
         this.maxIndegree = maxIndegree;
+    }
+
+    /**
+     * Returns The maximum indegree of the output graph.
+     */
+    public int getMaxIndegree() {
+        return maxIndegree;
     }
 
     // Due to Spirtes.
@@ -367,30 +227,34 @@ public final class GFci implements GraphSearch {
     }
 
     /**
-     * @return true if Zhang's complete rule set should be used, false if only R1-R4 (the rule set of the original FCI)
-     * should be used. False by default.
+     * @return true if Zhang's complete rule set should be used, false if only
+     * R1-R4 (the rule set of the original FCI) should be used. False by
+     * default.
      */
     public boolean isCompleteRuleSetUsed() {
         return completeRuleSetUsed;
     }
 
     /**
-     * @param completeRuleSetUsed set to true if Zhang's complete rule set should be used, false if only R1-R4 (the rule
-     *                            set of the original FCI) should be used. False by default.
+     * @param completeRuleSetUsed set to true if Zhang's complete rule set
+     * should be used, false if only R1-R4 (the rule set of the original FCI)
+     * should be used. False by default.
      */
     public void setCompleteRuleSetUsed(boolean completeRuleSetUsed) {
         this.completeRuleSetUsed = completeRuleSetUsed;
     }
 
     /**
-     * @return the maximum length of any discriminating path, or -1 of unlimited.
+     * @return the maximum length of any discriminating path, or -1 of
+     * unlimited.
      */
     public int getMaxPathLength() {
         return maxPathLength;
     }
 
     /**
-     * @param maxPathLength the maximum length of any discriminating path, or -1 if unlimited.
+     * @param maxPathLength the maximum length of any discriminating path, or -1
+     * if unlimited.
      */
     public void setMaxPathLength(int maxPathLength) {
         if (maxPathLength < -1) {
@@ -416,14 +280,6 @@ public final class GFci implements GraphSearch {
      */
     public IndependenceTest getIndependenceTest() {
         return independenceTest;
-    }
-
-    public double getPenaltyDiscount() {
-        return penaltyDiscount;
-    }
-
-    public void setPenaltyDiscount(double penaltyDiscount) {
-        this.penaltyDiscount = penaltyDiscount;
     }
 
     public ICovarianceMatrix getCovMatrix() {
@@ -455,30 +311,18 @@ public final class GFci implements GraphSearch {
     }
 
     //===========================================PRIVATE METHODS=======================================//
-
-    private void buildIndexing(List<Node> nodes) {
-        this.hashIndices = new ConcurrentHashMap<>();
-
-        int i = 0;
-
-        for (Node node : nodes) {
-            this.hashIndices.put(node, i++);
-        }
-    }
-
     /**
      * Orients according to background knowledge
      */
     private void fciOrientbk(IKnowledge knowledge, Graph graph, List<Node> variables) {
         logger.log("info", "Starting BK Orientation.");
 
-        for (Iterator<KnowledgeEdge> it = knowledge.forbiddenEdgesIterator(); it.hasNext(); ) {
+        for (Iterator<KnowledgeEdge> it = knowledge.forbiddenEdgesIterator(); it.hasNext();) {
             KnowledgeEdge edge = it.next();
 
             //match strings to variables in the graph.
             Node from = SearchGraphUtils.translate(edge.getFrom(), variables);
             Node to = SearchGraphUtils.translate(edge.getTo(), variables);
-
 
             if (from == null || to == null) {
                 continue;
@@ -494,7 +338,7 @@ public final class GFci implements GraphSearch {
             logger.log("knowledgeOrientation", SearchLogUtils.edgeOrientedMsg("Knowledge", graph.getEdge(from, to)));
         }
 
-        for (Iterator<KnowledgeEdge> it = knowledge.requiredEdgesIterator(); it.hasNext(); ) {
+        for (Iterator<KnowledgeEdge> it = knowledge.requiredEdgesIterator(); it.hasNext();) {
             KnowledgeEdge edge = it.next();
 
             //match strings to variables in this graph
@@ -517,34 +361,4 @@ public final class GFci implements GraphSearch {
         logger.log("info", "Finishing BK Orientation.");
     }
 
-    public void setSamplePrior(double samplePrior) {
-        this.samplePrior = samplePrior;
-    }
-
-    public void setStructurePrior(double structurePrior) {
-        this.structurePrior = structurePrior;
-    }
-
-    private int freeDegree(List<Node> nodes, Graph graph) {
-        int max = 0;
-
-        for (Node x : nodes) {
-            List<Node> opposites = graph.getAdjacentNodes(x);
-
-            for (Node y : opposites) {
-                Set<Node> adjx = new HashSet<Node>(opposites);
-                adjx.remove(y);
-
-                if (adjx.size() > max) {
-                    max = adjx.size();
-                }
-            }
-        }
-
-        return max;
-    }
 }
-
-
-
-

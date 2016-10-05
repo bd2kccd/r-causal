@@ -27,8 +27,8 @@ public class Comparison {
      * printing out error statistics.
      */
     public static ComparisonResult compare(ComparisonParameters params) {
-        DataSet dataSet = null;
-        Graph trueDag = null;
+        DataSet dataSet;
+        Graph trueDag;
         IndependenceTest test = null;
         Score score = null;
 
@@ -43,10 +43,6 @@ public class Comparison {
 
             trueDag = loadGraphFile(params.getGraphFile());
         } else {
-//            if (params.getDataType() == null) {
-//                throw new IllegalArgumentException("Data type not set.");
-//            }
-
             if (params.getNumVars() == -1) {
                 throw new IllegalArgumentException("Number of variables not set.");
             }
@@ -203,13 +199,13 @@ public class Comparison {
         } else if (params.getAlgorithm() == ComparisonParameters.Algorithm.FGS) {
             if (score == null) throw new IllegalArgumentException("Score not set.");
             Fgs search = new Fgs(score);
-            search.setHeuristicSpeedup(params.isOneEdgeFaithfulnessAssumed());
+            search.setFaithfulnessAssumed(params.isOneEdgeFaithfulnessAssumed());
             result.setResultGraph(search.search());
             result.setCorrectResult(SearchGraphUtils.patternForDag(trueDag));
         } else if (params.getAlgorithm() == ComparisonParameters.Algorithm.FGS2) {
             if (score == null) throw new IllegalArgumentException("Score not set.");
             Fgs search = new Fgs(score);
-            search.setHeuristicSpeedup(params.isOneEdgeFaithfulnessAssumed());
+            search.setFaithfulnessAssumed(params.isOneEdgeFaithfulnessAssumed());
             result.setResultGraph(search.search());
             result.setCorrectResult(SearchGraphUtils.patternForDag(trueDag));
         } else if (params.getAlgorithm() == ComparisonParameters.Algorithm.FCI) {
@@ -219,7 +215,7 @@ public class Comparison {
             result.setCorrectResult(new DagToPag(trueDag).convert());
         } else if (params.getAlgorithm() == ComparisonParameters.Algorithm.GFCI) {
             if (test == null) throw new IllegalArgumentException("Test not set.");
-            GFci search = new GFci(test);
+            GFci search = new GFci(test, score);
             result.setResultGraph(search.search());
             result.setCorrectResult(new DagToPag(trueDag).convert());
         } else {

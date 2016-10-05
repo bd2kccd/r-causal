@@ -23,6 +23,7 @@ package edu.cmu.tetrad.sem;
 
 import cern.colt.list.DoubleArrayList;
 import cern.jet.stat.Descriptive;
+import edu.cmu.tetrad.algcomparison.simulation.Simulation;
 import edu.cmu.tetrad.data.*;
 import edu.cmu.tetrad.graph.GraphUtils;
 import edu.cmu.tetrad.graph.Node;
@@ -160,6 +161,8 @@ public final class SemEstimator implements TetradSerializable {
         if (DataUtils.containsMissingValue(covMatrix.getMatrix())) {
             throw new IllegalArgumentException("Expecting a covariance matrix with no missing values.");
         }
+
+        semPm.getGraph().setShowErrorTerms(false);
 
         setCovMatrix(submatrix(covMatrix, semPm));
         setSemPm(semPm);

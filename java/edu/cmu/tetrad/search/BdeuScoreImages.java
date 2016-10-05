@@ -191,11 +191,6 @@ public class BdeuScoreImages implements IBDeuScore {
     }
 
     @Override
-    public boolean isDiscrete() {
-        return false;
-    }
-
-    @Override
     public double getParameter1() {
         return 0;
     }
@@ -283,7 +278,7 @@ public class BdeuScoreImages implements IBDeuScore {
     }
 
     @Override
-    public int getMaxIndegree() {
+    public int getMaxDegree() {
         return 1000;
     }
 }

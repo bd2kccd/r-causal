@@ -25,16 +25,14 @@ import edu.cmu.tetrad.data.*;
 import edu.cmu.tetrad.graph.Graph;
 import edu.cmu.tetrad.graph.Node;
 import edu.cmu.tetrad.graph.TimeLagGraph;
-import edu.cmu.tetrad.util.*;
+import edu.cmu.tetrad.util.NumberFormatUtil;
+import edu.cmu.tetrad.util.RandomUtil;
 import org.apache.commons.math3.distribution.ChiSquaredDistribution;
-import org.apache.commons.math3.random.*;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.text.NumberFormat;
 import java.util.*;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.RecursiveTask;
 
 import static java.lang.Math.abs;
 import static java.lang.Math.pow;
@@ -234,6 +232,10 @@ public final class MlBayesIm implements BayesIm {
      */
     public static MlBayesIm serializableInstance() {
         return new MlBayesIm(BayesPm.serializableInstance());
+    }
+
+    public static List<String> getParameterNames() {
+        return new ArrayList<>();
     }
 
     //===============================PUBLIC METHODS========================//
@@ -948,6 +950,11 @@ public final class MlBayesIm implements BayesIm {
 
         // Get a tier ordering and convert it to an int array.
         Graph graph = getBayesPm().getDag();
+
+        if (graph.existsDirectedCycle()) {
+            throw new IllegalArgumentException("Graph must be acyclic to simulate from discrete Bayes net.");
+        }
+
         List<Node> tierOrdering = graph.getCausalOrdering();
         int[] tiers = new int[tierOrdering.size()];
 
@@ -1169,102 +1176,102 @@ public final class MlBayesIm implements BayesIm {
 
     private void constructSample(int sampleSize, DataSet dataSet, int[] map, int[] tiers) {
 
-        //Do the simulation.
-        class SimulationTask extends RecursiveTask<Boolean> {
-            private int chunk;
-            private int from;
-            private int to;
-            private int[] tiers;
-            private DataSet dataSet;
-            private int[] map;
-
-            public SimulationTask(int chunk, int from, int to, int[] tiers, DataSet dataSet, int[] map) {
-                this.chunk = chunk;
-                this.from = from;
-                this.to = to;
-                this.tiers = tiers;
-                this.dataSet = dataSet;
-                this.map = map;
-            }
-
-            @Override
-            protected Boolean compute() {
-                if (to - from <= chunk) {
-                    RandomGenerator randomGenerator = new Well1024a(++seed[0]);
-
-                    for (int row = from; row < to; row++) {
-                        for (int t : tiers) {
-                            int[] parentValues = new int[parents[t].length];
-
-                            for (int k = 0; k < parentValues.length; k++) {
-                                parentValues[k] = dataSet.getInt(row, parents[t][k]);
-                            }
-
-                            int rowIndex = getRowIndex(t, parentValues);
-                            double sum = 0.0;
-                            double r;
-
-                            r = randomGenerator.nextDouble();
-
-                            for (int k = 0; k < getNumColumns(t); k++) {
-                                double probability = getProbability(t, rowIndex, k);
-                                sum += probability;
-
-                                if (sum >= r) {
-                                    dataSet.setInt(row, map[t], k);
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                    return true;
-                } else {
-                    int mid = (to + from) / 2;
-                    SimulationTask left = new SimulationTask(chunk, from, mid, tiers, dataSet, map);
-                    SimulationTask right = new SimulationTask(chunk, mid, to, tiers, dataSet, map);
-
-                    left.fork();
-                    right.compute();
-                    left.join();
-
-                    return true;
-                }
-            }
-        }
-
-        int chunk = 25;
-
-        ForkJoinPool pool = ForkJoinPoolInstance.getInstance().getPool();
-        SimulationTask task = new SimulationTask(chunk, 0, sampleSize, tiers, dataSet, map);
-        pool.invoke(task);
-
-
-//        // Construct the sample.
-//        for (int i = 0; i < sampleSize; i++) {
-//            for (int t : tiers) {
-//                int[] parentValues = new int[parents[t].length];
+//        //Do the simulation.
+//        class SimulationTask extends RecursiveTask<Boolean> {
+//            private int chunk;
+//            private int from;
+//            private int to;
+//            private int[] tiers;
+//            private DataSet dataSet;
+//            private int[] map;
 //
-//                for (int k = 0; k < parentValues.length; k++) {
-//                    parentValues[k] = dataSet.getInt(i, parents[t][k]);
-//                }
+//            public SimulationTask(int chunk, int from, int to, int[] tiers, DataSet dataSet, int[] map) {
+//                this.chunk = chunk;
+//                this.from = from;
+//                this.to = to;
+//                this.tiers = tiers;
+//                this.dataSet = dataSet;
+//                this.map = map;
+//            }
 //
-//                int rowIndex = getRowIndex(t, parentValues);
-//                double sum = 0.0;
+//            @Override
+//            protected Boolean compute() {
+//                if (to - from <= chunk) {
+//                    RandomGenerator randomGenerator = new Well1024a(++seed[0]);
 //
-//                double r = RandomUtil.getInstance().nextDouble();
+//                    for (int row = from; row < to; row++) {
+//                        for (int t : tiers) {
+//                            int[] parentValues = new int[parents[t].length];
 //
-//                for (int k = 0; k < getNumColumns(t); k++) {
-//                    double probability = getProbability(t, rowIndex, k);
-//                    sum += probability;
+//                            for (int k = 0; k < parentValues.length; k++) {
+//                                parentValues[k] = dataSet.getInt(row, parents[t][k]);
+//                            }
 //
-//                    if (sum >= r) {
-//                        dataSet.setInt(i, map[t], k);
-//                        break;
+//                            int rowIndex = getRowIndex(t, parentValues);
+//                            double sum = 0.0;
+//                            double r;
+//
+//                            r = randomGenerator.nextDouble();
+//
+//                            for (int k = 0; k < getNumColumns(t); k++) {
+//                                double probability = getProbability(t, rowIndex, k);
+//                                sum += probability;
+//
+//                                if (sum >= r) {
+//                                    dataSet.setInt(row, map[t], k);
+//                                    break;
+//                                }
+//                            }
+//                        }
 //                    }
+//
+//                    return true;
+//                } else {
+//                    int mid = (to + from) / 2;
+//                    SimulationTask left = new SimulationTask(chunk, from, mid, tiers, dataSet, map);
+//                    SimulationTask right = new SimulationTask(chunk, mid, to, tiers, dataSet, map);
+//
+//                    left.fork();
+//                    right.compute();
+//                    left.join();
+//
+//                    return true;
 //                }
 //            }
 //        }
+//
+//        int chunk = 25;
+//
+//        ForkJoinPool pool = ForkJoinPoolInstance.getInstance().getPool();
+//        SimulationTask task = new SimulationTask(chunk, 0, sampleSize, tiers, dataSet, map);
+//        pool.invoke(task);
+
+
+        // Construct the sample.
+        for (int i = 0; i < sampleSize; i++) {
+            for (int t : tiers) {
+                int[] parentValues = new int[parents[t].length];
+
+                for (int k = 0; k < parentValues.length; k++) {
+                    parentValues[k] = dataSet.getInt(i, parents[t][k]);
+                }
+
+                int rowIndex = getRowIndex(t, parentValues);
+                double sum = 0.0;
+
+                double r = RandomUtil.getInstance().nextDouble();
+
+                for (int k = 0; k < getNumColumns(t); k++) {
+                    double probability = getProbability(t, rowIndex, k);
+                    sum += probability;
+
+                    if (sum >= r) {
+                        dataSet.setInt(i, map[t], k);
+                        break;
+                    }
+                }
+            }
+        }
 
 //        System.out.println(dataSet);
     }

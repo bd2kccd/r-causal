@@ -64,6 +64,19 @@ public class VerticalDoubleDataBox implements DataBox {
     }
 
     /**
+     * Copies the data from the given data box into this one.
+     */
+    public VerticalDoubleDataBox(DataBox dataBox) {
+        data = new double[dataBox.numCols()][dataBox.numRows()];
+
+        for (int i = 0; i < dataBox.numRows(); i++) {
+            for (int j = 0; j < dataBox.numCols(); j++) {
+                data[j][i] = dataBox.get(i, j).doubleValue();
+            }
+        }
+    }
+
+    /**
      * Generates a simple exemplar of this class to test serialization.
      */
     public static BoxDataSet serializableInstance() {
@@ -128,8 +141,27 @@ public class VerticalDoubleDataBox implements DataBox {
     /**
      * @return a DataBox of type DoubleDataBox, but with the given dimensions.
      */
-    public DataBox like(int rows, int cols) {
-        return new VerticalDoubleDataBox(rows, cols);
+    public DataBox like() {
+        int[] rows = new int[numRows()];
+        int[] cols = new int[numCols()];
+
+        for (int i = 0; i < numRows(); i++) rows[i] = i;
+        for (int j = 0; j < numCols(); j++) cols[j] = j;
+
+        return viewSelection(rows, cols);
+    }
+
+    @Override
+    public DataBox viewSelection(int[] rows, int[] cols) {
+        DataBox _dataBox = new VerticalDoubleDataBox(rows.length, cols.length);
+
+        for (int i = 0; i < rows.length; i++) {
+            for (int j = 0; j < cols.length; j++) {
+                _dataBox.set(i, j, get(rows[i], cols[j]));
+            }
+        }
+
+        return _dataBox;
     }
 }
 

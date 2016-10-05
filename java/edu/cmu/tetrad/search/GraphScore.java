@@ -184,17 +184,12 @@ public class GraphScore implements Score {
     }
 
     @Override
-    public int getMaxIndegree() {
+    public int getMaxDegree() {
         return 1000;
     }
 
     public int getSampleSize() {
         return 0;
-    }
-
-    @Override
-    public boolean isDiscrete() {
-        return false;
     }
 
     public double getParameter1() {

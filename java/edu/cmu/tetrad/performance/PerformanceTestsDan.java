@@ -21,6 +21,7 @@
 
 package edu.cmu.tetrad.performance;
 
+import edu.cmu.tetrad.algcomparison.score.SemBicScore;
 import edu.cmu.tetrad.data.CovarianceMatrix;
 import edu.cmu.tetrad.data.DataSet;
 import edu.cmu.tetrad.data.DataUtils;
@@ -47,7 +48,7 @@ import java.util.List;
  * @author Joseph Ramsey.
  */
 public class PerformanceTestsDan {
-    private void testIcaOutputForDan() {
+    private void testIdaOutputForDan() {
         int numRuns = 100;
 
         for (int run = 0; run < numRuns; run++) {
@@ -60,7 +61,8 @@ public class PerformanceTestsDan {
             final int numVars = 15;
             final double edgesPerNode = 1.0;
             final int numCases = 1000;
-            final int numLatents = RandomUtil.getInstance().nextInt(3) + 1;
+//            final int numLatents = RandomUtil.getInstance().nextInt(3) + 1;
+            final int numLatents = 6;
 
 //        writeToFile = false;
 
@@ -77,7 +79,7 @@ public class PerformanceTestsDan {
             PrintStream out11;
             PrintStream out12;
 
-            File dir0 = new File("fci..ges.output");
+            File dir0 = new File("gfci.output");
             dir0.mkdirs();
 
             File dir = new File(dir0, "" + (run + 1));
@@ -110,7 +112,7 @@ public class PerformanceTestsDan {
             out1.println("Depth = " + depth);
             out1.println("Maximum reachable path length for dsep search and discriminating undirectedPaths = " + maxPathLength);
 
-            List<Node> vars = new ArrayList<Node>();
+            List<Node> vars = new ArrayList<>();
             for (int i = 0; i < numVars; i++) vars.add(new GraphNode("X" + (i + 1)));
 
 //        Graph dag = DataGraphUtils.randomDagQuick2(varsWithLatents, 0, (int) (varsWithLatents.size() * edgesPerNode));
@@ -145,17 +147,25 @@ public class PerformanceTestsDan {
 
             out5.println();
 
-            out2.println(vars);
+            String vars_temp = vars.toString();
+            vars_temp = vars_temp.replace("[","");
+            vars_temp = vars_temp.replace("]","");
+            vars_temp = vars_temp.replace("X","");
+            out2.println(vars_temp);
 
-            List<Node> _vars = new ArrayList<Node>();
+            List<Node> _vars = new ArrayList<>();
 
-            for (Node node : _vars) {
+            for (Node node : vars) {
                 if (node.getNodeType() == NodeType.MEASURED) {
                     _vars.add(node);
                 }
             }
 
-            out2.println(_vars);
+            String _vars_temp = _vars.toString();
+            _vars_temp = _vars_temp.replace("[","");
+            _vars_temp = _vars_temp.replace("]","");
+            _vars_temp = _vars_temp.replace("X","");
+            out2.println(_vars_temp);
 
             DataSet fullData = im.simulateData(numCases, false);
 
@@ -164,21 +174,21 @@ public class PerformanceTestsDan {
             ICovarianceMatrix cov = new CovarianceMatrix(data);
 
             final IndTestFisherZ independenceTestGFci = new IndTestFisherZ(cov, alphaGFci);
+            final edu.cmu.tetrad.search.SemBicScore scoreGfci = new edu.cmu.tetrad.search.SemBicScore(cov);
+            scoreGfci.setParameter1(penaltyDiscount);
 
-            out6.println("FCI.GES.PAG");
+            out6.println("GFCI.PAG");
 
-            GFci gFci = new GFci(independenceTestGFci);
+            GFci gFci = new GFci(independenceTestGFci, scoreGfci);
             gFci.setVerbose(false);
-            gFci.setPenaltyDiscount(penaltyDiscount);
             gFci.setMaxIndegree(depth);
             gFci.setMaxPathLength(maxPathLength);
 //            gFci.setPossibleDsepSearchDone(true);
-            gFci.setCompleteRuleSetUsed(false);
+            gFci.setCompleteRuleSetUsed(true);
 
             Graph pag = gFci.search();
 
             out6.println(pag);
-
             printDanMatrix(_vars, pag, out7);
 
             out8.println("PATTERN OVER MEASURED VARIABLES");
@@ -218,6 +228,7 @@ public class PerformanceTestsDan {
     }
 
     private void printDanMatrix(List<Node> vars, Graph pattern, PrintStream out) {
+        pattern = GraphUtils.replaceNodes(pattern, vars);
         for (int i = 0; i < vars.size(); i++) {
             for (Node var : vars) {
                 Edge edge = pattern.getEdge(vars.get(i), var);
@@ -226,7 +237,6 @@ public class PerformanceTestsDan {
                     out.print(0 + "\t");
                 } else {
                     Endpoint ej = edge.getProximalEndpoint(var);
-
                     if (ej == Endpoint.TAIL) {
                         out.print(3 + "\t");
                     } else if (ej == Endpoint.ARROW) {
@@ -247,7 +257,7 @@ public class PerformanceTestsDan {
         NodeEqualityMode.setEqualityMode(NodeEqualityMode.Type.OBJECT);
         System.out.println("Start ");
 
-        new PerformanceTestsDan().testIcaOutputForDan();
+        new PerformanceTestsDan().testIdaOutputForDan();
     }
 }
 

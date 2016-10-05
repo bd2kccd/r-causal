@@ -70,7 +70,7 @@ public final class Fci implements GraphSearch {
     /**
      * The variables to search over (optional)
      */
-    private List<Node> variables = new ArrayList<Node>();
+    private List<Node> variables = new ArrayList<>();
 
     private IndependenceTest independenceTest;
 
@@ -144,7 +144,7 @@ public final class Fci implements GraphSearch {
         this.independenceTest = independenceTest;
         this.variables.addAll(independenceTest.getVariables());
 
-        Set<Node> remVars = new HashSet<Node>();
+        Set<Node> remVars = new HashSet<>();
         for (Node node1 : this.variables) {
             boolean search = false;
             for (Node node2 : searchVars) {
@@ -179,12 +179,7 @@ public final class Fci implements GraphSearch {
     }
 
     public Graph search() {
-        return search(getIndependenceTest().getVariables());
-    }
-
-    public Graph search(List<Node> nodes) {
-        return search(new Fas(getIndependenceTest()));
-//        return search(new Fas(getIndependenceTest()));
+        return search(new Fas(initialGraph, getIndependenceTest()));
     }
 
     public void setInitialGraph(Graph initialGraph) {
@@ -198,7 +193,6 @@ public final class Fci implements GraphSearch {
         fas.setKnowledge(getKnowledge());
         fas.setDepth(depth);
         fas.setVerbose(verbose);
-        fas.setInitialGraph(initialGraph);
         this.graph = fas.search();
         this.sepsets = fas.getSepsets();
 
@@ -360,7 +354,7 @@ public final class Fci implements GraphSearch {
     //===========================PRIVATE METHODS=========================//
 
     private void buildIndexing(List<Node> nodes) {
-        this.hashIndices = new ConcurrentHashMap<Node, Integer>();
+        this.hashIndices = new ConcurrentHashMap<>();
         for (Node node : nodes) {
             this.hashIndices.put(node, variables.indexOf(node));
         }

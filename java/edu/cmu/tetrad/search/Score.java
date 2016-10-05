@@ -43,8 +43,6 @@ public interface Score {
 
     boolean isEffectEdge(double bump);
 
-    boolean isDiscrete();
-
     double getParameter1();
 
     void setParameter1(double alpha);
@@ -53,6 +51,6 @@ public interface Score {
 
     Node getVariable(String targetName);
 
-    int getMaxIndegree();
+    int getMaxDegree();
 }
 
