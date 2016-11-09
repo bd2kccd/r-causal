@@ -24,20 +24,27 @@ R >= 3.2.0, stringr, rJava, graph, RBGL, Rgraphviz
 ### Install the R library requirements:
 
 ```{r}
-install.packages("stringr")
-install.packages("rJava")
+### These packages should be available upon building due to DESCRIPTION imports clause.
+#install.packages("stringr")
+#install.packages("rJava")
 ## try http:// if https:// URLs are not supported
 source("https://bioconductor.org/biocLite.R")
-biocLite("graph")
-biocLite("RBGL")
-biocLite("Rgraphviz") # For plotting graph
+options(warn=-1)
+if(! require("graph"))
+   biocLite("graph")
+if(! require("RBGL"))
+  biocLite("RBGL")
+if(! require("Rgraphviz"))
+  biocLite("Rgraphviz") # For plotting graph
+options(warn=1)
 ```
 
 ### Install the r-causal from github
 
 ```{r}
 library(devtools)
-install_github("bd2kccd/r-causal")
+#install_github("bd2kccd/r-causal")
+require(rcausal)
 ```
 
 ## Example
