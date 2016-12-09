@@ -39,7 +39,7 @@ import java.util.Set;
  * @author Joseph Ramsey
  * @see Endpoint
  */
-public interface Graph extends TetradSerializable {
+public interface Graph extends TetradSerializable, TripleClassifier {
     long serialVersionUID = 23L;
 
     /**
@@ -372,6 +372,14 @@ public interface Graph extends TetradSerializable {
      */
     boolean isDConnectedTo(Node node1, Node node2, List<Node> z);
 
+    boolean isPattern();
+
+    void setPattern(boolean pattern);
+
+    boolean isPag();
+
+    void setPag(boolean pag);
+
     /**
      * Determines whether one node is d-separated from another. Two elements are   E
      * d-separated just in case they are not d-connected.
@@ -640,6 +648,8 @@ public interface Graph extends TetradSerializable {
     void removeTriplesNotInGraph();
 
     List<Node> getSepset(Node n1, Node n2);
+
+    void setNodes(List<Node> nodes);
 }
 
 

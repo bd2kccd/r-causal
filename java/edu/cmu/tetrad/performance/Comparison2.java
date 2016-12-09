@@ -3,13 +3,14 @@ package edu.cmu.tetrad.performance;
 import edu.cmu.tetrad.bayes.BayesPm;
 import edu.cmu.tetrad.bayes.MlBayesIm;
 import edu.cmu.tetrad.data.*;
+import edu.cmu.tetrad.graph.EdgeListGraph;
 import edu.cmu.tetrad.graph.Graph;
 import edu.cmu.tetrad.graph.GraphUtils;
 import edu.cmu.tetrad.graph.Node;
 import edu.cmu.tetrad.io.TabularContinuousDataReader;
 import edu.cmu.tetrad.io.VerticalTabularDiscreteDataReader;
 import edu.cmu.tetrad.search.*;
-import edu.cmu.tetrad.sem.LargeSemSimulator;
+import edu.cmu.tetrad.sem.LargeScaleSimulation;
 import edu.cmu.tetrad.util.TetradMatrix;
 import edu.cmu.tetrad.util.TextTable;
 import edu.cmu.tetrad.search.TimeSeriesUtils;
@@ -121,7 +122,7 @@ public class Comparison2 {
             if (params.getAlgorithm() == ComparisonParameters.Algorithm.TsFCI) {
                 trueDag = GraphUtils.randomGraphRandomForwardEdges(
                         nodes, 0, params.getNumEdges(), 10, 10, 10, false, true);
-                trueDag = TimeSeriesUtils.GraphToLagGraph(trueDag);
+                trueDag = TimeSeriesUtils.graphToLagGraph(trueDag);
                 System.out.println("Creating Time Lag Graph : " + trueDag);
             }
             /***************************/
@@ -139,28 +140,28 @@ public class Comparison2 {
                 if (test == null) throw new IllegalArgumentException("Test not set.");
                 Pc search = new Pc(test);
                 result.setResultGraph(search.search());
-                result.setCorrectResult(SearchGraphUtils.patternForDag(trueDag));
+                result.setCorrectResult(SearchGraphUtils.patternForDag(new EdgeListGraph(trueDag)));
             } else if (params.getAlgorithm() == ComparisonParameters.Algorithm.CPC) {
                 if (test == null) throw new IllegalArgumentException("Test not set.");
                 Cpc search = new Cpc(test);
                 result.setResultGraph(search.search());
-                result.setCorrectResult(SearchGraphUtils.patternForDag(trueDag));
+                result.setCorrectResult(SearchGraphUtils.patternForDag(new EdgeListGraph(trueDag)));
             } else if (params.getAlgorithm() == ComparisonParameters.Algorithm.PCLocal) {
                 if (test == null) throw new IllegalArgumentException("Test not set.");
                 PcLocal search = new PcLocal(test);
                 result.setResultGraph(search.search());
-                result.setCorrectResult(SearchGraphUtils.patternForDag(trueDag));
+                result.setCorrectResult(SearchGraphUtils.patternForDag(new EdgeListGraph(trueDag)));
             } else if (params.getAlgorithm() == ComparisonParameters.Algorithm.PCMax) {
                 if (test == null) throw new IllegalArgumentException("Test not set.");
                 PcMax search = new PcMax(test);
                 result.setResultGraph(search.search());
-                result.setCorrectResult(SearchGraphUtils.patternForDag(trueDag));
+                result.setCorrectResult(SearchGraphUtils.patternForDag(new EdgeListGraph(trueDag)));
             } else if (params.getAlgorithm() == ComparisonParameters.Algorithm.FGS) {
                 if (score == null) throw new IllegalArgumentException("Score not set.");
                 Fgs search = new Fgs(score);
                 //search.setFaithfulnessAssumed(params.isOneEdgeFaithfulnessAssumed());
                 result.setResultGraph(search.search());
-                result.setCorrectResult(SearchGraphUtils.patternForDag(trueDag));
+                result.setCorrectResult(SearchGraphUtils.patternForDag(new EdgeListGraph(trueDag)));
             } else if (params.getAlgorithm() == ComparisonParameters.Algorithm.FCI) {
                 if (test == null) throw new IllegalArgumentException("Test not set.");
                 Fci search = new Fci(test);
@@ -228,7 +229,7 @@ public class Comparison2 {
                 if (params.getAlgorithm() == ComparisonParameters.Algorithm.TsFCI) {
                     trueDag = GraphUtils.randomGraphRandomForwardEdges(
                             nodes, 0, params.getNumEdges(), 10, 10, 10, false, true);
-                    trueDag = TimeSeriesUtils.GraphToLagGraph(trueDag);
+                    trueDag = TimeSeriesUtils.graphToLagGraph(trueDag);
                     System.out.println("Creating Time Lag Graph : " + trueDag);
                 }
                 /***************************/
@@ -241,7 +242,7 @@ public class Comparison2 {
                     throw new IllegalArgumentException("Sample size not set.");
                 }
 
-                LargeSemSimulator sim = new LargeSemSimulator(trueDag);
+                LargeScaleSimulation sim = new LargeScaleSimulation(trueDag);
 
                 /** added 6.08.16 for tsFCI **/
                 if (params.getAlgorithm() == ComparisonParameters.Algorithm.TsFCI) {
@@ -276,7 +277,7 @@ public class Comparison2 {
                         sub2[i] = tierSize + i;
                     }
                     do {
-                        dataSet = sim.simulateDataAcyclic(params.getSampleSize());
+                        dataSet = sim.simulateDataFisher(params.getSampleSize());
 //                        System.out.println("Variable Nodes : " + sim.getVariableNodes());
 //                        System.out.println(MatrixUtils.toString(sim.getCoefficientMatrix()));
 
@@ -299,7 +300,7 @@ public class Comparison2 {
                         System.out.println("%%%%%%%%%% WARNING %%%%%%%% not a stable coefficient matrix, forcing coefs to [0.15,0.3]");
                         System.out.println("Made " + (attempt-1) + " attempts to get stable matrix.");
                         sim.setCoefRange(0.15, 0.3);
-                        dataSet = sim.simulateDataAcyclic(params.getSampleSize());
+                        dataSet = sim.simulateDataFisher(params.getSampleSize());
                     } else System.out.println("Coefficient matrix is stable.");
                 }
 
@@ -411,28 +412,28 @@ public class Comparison2 {
             if (test == null) throw new IllegalArgumentException("Test not set.");
             Pc search = new Pc(test);
             result.setResultGraph(search.search());
-            result.setCorrectResult(SearchGraphUtils.patternForDag(trueDag));
+            result.setCorrectResult(SearchGraphUtils.patternForDag(new EdgeListGraph(trueDag)));
         } else if (params.getAlgorithm() == ComparisonParameters.Algorithm.CPC) {
             if (test == null) throw new IllegalArgumentException("Test not set.");
             Cpc search = new Cpc(test);
             result.setResultGraph(search.search());
-            result.setCorrectResult(SearchGraphUtils.patternForDag(trueDag));
+            result.setCorrectResult(SearchGraphUtils.patternForDag(new EdgeListGraph(trueDag)));
         } else if (params.getAlgorithm() == ComparisonParameters.Algorithm.PCLocal) {
             if (test == null) throw new IllegalArgumentException("Test not set.");
             PcLocal search = new PcLocal(test);
             result.setResultGraph(search.search());
-            result.setCorrectResult(SearchGraphUtils.patternForDag(trueDag));
+            result.setCorrectResult(SearchGraphUtils.patternForDag(new EdgeListGraph(trueDag)));
         } else if (params.getAlgorithm() == ComparisonParameters.Algorithm.PCMax) {
             if (test == null) throw new IllegalArgumentException("Test not set.");
             PcMax search = new PcMax(test);
             result.setResultGraph(search.search());
-            result.setCorrectResult(SearchGraphUtils.patternForDag(trueDag));
+            result.setCorrectResult(SearchGraphUtils.patternForDag(new EdgeListGraph(trueDag)));
         } else if (params.getAlgorithm() == ComparisonParameters.Algorithm.FGS) {
             if (score == null) throw new IllegalArgumentException("Score not set.");
             Fgs search = new Fgs(score);
             //search.setFaithfulnessAssumed(params.isOneEdgeFaithfulnessAssumed());
             result.setResultGraph(search.search());
-            result.setCorrectResult(SearchGraphUtils.patternForDag(trueDag));
+            result.setCorrectResult(SearchGraphUtils.patternForDag(new EdgeListGraph(trueDag)));
         } else if (params.getAlgorithm() == ComparisonParameters.Algorithm.FCI) {
             if (test == null) throw new IllegalArgumentException("Test not set.");
             Fci search = new Fci(test);

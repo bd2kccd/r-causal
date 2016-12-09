@@ -4,13 +4,11 @@ import edu.cmu.tetrad.algcomparison.algorithm.Algorithm;
 import edu.cmu.tetrad.algcomparison.independence.IndependenceWrapper;
 import edu.cmu.tetrad.algcomparison.score.ScoreWrapper;
 import edu.cmu.tetrad.algcomparison.utils.HasKnowledge;
-import edu.cmu.tetrad.data.DataSet;
-import edu.cmu.tetrad.data.DataType;
-import edu.cmu.tetrad.data.IKnowledge;
-import edu.cmu.tetrad.data.Knowledge2;
+import edu.cmu.tetrad.data.*;
 import edu.cmu.tetrad.graph.Graph;
 import edu.cmu.tetrad.search.DagToPag;
 import edu.cmu.tetrad.search.GFci;
+import edu.cmu.tetrad.search.GFciMax;
 import edu.cmu.tetrad.util.Parameters;
 import java.io.PrintStream;
 import java.util.List;
@@ -33,14 +31,17 @@ public class Gfci implements Algorithm, HasKnowledge {
     }
 
     @Override
-    public Graph search(DataSet dataSet, Parameters parameters) {
+    public Graph search(DataModel dataSet, Parameters parameters) {
         GFci search = new GFci(test.getTest(dataSet, parameters), score.getScore(dataSet, parameters));
-        search.setMaxIndegree(parameters.getInt("maxIndegree"));
+        search.setMaxDegree(parameters.getInt("maxDegree"));
         search.setKnowledge(knowledge);
         search.setVerbose(parameters.getBoolean("verbose"));
         search.setFaithfulnessAssumed(parameters.getBoolean("faithfulnessAssumed"));
+        search.setMaxPathLength(parameters.getInt("maxPathLength"));
+        search.setCompleteRuleSetUsed(parameters.getBoolean("completeRuleSetUsed"));
 
         Object obj = parameters.get("printStream");
+
         if (obj instanceof PrintStream) {
             search.setOut((PrintStream) obj);
         }
@@ -68,8 +69,10 @@ public class Gfci implements Algorithm, HasKnowledge {
         List<String> parameters = test.getParameters();
         parameters.addAll(score.getParameters());
         parameters.add("faithfulnessAssumed");
-        parameters.add("maxIndegree");
+        parameters.add("maxDegree");
         parameters.add("printStream");
+        parameters.add("maxPathLength");
+        parameters.add("completeRuleSetUsed");
         return parameters;
     }
 

@@ -11,8 +11,8 @@ fci							Fast Causal Inference algorithm
 rfci						FCI algorithm with Augmented Rules
 gfci                        Greedy Continuous FCI algorithm with Augmented Rules
 gfci.discrete               Greedy Discrete FCI algorithm with Augmented Rules
-fgs                         Fast Greedy Search for Causal and Statistical Model Discovery on Continuous Data
-fgs.discrete                Fast Greedy Search for Causal and Statistical Model Discovery on Discrete Data
+fges                        Fast Greedy Equivalence Search for Causal and Statistical Model Discovery on Continuous Data
+fges.discrete               Fast Greedy Equivalence Search for Causal and Statistical Model Discovery on Discrete Data
 priorKnowledge              Prior Knowledge Object Creation Function
 priorKnowledgeFromFile      Load Prior Knowledge File Function
 randomDag					Generating a Random Directed Acyclic Graph algorithm

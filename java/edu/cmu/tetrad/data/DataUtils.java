@@ -986,14 +986,17 @@ public final class DataUtils {
 
     public static DataSet restrictToMeasured(DataSet fullDataSet) {
         List<Node> measuredVars = new ArrayList<>();
+        List<Node> latentVars = new ArrayList<>();
 
         for (Node node : fullDataSet.getVariables()) {
             if (node.getNodeType() == NodeType.MEASURED) {
                 measuredVars.add(node);
+            } else {
+                latentVars.add(node);
             }
         }
 
-        return fullDataSet.subsetColumns(measuredVars);
+        return latentVars.isEmpty() ? fullDataSet : fullDataSet.subsetColumns(measuredVars);
     }
 
     public static TetradMatrix cov2(TetradMatrix data) {
@@ -1100,6 +1103,8 @@ public final class DataUtils {
     }
 
     public static TetradMatrix cov(TetradMatrix data) {
+
+
         for (int j = 0; j < data.columns(); j++) {
             double sum = 0.0;
 
@@ -1767,6 +1772,44 @@ public final class DataUtils {
         for (int j = 0; j < keepCols.size(); j++) newCols[j] = keepCols.get(j);
 
         return dataSet.subsetColumns(newCols);
+    }
+
+    public static ICovarianceMatrix getCovMatrix(DataModel dataModel) {
+        if (dataModel == null) {
+            throw new IllegalArgumentException("Expecting either a tabular dataset or a covariance matrix.");
+        }
+
+        if (dataModel instanceof ICovarianceMatrix) {
+            return (ICovarianceMatrix) dataModel;
+        } else if (dataModel instanceof DataSet) {
+            return new CovarianceMatrixOnTheFly((DataSet) dataModel);
+        } else {
+            throw new IllegalArgumentException("Sorry, I was expecting either a tabular dataset or a covariance matrix.");
+        }
+    }
+
+    public static DataSet getDiscreteDataSet(DataModel dataSet) {
+        if (dataSet == null || !(dataSet instanceof DataSet) || !dataSet.isDiscrete()) {
+            throw new IllegalArgumentException("Sorry, I was expecting a discrete data set.");
+        }
+
+        return (DataSet) dataSet;
+    }
+
+    public static DataSet getContinuousDataSet(DataModel dataSet) {
+        if (dataSet == null || !(dataSet instanceof DataSet) || !dataSet.isContinuous()) {
+            throw new IllegalArgumentException("Sorry, I was expecting a (tabular) continuous data set.");
+        }
+
+        return (DataSet) dataSet;
+    }
+
+    public static DataSet getMixedDataSet(DataModel dataSet) {
+        if (dataSet == null || !(dataSet instanceof DataSet)) {
+            throw new IllegalArgumentException("Sorry, I was expecting a (tabular) mixed data set.");
+        }
+
+        return (DataSet) dataSet;
     }
 }
 

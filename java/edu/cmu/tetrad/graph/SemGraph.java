@@ -80,6 +80,9 @@ public final class SemGraph implements Graph, TetradSerializable {
      */
     private boolean showErrorTerms = false;
 
+    private boolean pag;
+    private boolean pattern;
+
     //=========================CONSTRUCTORS============================//
 
     /**
@@ -806,6 +809,11 @@ public final class SemGraph implements Graph, TetradSerializable {
         return graph.getSepset(n1, n2);
     }
 
+    @Override
+    public void setNodes(List<Node> nodes) {
+        graph.setNodes(nodes);
+    }
+
     //========================PRIVATE METHODS===========================//
 
     /**
@@ -957,6 +965,36 @@ public final class SemGraph implements Graph, TetradSerializable {
                 error.setCenter(node.getCenterX() + 50, node.getCenterY() + 50);
             }
         }
+    }
+
+    @Override
+    public List<String> getTriplesClassificationTypes() {
+        return null;
+    }
+
+    @Override
+    public List<List<Triple>> getTriplesLists(Node node) {
+        return null;
+    }
+
+    @Override
+    public boolean isPag() {
+        return pag;
+    }
+
+    @Override
+    public void setPag(boolean pag) {
+        this.pag = pag;
+    }
+
+    @Override
+    public boolean isPattern() {
+        return pattern;
+    }
+
+    @Override
+    public void setPattern(boolean pattern) {
+        this.pattern = pattern;
     }
 }
 

@@ -1,7 +1,8 @@
 package edu.cmu.tetrad.algcomparison.independence;
 
+import edu.cmu.tetrad.data.DataModel;
+import edu.cmu.tetrad.data.DataUtils;
 import edu.cmu.tetrad.util.Parameters;
-import edu.cmu.tetrad.data.DataSet;
 import edu.cmu.tetrad.data.DataType;
 import edu.cmu.tetrad.search.IndTestConditionalGaussianLRT;
 import edu.cmu.tetrad.search.IndependenceTest;
@@ -19,8 +20,13 @@ public class ConditionalGaussianLRT implements IndependenceWrapper, Experimental
     static final long serialVersionUID = 23L;
 
     @Override
-    public IndependenceTest getTest(DataSet dataSet, Parameters parameters) {
-        return new IndTestConditionalGaussianLRT(dataSet, parameters.getDouble("alpha"));
+    public IndependenceTest getTest(DataModel dataSet, Parameters parameters) {
+        final IndTestConditionalGaussianLRT test
+                = new IndTestConditionalGaussianLRT(DataUtils.getMixedDataSet(dataSet),
+                parameters.getDouble("alpha"));
+        test.setPenaltyDiscount(parameters.getDouble("penaltyDiscount"));
+        test.setDenominatorMixed(parameters.getBoolean("assumeMixed"));
+        return test;
     }
 
     @Override
@@ -35,9 +41,11 @@ public class ConditionalGaussianLRT implements IndependenceWrapper, Experimental
 
     @Override
     public List<String> getParameters() {
-        List<String> params = new ArrayList<>();
-        params.add("alpha");
-        return params;
+        List<String> parameters = new ArrayList<>();
+        parameters.add("alpha");
+        parameters.add("assumeMixed");
+        parameters.add("penaltyDiscount");
+        return parameters;
     }
 
 }

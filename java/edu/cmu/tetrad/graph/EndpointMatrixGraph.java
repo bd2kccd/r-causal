@@ -88,6 +88,9 @@ public class EndpointMatrixGraph implements Graph {
     private HashMap<Endpoint, Short> endpointsToShorts;
     private int numEdges = 0;
 
+    private boolean pag;
+    private boolean pattern;
+
     //==============================CONSTUCTORS===========================//
 
     /**
@@ -704,6 +707,36 @@ public class EndpointMatrixGraph implements Graph {
 
     public boolean isDSeparatedFrom(List<Node> x, List<Node> y, List<Node> z) {
         return !isDConnectedTo(x, y, z);
+    }
+
+    @Override
+    public List<String> getTriplesClassificationTypes() {
+        return null;
+    }
+
+    @Override
+    public List<List<Triple>> getTriplesLists(Node node) {
+        return null;
+    }
+
+    @Override
+    public boolean isPag() {
+        return pag;
+    }
+
+    @Override
+    public void setPag(boolean pag) {
+        this.pag = pag;
+    }
+
+    @Override
+    public boolean isPattern() {
+        return pattern;
+    }
+
+    @Override
+    public void setPattern(boolean pattern) {
+        this.pattern = pattern;
     }
 
     private static class Pair {
@@ -1746,6 +1779,16 @@ public class EndpointMatrixGraph implements Graph {
     @Override
     public List<Node> getSepset(Node n1, Node n2) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setNodes(List<Node> nodes) {
+        if (nodes.size() != this.nodes.size()) {
+            throw new IllegalArgumentException("Sorry, there is a mismatch in the number of variables " +
+                    "you are trying to set.");
+        }
+
+        this.nodes = nodes;
     }
 
 

@@ -38,6 +38,8 @@ public class LagGraph implements Graph {
     private List<String> variables = new ArrayList<>();
     private int numLags = 0;
     private Map<String, List<Node>> laggedVariables = new HashMap<>();
+    private boolean pag;
+    private boolean pattern;
 
     // New methods.
     public boolean addVariable(String variable) {
@@ -450,12 +452,47 @@ public class LagGraph implements Graph {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public void setNodes(List<Node> nodes) {
+        graph.setNodes(nodes);
+    }
+
     private Dag getGraph() {
         return graph;
     }
 
     public void setGraph(Dag graph) {
         this.graph = graph;
+    }
+
+    @Override
+    public List<String> getTriplesClassificationTypes() {
+        return null;
+    }
+
+    @Override
+    public List<List<Triple>> getTriplesLists(Node node) {
+        return null;
+    }
+
+    @Override
+    public boolean isPag() {
+        return pag;
+    }
+
+    @Override
+    public void setPag(boolean pag) {
+        this.pag = pag;
+    }
+
+    @Override
+    public boolean isPattern() {
+        return pattern;
+    }
+
+    @Override
+    public void setPattern(boolean pattern) {
+        this.pattern = pattern;
     }
 }
 

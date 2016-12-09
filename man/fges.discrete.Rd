@@ -1,8 +1,8 @@
-\name{fgs.discrete}
-\alias{fgs.discrete}
-\title{Fast Greedy Search on Discrete Data}
+\name{fges.discrete}
+\alias{fges.discrete}
+\title{Fast Greedy Equivalence Search on Discrete Data}
 \description{
- \code{fgs} is the revised Greedy Equivalence Search (GES) algorithm developed 
+ \code{fges.discrete} is the revised Greedy Equivalence Search (GES) algorithm developed 
  by Joseph D. Ramsey, Director of Research Computing, Department of Philosophy,
  Carnegie Mellon University, Pittsburgh, PA.
 }
