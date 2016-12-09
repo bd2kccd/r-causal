@@ -1,4 +1,4 @@
-fgs.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, maxDegree = 3, 
+fges.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, maxDegree = 3, 
 	faithfulnessAssumed = TRUE, numOfThreads = 2, verbose = FALSE, java.parameters = NULL, 
 	priorKnowledge = NULL){
 
@@ -12,24 +12,24 @@ fgs.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, maxDegree 
     # Data Frame to Tetrad Dataset
     score <- dataFrame2TetradBDeuScore(df, structurePrior, samplePrior)
 
-    fgs <- list()
-    class(fgs) <- "fgs.discrete"
+    fges <- list()
+    class(fges) <- "fges.discrete"
 
-    fgs$datasets <- deparse(substitute(df))
+    fges$datasets <- deparse(substitute(df))
 
     cat("Datasets:\n")
     cat(deparse(substitute(df)),"\n")
 
-    # Initiate FGS Discrete
-    fgs_instance <- .jnew("edu/cmu/tetrad/search/Fgs", score)
-    .jcall(fgs_instance, "V", "setMaxDegree", as.integer(maxDegree))
-    .jcall(fgs_instance, "V", "setNumPatternsToStore", as.integer(0))
-    .jcall(fgs_instance, "V", "setFaithfulnessAssumed", faithfulnessAssumed)
-    .jcall(fgs_instance, "V", "setParallelism", as.integer(numOfThreads))
-    .jcall(fgs_instance, "V", "setVerbose", verbose)
+    # Initiate FGES Discrete
+    fges_instance <- .jnew("edu/cmu/tetrad/search/Fgs", score)
+    .jcall(fges_instance, "V", "setMaxDegree", as.integer(maxDegree))
+    .jcall(fges_instance, "V", "setNumPatternsToStore", as.integer(0))
+    .jcall(fges_instance, "V", "setFaithfulnessAssumed", faithfulnessAssumed)
+    .jcall(fges_instance, "V", "setParallelism", as.integer(numOfThreads))
+    .jcall(fges_instance, "V", "setVerbose", verbose)
 
     if(!is.null(priorKnowledge)){
-        .jcall(fgs_instance, "V", "setKnowledge", priorKnowledge)
+        .jcall(fges_instance, "V", "setKnowledge", priorKnowledge)
     }
 
     params <- c(params, structurePrior = as.double(structurePrior))
@@ -43,7 +43,7 @@ fgs.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, maxDegree 
         params <- c(params, prior = priorKnowledge)
     }
     
-    fgs$parameters <- params
+    fges$parameters <- params
 
     cat("Graph Parameters:\n")
     cat("structurePrior = ", structurePrior,"\n")
@@ -54,23 +54,23 @@ fgs.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, maxDegree 
     cat("verbose = ", verbose,"\n")
 
     # Search
-    tetrad_graph <- .jcall(fgs_instance, "Ledu/cmu/tetrad/graph/Graph;", 
+    tetrad_graph <- .jcall(fges_instance, "Ledu/cmu/tetrad/graph/Graph;", 
         "search")
 
     V <- extractTetradNodes(tetrad_graph)
 
-    fgs$nodes <- V
+    fges$nodes <- V
 
     # extract edges
-    fgs_edges <- extractTetradEdges(tetrad_graph)
+    fges_edges <- extractTetradEdges(tetrad_graph)
 
-    fgs$edges <- fgs_edges
+    fges$edges <- fges_edges
 
-    # convert output of FGS into an R object (graphNEL)
-    fgs_graphNEL = tetradPattern2graphNEL(resultGraph = tetrad_graph,
+    # convert output of FGES into an R object (graphNEL)
+    fges_graphNEL = tetradPattern2graphNEL(resultGraph = tetrad_graph,
         verbose = verbose)
 
-    fgs$graphNEL <- fgs_graphNEL
+    fges$graphNEL <- fges_graphNEL
 
-    return(fgs) 
+    return(fges) 
 }

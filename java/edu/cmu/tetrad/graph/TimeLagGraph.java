@@ -49,6 +49,9 @@ public class TimeLagGraph implements Graph {
     private int numInitialLags = 1;
     private List<Node> lag0Nodes = new ArrayList<>();
 
+    private boolean pag;
+    private boolean pattern;
+
     public TimeLagGraph() {
     }
 
@@ -366,6 +369,36 @@ public class TimeLagGraph implements Graph {
         return numInitialLags;
     }
 
+    @Override
+    public List<String> getTriplesClassificationTypes() {
+        return null;
+    }
+
+    @Override
+    public List<List<Triple>> getTriplesLists(Node node) {
+        return null;
+    }
+
+    @Override
+    public boolean isPag() {
+        return pag;
+    }
+
+    @Override
+    public void setPag(boolean pag) {
+        this.pag = pag;
+    }
+
+    @Override
+    public boolean isPattern() {
+        return pattern;
+    }
+
+    @Override
+    public void setPattern(boolean pattern) {
+        this.pattern = pattern;
+    }
+
     public static class NodeId {
         private String name;
         private int lag;
@@ -637,6 +670,11 @@ public class TimeLagGraph implements Graph {
     @Override
     public List<Node> getSepset(Node n1, Node n2) {
         return graph.getSepset(n1, n2);
+    }
+
+    @Override
+    public void setNodes(List<Node> nodes) {
+        throw new IllegalArgumentException("Sorry, you cannot replace the variables for a time lag graph.");
     }
 
     public boolean isExogenous(Node node) {

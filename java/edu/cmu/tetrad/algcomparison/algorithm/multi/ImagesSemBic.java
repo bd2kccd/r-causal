@@ -5,6 +5,7 @@ import edu.cmu.tetrad.algcomparison.algorithm.oracle.pattern.Fgs;
 import edu.cmu.tetrad.algcomparison.score.SemBicScore;
 import edu.cmu.tetrad.algcomparison.utils.HasKnowledge;
 import edu.cmu.tetrad.data.*;
+import edu.cmu.tetrad.graph.EdgeListGraph;
 import edu.cmu.tetrad.util.Parameters;
 import edu.cmu.tetrad.graph.Graph;
 import edu.cmu.tetrad.search.SemBicScoreImages;
@@ -39,19 +40,20 @@ public class ImagesSemBic implements MultiDataSetAlgorithm, HasKnowledge {
 
         edu.cmu.tetrad.search.Fgs search = new edu.cmu.tetrad.search.Fgs(new SemBicScoreImages(dataModels));
         search.setFaithfulnessAssumed(true);
+        IKnowledge knowledge = dataModels.get(0).getKnowledge();
         search.setKnowledge(knowledge);
 
         return search.search();
     }
 
     @Override
-    public Graph search(DataSet dataSet, Parameters parameters) {
-        return search(Collections.singletonList(dataSet), parameters);
+    public Graph search(DataModel dataSet, Parameters parameters) {
+        return search(Collections.singletonList(DataUtils.getContinuousDataSet(dataSet)), parameters);
     }
 
     @Override
     public Graph getComparisonGraph(Graph graph) {
-        return new TsDagToPag(graph).convert();
+        return new TsDagToPag(new EdgeListGraph(graph)).convert();
     }
 
     @Override

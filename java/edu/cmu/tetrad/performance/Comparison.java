@@ -3,11 +3,12 @@ package edu.cmu.tetrad.performance;
 import edu.cmu.tetrad.bayes.BayesPm;
 import edu.cmu.tetrad.bayes.MlBayesIm;
 import edu.cmu.tetrad.data.*;
+import edu.cmu.tetrad.graph.EdgeListGraph;
 import edu.cmu.tetrad.graph.Graph;
 import edu.cmu.tetrad.graph.GraphUtils;
 import edu.cmu.tetrad.graph.Node;
 import edu.cmu.tetrad.search.*;
-import edu.cmu.tetrad.sem.LargeSemSimulator;
+import edu.cmu.tetrad.sem.LargeScaleSimulation;
 import edu.cmu.tetrad.util.TextTable;
 
 import java.text.DecimalFormat;
@@ -69,8 +70,8 @@ public class Comparison {
                     throw new IllegalArgumentException("Sample size not set.");
                 }
 
-                LargeSemSimulator sim = new LargeSemSimulator(trueDag);
-                dataSet = sim.simulateDataAcyclic(params.getSampleSize());
+                LargeScaleSimulation sim = new LargeScaleSimulation(trueDag);
+                dataSet = sim.simulateDataFisher(params.getSampleSize());
             } else if (params.getDataType() == ComparisonParameters.DataType.Discrete) {
                 List<Node> nodes = new ArrayList<>();
 
@@ -180,34 +181,34 @@ public class Comparison {
             if (test == null) throw new IllegalArgumentException("Test not set.");
             Pc search = new Pc(test);
             result.setResultGraph(search.search());
-            result.setCorrectResult(SearchGraphUtils.patternForDag(trueDag));
+            result.setCorrectResult(SearchGraphUtils.patternForDag(new EdgeListGraph(trueDag)));
         } else if (params.getAlgorithm() == ComparisonParameters.Algorithm.CPC) {
             if (test == null) throw new IllegalArgumentException("Test not set.");
             Cpc search = new Cpc(test);
             result.setResultGraph(search.search());
-            result.setCorrectResult(SearchGraphUtils.patternForDag(trueDag));
+            result.setCorrectResult(SearchGraphUtils.patternForDag(new EdgeListGraph(trueDag)));
         } else if (params.getAlgorithm() == ComparisonParameters.Algorithm.PCLocal) {
             if (test == null) throw new IllegalArgumentException("Test not set.");
             PcLocal search = new PcLocal(test);
             result.setResultGraph(search.search());
-            result.setCorrectResult(SearchGraphUtils.patternForDag(trueDag));
+            result.setCorrectResult(SearchGraphUtils.patternForDag(new EdgeListGraph(trueDag)));
         } else if (params.getAlgorithm() == ComparisonParameters.Algorithm.PCMax) {
             if (test == null) throw new IllegalArgumentException("Test not set.");
             PcMax search = new PcMax(test);
             result.setResultGraph(search.search());
-            result.setCorrectResult(SearchGraphUtils.patternForDag(trueDag));
+            result.setCorrectResult(SearchGraphUtils.patternForDag(new EdgeListGraph(trueDag)));
         } else if (params.getAlgorithm() == ComparisonParameters.Algorithm.FGS) {
             if (score == null) throw new IllegalArgumentException("Score not set.");
             Fgs search = new Fgs(score);
             search.setFaithfulnessAssumed(params.isOneEdgeFaithfulnessAssumed());
             result.setResultGraph(search.search());
-            result.setCorrectResult(SearchGraphUtils.patternForDag(trueDag));
+            result.setCorrectResult(SearchGraphUtils.patternForDag(new EdgeListGraph(trueDag)));
         } else if (params.getAlgorithm() == ComparisonParameters.Algorithm.FGS2) {
             if (score == null) throw new IllegalArgumentException("Score not set.");
             Fgs search = new Fgs(score);
             search.setFaithfulnessAssumed(params.isOneEdgeFaithfulnessAssumed());
             result.setResultGraph(search.search());
-            result.setCorrectResult(SearchGraphUtils.patternForDag(trueDag));
+            result.setCorrectResult(SearchGraphUtils.patternForDag(new EdgeListGraph(trueDag)));
         } else if (params.getAlgorithm() == ComparisonParameters.Algorithm.FCI) {
             if (test == null) throw new IllegalArgumentException("Test not set.");
             Fci search = new Fci(test);

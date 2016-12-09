@@ -44,7 +44,6 @@ import edu.cmu.tetrad.graph.*;
 import edu.cmu.tetrad.util.*;
 import org.reflections.Reflections;
 
-import javax.swing.*;
 import java.io.*;
 import java.lang.reflect.Constructor;
 import java.text.DecimalFormat;
@@ -57,6 +56,7 @@ import java.util.concurrent.RecursiveTask;
  * of parameters and their values.
  *
  * @author jdramsey
+ * @author Daniel Malinsky
  */
 public class Comparison {
     private boolean[] graphTypeUsed;
@@ -115,7 +115,9 @@ public class Comparison {
         // Create output file.
         try {
             File dir = new File(filePath);
-            this.out = new PrintStream(new FileOutputStream(new File(dir, "Comparison.txt")));
+            dir.mkdirs();
+            File file = new File(dir, "Comparison.txt");
+            this.out = new PrintStream(new FileOutputStream(file));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -348,9 +350,11 @@ public class Comparison {
         File dir;
         int i = 0;
 
-        do {
-            dir = new File(dir0, "Simulation" + (++i));
-        } while (dir.exists());
+        dir = new File(dir0, "save");
+//
+//        do {
+//            dir = new File(dir0, "Simulation" + (++i));
+//        } while (dir.exists());
 
 //        if (dir.exists()) {
 //            JOptionPane.showMessageDialog(JOptionUtils.centeringComp(),
@@ -1091,7 +1095,13 @@ public class Comparison {
 
                             for (String name : _parameterNames) {
                                 if (name.equals(statName)) {
-                                    stat = _parameters.getDouble(name);
+                                    try {
+                                        stat = _parameters.getDouble(name);
+                                    } catch (Exception e) {
+                                        boolean b = _parameters.getBoolean(name);
+                                        stat = b ? Double.POSITIVE_INFINITY : Double.NEGATIVE_INFINITY;
+                                    }
+
                                     break;
                                 }
                             }
@@ -1184,8 +1194,15 @@ public class Comparison {
             for (int t = 0; t < algorithmSimulationWrappers.size(); t++) {
                 for (int statIndex = 0; statIndex < numStats; statIndex++) {
                     double stat = statTables[u][newOrder[t]][statIndex];
-                    table.setToken(t + 1, initialColumn + statIndex,
-                            Math.abs(stat) < 0.1 ? smallNf.format(stat) : nf.format(stat));
+
+                    if (stat == Double.POSITIVE_INFINITY) {
+                        table.setToken(t + 1, initialColumn + statIndex, "Yes");
+                    } else if (stat == Double.NEGATIVE_INFINITY) {
+                        table.setToken(t + 1, initialColumn + statIndex, "No");
+                    } else {
+                        table.setToken(t + 1, initialColumn + statIndex,
+                                Math.abs(stat) < 0.1 ? smallNf.format(stat) : nf.format(stat));
+                    }
                 }
 
                 if (isShowUtilities()) {
@@ -1317,7 +1334,7 @@ public class Comparison {
         }
 
         @Override
-        public Graph search(DataSet dataSet, Parameters parameters) {
+        public Graph search(DataModel dataSet, Parameters parameters) {
             return algorithm.search(dataSet, this.parameters);
         }
 
@@ -1351,7 +1368,7 @@ public class Comparison {
         }
 
         public void setValue(String name, Object value) {
-            if (!(value instanceof Number)) {
+            if (!(value instanceof Number || value instanceof Boolean)) {
                 throw new IllegalArgumentException();
             }
 
@@ -1382,7 +1399,7 @@ public class Comparison {
         }
 
         @Override
-        public Graph search(DataSet dataSet, Parameters parameters) {
+        public Graph search(DataModel dataSet, Parameters parameters) {
             return algorithmWrapper.getAlgorithm().search(dataSet, parameters);
         }
 

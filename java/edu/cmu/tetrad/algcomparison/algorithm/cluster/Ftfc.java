@@ -4,6 +4,7 @@ import edu.cmu.tetrad.algcomparison.algorithm.Algorithm;
 import edu.cmu.tetrad.algcomparison.utils.HasKnowledge;
 import edu.cmu.tetrad.algcomparison.utils.TakesInitialGraph;
 import edu.cmu.tetrad.data.*;
+import edu.cmu.tetrad.graph.EdgeListGraph;
 import edu.cmu.tetrad.graph.Graph;
 import edu.cmu.tetrad.search.FindTwoFactorClusters;
 import edu.cmu.tetrad.search.SearchGraphUtils;
@@ -24,8 +25,8 @@ public class Ftfc implements Algorithm, TakesInitialGraph, HasKnowledge, Cluster
     public Ftfc() {}
 
     @Override
-    public Graph search(DataSet dataSet, Parameters parameters) {
-        ICovarianceMatrix cov = new CovarianceMatrixOnTheFly(dataSet);
+    public Graph search(DataModel dataSet, Parameters parameters) {
+        ICovarianceMatrix cov = DataUtils.getCovMatrix(dataSet);
         double alpha = parameters.getDouble("alpha");
 
         boolean gap = parameters.getBoolean("useGap", true);
@@ -46,7 +47,7 @@ public class Ftfc implements Algorithm, TakesInitialGraph, HasKnowledge, Cluster
 
     @Override
     public Graph getComparisonGraph(Graph graph) {
-        return SearchGraphUtils.patternForDag(graph);
+        return SearchGraphUtils.patternForDag(new EdgeListGraph(graph));
     }
 
     @Override

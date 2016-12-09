@@ -1,13 +1,13 @@
-\name{fgs}
-\alias{fgs}
-\title{Fast Greedy Search}
+\name{fges}
+\alias{fges}
+\title{Fast Greedy Equivalence Search}
 \description{
- \code{fgs} is the revised Greedy Equivalence Search (GES) algorithm developed 
+ \code{fges} is the revised Greedy Equivalence Search (GES) algorithm developed 
  by Joseph D. Ramsey, Director of Research Computing, Department of Philosophy,
  Carnegie Mellon University, Pittsburgh, PA.
 }
 \usage{
-fgs(df, penaltydiscount = 4.0, maxDegree = 3, faithfulnessAssumed = TRUE, numOfThreads = 2, 
+fges(df, penaltydiscount = 4.0, maxDegree = 3, faithfulnessAssumed = TRUE, numOfThreads = 2, 
 verbose = FALSE, java.parameters = NULL)
 }
 \arguments{
@@ -30,7 +30,7 @@ verbose = FALSE, java.parameters = NULL)
   \code{java.parameters}=\code{NULL}. }
 }
 \details{
-Fast Greedy Search (FGS) is an implementation of the revised GES algorithm, as 
+Fast Greedy Equivalence Search (FGES) is an implementation of the revised GES algorithm, as 
 reported in Ramsey (2015) \dQuote{Scaling up Greedy Causal Search for 
 Continuous Variables} \emph{arXiv eprint arXiv:1507.07749}. It was developed 
 as specified in Chickering (2002) \dQuote{Optimal structure identification 
@@ -43,20 +43,20 @@ for caching sufficient statistics, for instance.
 
 To speed things up, it has been assumed that variables X and Y with 
 zero correlation do not correspond to edges in the graph. This is a restricted 
-form of the faithfulness assumption, something FGS does not assume.}
+form of the faithfulness assumption, something FGES does not assume.}
 \value{
-A list containing the FGS's parameters, the input dataset, the result's nodes, 
+A list containing the FGES's parameters, the input dataset, the result's nodes, 
 the result's edges, and the graphNEL causal graph result.
 }
 \examples{
 data("charity")    #Load the charity dataset
-fgs <- fgs(df = charity, penaltydiscount = 2, maxDegree = -1, faithfulnessAsummed = TRUE,
-    numOfThreads = 2, verbose = TRUE)    #Compute FGS search
-fgs$parameters #Show the FGS's parameters
-fgs$datasets #Show the dataset
-fgs$nodes #Show the result's nodes
-fgs$edges #Show the result's edges
+fges <- fges(df = charity, penaltydiscount = 2, maxDegree = -1, faithfulnessAsummed = TRUE,
+    numOfThreads = 2, verbose = TRUE)    #Compute FGES search
+fges$parameters #Show the FGES's parameters
+fges$datasets #Show the dataset
+fges$nodes #Show the result's nodes
+fges$edges #Show the result's edges
 }
-\keyword{fgs}
+\keyword{fges}
 \keyword{ges}
 \keyword{causal graphs}

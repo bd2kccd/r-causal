@@ -34,31 +34,31 @@ install_github("bd2kccd/r-causal")
 library(rcausal)
 data("charity")   #Load the charity dataset
 
-#Compute FGS search
-fgs <- fgs(df = charity, penaltydiscount = 2, maxDegree = -1,  
+#Compute FGES search
+fges <- fges(df = charity, penaltydiscount = 2, maxDegree = -1,  
 faithfulnessAssumed = TRUE, numOfThreads = 2, verbose = TRUE)    
 
-fgs$parameters #Show the FGS's parameters
-fgs$datasets #Show the dataset
-fgs$nodes #Show the result's nodes
-fgs$edges #Show the result's edges
+fges$parameters #Show the FGES's parameters
+fges$datasets #Show the dataset
+fges$nodes #Show the result's nodes
+fges$edges #Show the result's edges
 
 library(Rgraphviz)
-plot(fgs$graphNEL) #Plot the causal model
+plot(fges$graphNEL) #Plot the causal model
 ```
 ### Discrete Dataset
 ```R
 library(rcausal)
 data("audiology")    #Load the charity dataset
-#Compute FGS search
-fgs.discrete <- fgs.discrete(df=audiology,structurePrior=1.0,samplePrior=1.0, 
+#Compute FGES search
+fges.discrete <- fges.discrete(df=audiology,structurePrior=1.0,samplePrior=1.0, 
 maxDegree = -1, faithfulnessAssumed = TRUE, numOfThreads = 2,verbose = TRUE)
-fgs.discrete$parameters #Show the FGS Discrete's parameters
-fgs.discrete$datasets #Show the dataset
-fgs.discrete$nodes #Show the result's nodes
-fgs.discrete$edges #Show the result's edges
+fges.discrete$parameters #Show the FGES Discrete's parameters
+fges.discrete$datasets #Show the dataset
+fges.discrete$nodes #Show the result's nodes
+fges.discrete$edges #Show the result's edges
 library(Rgraphviz)
-plot(fgs.discrete$graphNEL) #Plot the causal model
+plot(fges.discrete$graphNEL) #Plot the causal model
 ```
 
 ### Prior Knowledge
@@ -71,7 +71,7 @@ forbiddenWithin <- c('TangibilityCondition','Imaginability')
 class(forbiddenWithin) <- 'forbiddenWithin' # Make this tier forbidden within
 temporal <- list(forbiddenWithin, c('Sympathy','AmountDonated'),c('Impact')) # List of temporal node tiers
 prior <- priorKnowledge(forbiddirect = forbid, requiredirect = require, addtemporal = temporal)
-fgs <- fgs(df = charity, penaltydiscount = 2, depth = -1, ignoreLinearDependence = TRUE, 
+fges <- fges(df = charity, penaltydiscount = 2, depth = -1, ignoreLinearDependence = TRUE, 
 heuristicSpeedup = TRUE, numOfThreads = 2, verbose = TRUE, priorKnowledge = prior)
 ```
 
@@ -93,14 +93,14 @@ heuristicSpeedup = TRUE, numOfThreads = 2, verbose = TRUE, priorKnowledge = prio
 # 2 class
 
 prior <- priorKnowledgeFromFile('audiology.prior')
-fgs.discrete <- fgs.discrete(df=audiology,structurePrior=1.0,samplePrior=1.0, 
+fges.discrete <- fges.discrete(df=audiology,structurePrior=1.0,samplePrior=1.0, 
 depth = -1, heuristicSpeedup = TRUE, numOfThreads = 2,verbose = TRUE, priorKnowledge = prior)
 ```
 
 ### Convert Rgraphviz to igraph one
 ```R
 library(igraph)
-igraph <- igraph.from.graphNEL(fgs.discrete$graphNEL)
+igraph <- igraph.from.graphNEL(fges.discrete$graphNEL)
 plot(igraph)
 ```
 

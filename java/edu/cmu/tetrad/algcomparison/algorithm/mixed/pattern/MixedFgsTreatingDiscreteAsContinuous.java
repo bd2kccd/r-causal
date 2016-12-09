@@ -1,10 +1,7 @@
 package edu.cmu.tetrad.algcomparison.algorithm.mixed.pattern;
 
 import edu.cmu.tetrad.algcomparison.algorithm.Algorithm;
-import edu.cmu.tetrad.data.CovarianceMatrixOnTheFly;
-import edu.cmu.tetrad.data.DataSet;
-import edu.cmu.tetrad.data.DataType;
-import edu.cmu.tetrad.data.DataUtils;
+import edu.cmu.tetrad.data.*;
 import edu.cmu.tetrad.graph.Edge;
 import edu.cmu.tetrad.graph.EdgeListGraph;
 import edu.cmu.tetrad.graph.Graph;
@@ -22,13 +19,14 @@ import java.util.List;
  */
 public class MixedFgsTreatingDiscreteAsContinuous implements Algorithm {
     static final long serialVersionUID = 23L;
-    public Graph search(DataSet Dk, Parameters parameters) {
-        Dk = DataUtils.convertNumericalDiscreteToContinuous(Dk);
-        SemBicScore score = new SemBicScore(new CovarianceMatrixOnTheFly(Dk));
+    public Graph search(DataModel Dk, Parameters parameters) {
+        DataSet mixedDataSet = DataUtils.getMixedDataSet(Dk);
+        mixedDataSet = DataUtils.convertNumericalDiscreteToContinuous(mixedDataSet);
+        SemBicScore score = new SemBicScore(new CovarianceMatrixOnTheFly(mixedDataSet));
         score.setPenaltyDiscount(parameters.getDouble("penaltyDiscount"));
         Fgs fgs = new Fgs(score);
         Graph p = fgs.search();
-        return convertBack(Dk, p);
+        return convertBack(mixedDataSet, p);
     }
 
     private Graph convertBack(DataSet Dk, Graph p) {
@@ -55,7 +53,7 @@ public class MixedFgsTreatingDiscreteAsContinuous implements Algorithm {
     }
 
     public Graph getComparisonGraph(Graph graph) {
-        return SearchGraphUtils.patternForDag(graph);
+        return SearchGraphUtils.patternForDag(new EdgeListGraph(graph));
     }
 
     public String getDescription() {

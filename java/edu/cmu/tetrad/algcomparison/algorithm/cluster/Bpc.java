@@ -3,8 +3,8 @@ package edu.cmu.tetrad.algcomparison.algorithm.cluster;
 import edu.cmu.tetrad.algcomparison.algorithm.Algorithm;
 import edu.cmu.tetrad.algcomparison.utils.HasKnowledge;
 import edu.cmu.tetrad.algcomparison.utils.TakesInitialGraph;
-import edu.cmu.tetrad.cluster.ClusteringAlgorithm;
 import edu.cmu.tetrad.data.*;
+import edu.cmu.tetrad.graph.EdgeListGraph;
 import edu.cmu.tetrad.graph.Graph;
 import edu.cmu.tetrad.search.BuildPureClusters;
 import edu.cmu.tetrad.search.SearchGraphUtils;
@@ -27,8 +27,8 @@ public class Bpc implements Algorithm, TakesInitialGraph, HasKnowledge, ClusterA
     public Bpc() {}
 
     @Override
-    public Graph search(DataSet dataSet, Parameters parameters) {
-        ICovarianceMatrix cov = new CovarianceMatrix(dataSet);
+    public Graph search(DataModel dataSet, Parameters parameters) {
+        ICovarianceMatrix cov = DataUtils.getCovMatrix(dataSet);
         double alpha = parameters.getDouble("alpha");
 
         boolean wishart = parameters.getBoolean("useWishart", true);
@@ -50,7 +50,7 @@ public class Bpc implements Algorithm, TakesInitialGraph, HasKnowledge, ClusterA
 
     @Override
     public Graph getComparisonGraph(Graph graph) {
-        return SearchGraphUtils.patternForDag(graph);
+        return SearchGraphUtils.patternForDag(new EdgeListGraph(graph));
     }
 
     @Override
