@@ -21,7 +21,7 @@ fges <- function(df, penaltydiscount = 4.0, maxDegree = 3,
     cat(deparse(substitute(df)),"\n\n")
 
     # Initiate FGES
-    fges_instance <- .jnew("edu/cmu/tetrad/search/Fgs", score)
+    fges_instance <- .jnew("edu/cmu/tetrad/search/Fges", score)
     .jcall(fges_instance, "V", "setMaxDegree", as.integer(maxDegree))
     .jcall(fges_instance, "V", "setNumPatternsToStore", as.integer(0))
     .jcall(fges_instance, "V", "setFaithfulnessAssumed", faithfulnessAssumed)
