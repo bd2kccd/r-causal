@@ -21,7 +21,7 @@ fges.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, maxDegree
     cat(deparse(substitute(df)),"\n")
 
     # Initiate FGES Discrete
-    fges_instance <- .jnew("edu/cmu/tetrad/search/Fgs", score)
+    fges_instance <- .jnew("edu/cmu/tetrad/search/Fges", score)
     .jcall(fges_instance, "V", "setMaxDegree", as.integer(maxDegree))
     .jcall(fges_instance, "V", "setNumPatternsToStore", as.integer(0))
     .jcall(fges_instance, "V", "setFaithfulnessAssumed", faithfulnessAssumed)
