@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Implements the continuous BIC score for FGS.
+ * Implements the continuous BIC score for FGES.
  *
  * @author Joseph Ramsey
  */
@@ -190,13 +190,11 @@ public class BdeuScoreImages implements IBDeuScore {
         return variables;
     }
 
-    @Override
-    public double getParameter1() {
-        return 0;
+    public boolean getAlternativePenalty() {
+        return false;
     }
 
-    @Override
-    public void setParameter1(double alpha) {
+    public void setAlternativePenalty(double alpha) {
 
     }
 

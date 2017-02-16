@@ -30,7 +30,6 @@ import java.io.PrintStream;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.*;
-import java.util.concurrent.RecursiveTask;
 
 /**
  * Graph utilities for search algorithm. Lots of orientation method, for instance.
@@ -1160,7 +1159,7 @@ public final class SearchGraphUtils {
                 Node node1 = nextUndirected.getNode1();
                 Node node2 = nextUndirected.getNode2();
 
-                graph.removeEdge(node1, node2);
+                graph.removeEdges(node1, node2);
                 graph.addUndirectedEdge(node1, node2);
             }
         }
@@ -2200,7 +2199,7 @@ public final class SearchGraphUtils {
 //        IndTestDSep test = new IndTestDSep(dag);
 //        return new PC(test).search();
 //
-        Graph pattern = new EdgeListGraphSingleConnections(dag);
+        Graph pattern = new EdgeListGraph(dag);
         SearchGraphUtils.basicPattern(pattern, false);
         MeekRules rules = new MeekRules();
         rules.orientImplied(pattern);
@@ -3184,7 +3183,7 @@ public final class SearchGraphUtils {
                 dataSets.add(_dataModel);
             }
 
-            Fgs images = new Fgs(new SemBicScoreImages(dataSets));
+            Fges images = new Fges(new SemBicScoreImages(dataSets));
 
             images.setBoundGraph(graph);
             images.setKnowledge(knowledge);
@@ -3202,7 +3201,7 @@ public final class SearchGraphUtils {
                 throw new NullPointerException();
             }
 
-            Fgs ges = new Fgs(score);
+            Fges ges = new Fges(score);
 
             ges.setBoundGraph(graph);
             ges.setKnowledge(knowledge);
@@ -3211,7 +3210,7 @@ public final class SearchGraphUtils {
             ICovarianceMatrix cov = (CovarianceMatrix) dataModel;
             Score score = new SemBicScore(cov);
 
-            Fgs ges = new Fgs(score);
+            Fges ges = new Fges(score);
 
             ges.setBoundGraph(graph);
             ges.setKnowledge(knowledge);
