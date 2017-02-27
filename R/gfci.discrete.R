@@ -1,5 +1,5 @@
 gfci.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, 
-    maxInDegree = 3, maxPathLength = -1, significance = 0.05, completeRuleSetUsed = FALSE, 
+    maxDegree = 3, maxPathLength = -1, significance = 0.05, completeRuleSetUsed = FALSE, 
     faithfulnessAssumed = TRUE, verbose = FALSE, java.parameters = NULL, 
     priorKnowledge = NULL){
     
@@ -30,7 +30,7 @@ gfci.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0,
 
     # Initiate GFCI Discrete
     gfci_instance <- .jnew("edu/cmu/tetrad/search/GFci", indTest, score)
-    .jcall(gfci_instance, "V", "setMaxIndegree", as.integer(maxInDegree))
+    .jcall(gfci_instance, "V", "setMaxDegree", as.integer(maxDegree))
     .jcall(gfci_instance, "V", "setMaxPathLength", as.integer(maxPathLength))
     .jcall(gfci_instance, "V", "setCompleteRuleSetUsed", completeRuleSetUsed)
     .jcall(gfci_instance, "V", "setFaithfulnessAssumed", faithfulnessAssumed)
@@ -42,7 +42,7 @@ gfci.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0,
 
     params <- c(params, structurePrior = as.double(structurePrior))
     params <- c(params, samplePrior = as.double(samplePrior))
-    params <- c(params, maxInDegree = as.integer(maxInDegree))
+    params <- c(params, maxDegree = as.integer(maxDegree))
     params <- c(params, maxPathLength = as.integer(maxPathLength))
     params <- c(params, completeRuleSetUsed = as.logical(completeRuleSetUsed))
     params <- c(params, faithfulnessAssumed = as.logical(faithfulnessAssumed))
@@ -56,7 +56,7 @@ gfci.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0,
     cat("Graph Parameters:\n")
     cat("structurePrior = ", structurePrior,"\n")
     cat("samplePrior = ", samplePrior,"\n")
-    cat("maxInDegree = ", as.integer(maxInDegree),"\n")
+    cat("maxDegree = ", as.integer(maxDegree),"\n")
     cat("maxPathLength = ", as.integer(maxPathLength),"\n")
     cat("significance = ", significance,"\n")
     cat("completeRuleSetUsed = ", completeRuleSetUsed,"\n")
