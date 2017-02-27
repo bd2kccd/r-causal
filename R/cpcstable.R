@@ -53,7 +53,7 @@ cpcstable <- function(df, continuous = TRUE, depth = 3, aggressivelyPreventCycle
     cat("Graph Parameters:\n")
     cat("depth = ", as.integer(depth),"\n")
     cat("aggressivelyPreventCycles = ", aggressivelyPreventCycles, "\n")
-    cat("significance = ", significance, "\n")
+    cat("significance = ", as.numeric(significance), "\n")
     cat("verbose = ", verbose, "\n")
 
     # Search

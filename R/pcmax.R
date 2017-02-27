@@ -58,7 +58,7 @@ pcmax <- function(df, continuous = TRUE, depth = -1, maxPathLength = 3,
     cat("depth = ", as.integer(depth),"\n")
     cat("maxPathLength = ", as.integer(maxPathLength), "\n")
     cat("useHeuristic = ", useHeuristic, "\n")
-    cat("significance = ", as.integer(significance), "\n")
+    cat("significance = ", as.numeric(significance), "\n")
     cat("verbose = ", verbose, "\n")
 
     # Search

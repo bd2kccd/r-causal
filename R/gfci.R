@@ -55,7 +55,7 @@ gfci <- function(df, penaltydiscount = 2.0, maxDegree = 3, maxPathLength = -1, s
     cat("penaltydiscount = ", penaltydiscount,"\n")
     cat("maxDegree = ", as.integer(maxDegree),"\n")
     cat("maxPathLength = ", as.integer(maxPathLength),"\n")
-    cat("significance = ", significance,"\n")
+    cat("significance = ", as.numeric(significance),"\n")
     cat("completeRuleSetUsed = ", completeRuleSetUsed,"\n")
     cat("faithfulnessAssumed = ", faithfulnessAssumed,"\n")
     cat("verbose = ", verbose,"\n")
