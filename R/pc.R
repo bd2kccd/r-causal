@@ -58,7 +58,7 @@ pc <- function(df, continuous = TRUE, depth = 3, aggressivelyPreventCycles = FAL
     cat("depth = ", as.integer(depth),"\n")
     cat("aggressivelyPreventCycles = ", aggressivelyPreventCycles, "\n")
     cat("falseDiscoveryRate = ", falseDiscoveryRate, "\n")
-    cat("significance = ", as.integer(significance), "\n")
+    cat("significance = ", as.numeric(significance), "\n")
     cat("verbose = ", verbose, "\n")
 
     # Search
