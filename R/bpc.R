@@ -21,7 +21,7 @@ bpc <- function(df, alpha = 0.05, useWishart = TRUE, verbose = FALSE, java.param
     testType <- NULL
     if(userWishart){
         testType <- .jfield("edu.cmu.tetrad.search.TestType",,"TETRAD_WISHART")
-    }elsea{
+    }else{
         testType <- .jfield("edu.cmu.tetrad.search.TestType",,"TETRAD_DELTA")
     }
 
