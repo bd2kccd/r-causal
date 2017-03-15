@@ -21,7 +21,7 @@ ftfc <- function(df, alpha = 0.05, useGap = TRUE, verbose = FALSE, java.paramete
     algorithm <- NULL
     if(userWishart){
         algorithm <- .jfield("edu.cmu.tetrad.search.FindTwoFactorClusters$Algorithm",,"GAP")
-    }elsea{
+    }else{
         algorithm <- .jfield("edu.cmu.tetrad.search.FindTwoFactorClusters$Algorithm",,"SAG")
     }
 

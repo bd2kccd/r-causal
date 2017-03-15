@@ -21,14 +21,14 @@ fofc <- function(df, alpha = 0.05, useWishart = TRUE, useGap = TRUE, verbose = F
     testType <- NULL
     if(userWishart){
         testType <- .jfield("edu.cmu.tetrad.search.TestType",,"TETRAD_WISHART")
-    }elsea{
+    }else{
         testType <- .jfield("edu.cmu.tetrad.search.TestType",,"TETRAD_DELTA")
     }
     
     algorithm <- NULL
     if(userWishart){
         algorithm <- .jfield("edu.cmu.tetrad.search.FindOneFactorClusters$Algorithm",,"GAP")
-    }elsea{
+    }else{
         algorithm <- .jfield("edu.cmu.tetrad.search.FindOneFactorClusters$Algorithm",,"SAG")
     }
 
