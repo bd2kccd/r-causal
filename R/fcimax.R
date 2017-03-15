@@ -1,5 +1,5 @@
-cfci <- function(df, continuous = TRUE, depth = 3, maxReachablePathLength = -1, 
-    significance = 0.05, completeRuleSetUsed = FALSE, noDSepSearch = FALSE, verbose = FALSE, 
+fcimax <- function(df, continuous = TRUE, depth = 3, maxPathLength = -1, significance = 0.05,
+    completeRuleSetUsed = FALSE, noDSepSearch = FALSE, verbose = FALSE, 
     java.parameters = NULL, priorKnowledge = NULL){
     
     params <- list(NULL)
@@ -22,29 +22,29 @@ cfci <- function(df, continuous = TRUE, depth = 3, maxReachablePathLength = -1,
     
 	indTest <- .jcast(indTest, "edu/cmu/tetrad/search/IndependenceTest")
 
-    cfci <- list()
-    class(fci) <- "cfci"
+    fcimax <- list()
+    class(fcimax) <- "fcimax"
 
-    cfci$datasets <- deparse(substitute(df))
+    fcimax$datasets <- deparse(substitute(df))
 
     cat("Datasets:\n")
     cat(deparse(substitute(df)),"\n\n")
 
-    # Initiate CFCI
-    cfci_instance <- .jnew("edu/cmu/tetrad/search/Cfci", indTest)
-    .jcall(cfci_instance, "V", "setDepth", as.integer(depth))
-    .jcall(cfci_instance, "V", "setMaxReachablePathLength", as.integer(maxReachablePathLength))
-    .jcall(cfci_instance, "V", "setCompleteRuleSetUsed", completeRuleSetUsed)
-    .jcall(cfci_instance, "V", "setPossibleDsepSearchDone", !noDSepSearch)
-    .jcall(cfci_instance, "V", "setVerbose", verbose)
+    # Initiate fcimax
+    fcimax_instance <- .jnew("edu/cmu/tetrad/search/FciMax", indTest)
+    .jcall(fcimax_instance, "V", "setDepth", as.integer(depth))
+    .jcall(fcimax_instance, "V", "setMaxPathLength", as.integer(maxPathLength))
+    .jcall(fcimax_instance, "V", "setCompleteRuleSetUsed", completeRuleSetUsed)
+    .jcall(fcimax_instance, "V", "setPossibleDsepSearchDone", !noDSepSearch)
+    .jcall(fcimax_instance, "V", "setVerbose", verbose)
 
     if(!is.null(priorKnowledge)){
-        .jcall(cfci_instance, "V", "setKnowledge", priorKnowledge)
+        .jcall(fcimax_instance, "V", "setKnowledge", priorKnowledge)
     }
 
 	params <- c(params, continuous = as.logical(continuous))
     params <- c(params, depth = as.integer(depth))
-    params <- c(params, maxReachablePathLength = as.integer(maxReachablePathLength))
+    params <- c(params, maxPathLength = as.integer(maxPathLength))
     params <- c(params, completeRuleSetUsed = as.logical(completeRuleSetUsed))
     params <- c(params, noDSepSearch = as.logical(noDSepSearch))
     params <- c(params, significance = significance)
@@ -53,29 +53,29 @@ cfci <- function(df, continuous = TRUE, depth = 3, maxReachablePathLength = -1,
     if(!is.null(priorKnowledge)){
         params <- c(params, prior = priorKnowledge)
     }
-    cfci$parameters <- params
+    fcimax$parameters <- params
 
     cat("Graph Parameters:\n")
     cat("continuous = ", continuous,"\n")
     cat("depth = ", as.integer(depth),"\n")
-    cat("maxReachablePathLength = ", as.integer(maxReachablePathLength),"\n")
+    cat("maxPathLength = ", as.integer(maxPathLength),"\n")
     cat("completeRuleSetUsed = ", completeRuleSetUsed,"\n")
     cat("noDSepSearch = ", noDSepSearch,"\n")
     cat("significance = ", as.numeric(significance),"\n")
     cat("verbose = ", verbose,"\n")
 
     # Search
-    tetrad_graph <- .jcall(cfci_instance, "Ledu/cmu/tetrad/graph/Graph;", 
+    tetrad_graph <- .jcall(fcimax_instance, "Ledu/cmu/tetrad/graph/Graph;", 
         "search")
 
     V <- extractTetradNodes(tetrad_graph)
 
-    cfci$nodes <- V
+    fcimax$nodes <- V
 
     # extract edges
-    cfci_edges <- extractTetradEdges(tetrad_graph)
+    fcimax_edges <- extractTetradEdges(tetrad_graph)
 
-    cfci$edges <- cfci_edges
+    fcimax$edges <- fcimax_edges
 
-    return(cfci)
+    return(fcimax)
 }

@@ -84,6 +84,48 @@ rCovMatrix2TetradCovMatrix <- function(covmat, node_list, sample_size){
 }
 
 ########################################################
+# converter: array of R dataframes into Tetrad BDeuScore wrapping a BoxDataSet
+# requires array of dataframes with named columns
+# Dataset is discrete.
+# requires rJava, assumes the JVM is running from the
+# latest Tetrad jar.
+dataFrames2TetradBdeuScoreImages <- function(dfs,structurePrior = 1.0, 
+    samplePrior = 1.0){
+    # Array of data Frames to Independence Test
+    tetradDataList <- .jnew("java/util/ArrayList")
+    for(i in 1:length(dfs)){
+        tetradData <- loadDiscreteData(dfs[i])
+        tettradDataList.add(tetradData)
+    }
+    tetradDataList <- .jcast(tettradDataList, "java/util/List")
+    score <- .jnew("edu/cmu/tetrad/search/BdeuScoreImages", tetradDataList)
+    score$setStructurePrior(as.double(structurePrior))
+    score$setSamplePrior(as.double(samplePrior))
+    score <- .jcast(score, "edu/cmu/tetrad/search/Score")
+    return(score)
+}
+
+########################################################
+# converter: array of R dataframes into Tetrad SemBicScoreImages
+# requires array of dataframes with named columns
+# Dataset is continuous
+# requires rJava, assumes the JVM is running from the
+# latest Tetrad jar.
+dataFrames2TetradSemBicScoreImages <- function(dfs,penaltydiscount = 4.0){
+    # Array of data Frames to Independence Test
+    tetradDataList <- .jnew("java/util/ArrayList")
+    for(i in 1:length(dfs)){
+        tetradData <- loadContinuousData(dfs[i])
+        tettradDataList.add(tetradData)
+    }
+    tetradDataList <- .jcast(tettradDataList, "java/util/List")
+    score <- .jnew("edu/cmu/tetrad/search/SemBicScoreImages", tetradDataList)
+	score$setPenaltyDiscount(penaltydiscount)
+    score <- .jcast(score, "edu/cmu/tetrad/search/Score")
+    return(score)
+}
+
+########################################################
 # converter: Tetrad edge type into graphNEL edge list
 # requires list of nodes and a set of edges
 
@@ -279,4 +321,19 @@ loadDiscreteData <- function(df){
                             data, node_list)
     boxData <- .jcast(boxData, "edu/cmu/tetrad/data/DataSet")
 	return(boxData)
+}
+
+############################################################
+dataset2DoubleMatrix2D <- function(ds){
+	cov <- ds$getCovarianceMatrix()
+    cov.array <- cov$toArray()
+    matrix2D <- .jnew("cern/colt/matrix/impl/DenseDoubleMatrix2D", cov.array)
+    return(.jcast(matrix2D, "cern/colt/matrix/DoubleMatrix2D")) 
+}
+
+############################################################
+graph.converter <- function(pattern){
+    strPattern <- .jnew("java/lang/String", pattern)
+    return(.jcall("edu/cmu/tetrad/graph/GraphConverter", 
+        "Ledu/cmu/tetrad/graph/Graph;", "convert", strPattern))
 }

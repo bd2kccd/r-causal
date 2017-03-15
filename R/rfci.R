@@ -1,4 +1,4 @@
-rfci <- function(df, continuous = TRUE, depth = 3, significance = 0.05, 
+rfci <- function(df, continuous = TRUE, depth = 3, maxPathLength = -1, significance = 0.05, 
     completeRuleSetUsed = FALSE, verbose = FALSE, java.parameters = NULL, 
     priorKnowledge = NULL){
     
@@ -34,6 +34,7 @@ rfci <- function(df, continuous = TRUE, depth = 3, significance = 0.05,
     # Initiate RFCI
     rfci_instance <- .jnew("edu/cmu/tetrad/search/Rfci", indTest)
     .jcall(rfci_instance, "V", "setDepth", as.integer(depth))
+    .jcall(rfci_instance, "V", "setMaxPathLength", as.integer(maxPathLength))
     .jcall(rfci_instance, "V", "setCompleteRuleSetUsed", completeRuleSetUsed)
     .jcall(rfci_instance, "V", "setVerbose", verbose)
 
@@ -43,8 +44,9 @@ rfci <- function(df, continuous = TRUE, depth = 3, significance = 0.05,
 
 	params <- c(params, continuous = as.logical(continuous))
     params <- c(params, depth = as.integer(depth))
-    params <- c(params, significance = significance)
+    params <- c(params, maxPathLength = as.integer(maxPathLength))
     params <- c(params, completeRuleSetUsed = as.logical(completeRuleSetUsed))
+    params <- c(params, significance = significance)
     params <- c(params, verbose = as.logical(verbose))
 
     if(!is.null(priorKnowledge)){
@@ -55,6 +57,7 @@ rfci <- function(df, continuous = TRUE, depth = 3, significance = 0.05,
     cat("Graph Parameters:\n")
     cat("continuous = ", continuous,"\n")
     cat("depth = ", as.integer(depth),"\n")
+    cat("maxPathLength = ", as.integer(maxPathLength),"\n")
     cat("significance = ", as.numeric(significance),"\n")
     cat("completeRuleSetUsed = ", completeRuleSetUsed, "\n")
     cat("verbose = ", verbose,"\n")

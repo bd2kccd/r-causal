@@ -1,19 +1,40 @@
 audiology                   The standardized version of the audiology Data
 bayesEst					Bayesian estimation algorithm
+bpc                         BuildPureClusters: a implementation of the automated clustering and purification methods described on the report "Learning Measurement Models" CMU-CALD-03-100. 
+fofc                        FindOneFactorCluster of Erich Kummerfeld (adaptation of a two factor quartet algorithm to a one factor tetrad algorithm)
+ftfc                        FindTwoFactorClusters of Erich Kummerfeld 
+ccd                         Cyclic Causal Discovery algorithm (CCD) described by Thomas Richardson and Peter Spirtes in Chapter 7 of Computation, Causation, & Discovery by Glymour and Cooper eds.
+ccdmax                      Optimization of the CCD (Cyclic Causal Discovery) algorithm by Thomas Richardson.
+imagesccd                   CCDMax IMaGES algorithm for continuous variables on multiple datasets
+tsimages                    TsGFci IMaGES algorithm for continuous variables on multiple datasets
+tsimages.discrete           TsGFci IMaGES algorithm for discrete variables on multiple datasets
+jcpc                        ICPC algorithm
+lofs                        Ling Orientation Fixed Structure algorithm
+mbfs                        Markov Blankets Fixed Structure algorithm
+mgm                         Lee and Hastie's (2012) pseudolikelihood method for learning Mixed Gausssian-Categorical Graphical Models
+glasso                      Tibshirani's 2008 graphical lasso algorithm
 charity                     Donations and Charity Data
 pc							"Peter/Clark" algorithm
 pcmax						Modified "Peter/Clark" algorithm with respect to the Meek rule
 pcstable					PC Stable modification to PC has been included
 cpc							Convervative version of PC
 cpcstable					Convervative version of PC Stable
-ccd							Cyclic Causal Discovery algorithm
 cfci						Convervative version of FCI
 fci							Fast Causal Inference algorithm
+fcimax                      FCI algorithm with extension of Erin Korber's implementation and with Jiji Zhang's Augmented FCI rules (found in sec. 4.1 of Zhang's 2006 PhD dissertation, "Causal Inference and Reasoning in Causally Insufficient Systems").
 rfci						FCI algorithm with Augmented Rules
 gfci                        Greedy Continuous FCI algorithm with Augmented Rules
 gfci.discrete               Greedy Discrete FCI algorithm with Augmented Rules
+tsfci                       Time Series Fast Causal Inference
+tsgfci                      Time Series Greedy Fast Causal Inference on Continuous Data
+tsgfci.discrete             Time Series Greedy Fast Causal Inference on Discrete Data
+fas                         Fast Adjacency Search
+graph.converter             Generate a Tetrad Graph object from a pattern
 fges                        Fast Greedy Equivalence Search for Causal and Statistical Model Discovery on Continuous Data
 fges.discrete               Fast Greedy Equivalence Search for Causal and Statistical Model Discovery on Discrete Data
+fgesmb                      FGES for Markov Blankets
+imagesSemBic                FGES IMaGES algorithm for for continuous variables on multiple datasets
+imagesBDeu                  FGES IMaGES algorithm for for discrete variables on multiple datasets
 priorKnowledge              Prior Knowledge Object Creation Function
 priorKnowledgeFromFile      Load Prior Knowledge File Function
 randomDag					Generating a Random Directed Acyclic Graph algorithm

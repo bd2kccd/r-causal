@@ -1,6 +1,5 @@
-fci <- function(df, continuous = TRUE, depth = 3, maxPathLength = -1, significance = 0.05,
-    completeRuleSetUsed = FALSE, noDSepSearch = FALSE, verbose = FALSE, 
-    java.parameters = NULL, priorKnowledge = NULL){
+tsfci <- function(df, continuous = TRUE, penaltydiscount = 2.0, depth = 3, possibleDsepDepth = -1, maxPathLength = -1, 
+    significance = 0.05, completeRuleSetUsed = FALSE, noDSepSearch = FALSE, verbose = FALSE, java.parameters = NULL, priorKnowledge = NULL){
     
     params <- list(NULL)
     
@@ -22,28 +21,32 @@ fci <- function(df, continuous = TRUE, depth = 3, maxPathLength = -1, significan
     
 	indTest <- .jcast(indTest, "edu/cmu/tetrad/search/IndependenceTest")
 
-    fci <- list()
-    class(fci) <- "fci"
+    tsfci <- list()
+    class(tsfci) <- "tsfci"
 
-    fci$datasets <- deparse(substitute(df))
+    tsfci$datasets <- deparse(substitute(df))
 
     cat("Datasets:\n")
     cat(deparse(substitute(df)),"\n\n")
 
-    # Initiate FCI
-    fci_instance <- .jnew("edu/cmu/tetrad/search/Fci", indTest)
-    .jcall(fci_instance, "V", "setDepth", as.integer(depth))
-    .jcall(fci_instance, "V", "setMaxPathLength", as.integer(maxPathLength))
-    .jcall(fci_instance, "V", "setCompleteRuleSetUsed", completeRuleSetUsed)
-    .jcall(fci_instance, "V", "setPossibleDsepSearchDone", !noDSepSearch)
-    .jcall(fci_instance, "V", "setVerbose", verbose)
+    # Initiate TSFCI
+    tsfci_instance <- .jnew("edu/cmu/tetrad/search/TsFci", indTest)
+    .jcall(tsfci_instance, "V", "setPenaltyDiscount", penaltydiscount)
+    .jcall(tsfci_instance, "V", "setDepth", as.integer(depth))
+    .jcall(tsfci_instance, "V", "setPossibleDsepDepth", as.integer(possibleDsepDepth))
+    .jcall(tsfci_instance, "V", "setMaxPathLength", as.integer(maxPathLength))
+    .jcall(tsfci_instance, "V", "setCompleteRuleSetUsed", completeRuleSetUsed)
+    .jcall(tsfci_instance, "V", "setPossibleDsepSearchDone", !noDSepSearch)
+    .jcall(tsfci_instance, "V", "setVerbose", verbose)
 
     if(!is.null(priorKnowledge)){
-        .jcall(fci_instance, "V", "setKnowledge", priorKnowledge)
+        .jcall(tsfci_instance, "V", "setKnowledge", priorKnowledge)
     }
 
 	params <- c(params, continuous = as.logical(continuous))
+    params <- c(params, penaltydiscount = penaltydiscount)
     params <- c(params, depth = as.integer(depth))
+    params <- c(params, possibleDsepDepth = as.integer(possibleDsepDepth))
     params <- c(params, maxPathLength = as.integer(maxPathLength))
     params <- c(params, completeRuleSetUsed = as.logical(completeRuleSetUsed))
     params <- c(params, noDSepSearch = as.logical(noDSepSearch))
@@ -53,11 +56,13 @@ fci <- function(df, continuous = TRUE, depth = 3, maxPathLength = -1, significan
     if(!is.null(priorKnowledge)){
         params <- c(params, prior = priorKnowledge)
     }
-    fci$parameters <- params
+    tsfci$parameters <- params
 
     cat("Graph Parameters:\n")
     cat("continuous = ", continuous,"\n")
+    cat("penaltydiscount = ", penaltydiscount,"\n")
     cat("depth = ", as.integer(depth),"\n")
+    cat("possibleDsepDepth = ", as.integer(possibleDsepDepth),"\n")
     cat("maxPathLength = ", as.integer(maxPathLength),"\n")
     cat("completeRuleSetUsed = ", completeRuleSetUsed,"\n")
     cat("noDSepSearch = ", noDSepSearch,"\n")
@@ -65,17 +70,17 @@ fci <- function(df, continuous = TRUE, depth = 3, maxPathLength = -1, significan
     cat("verbose = ", verbose,"\n")
 
     # Search
-    tetrad_graph <- .jcall(fci_instance, "Ledu/cmu/tetrad/graph/Graph;", 
+    tetrad_graph <- .jcall(tsfci_instance, "Ledu/cmu/tetrad/graph/Graph;", 
         "search")
 
     V <- extractTetradNodes(tetrad_graph)
 
-    fci$nodes <- V
+    tsfci$nodes <- V
 
     # extract edges
-    fci_edges <- extractTetradEdges(tetrad_graph)
+    tsfci_edges <- extractTetradEdges(tetrad_graph)
 
-    fci$edges <- fci_edges
+    tsfci$edges <- tsfci_edges
 
-    return(fci)
+    return(tsfci)
 }

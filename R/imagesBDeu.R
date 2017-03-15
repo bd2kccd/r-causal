@@ -1,0 +1,76 @@
+imagesBDeu <- function(dfs, structurePrior = 1.0, samplePrior = 1.0, maxDegree = 3, 
+	faithfulnessAssumed = TRUE, numOfThreads = 2, verbose = FALSE, java.parameters = NULL, 
+	priorKnowledge = NULL){
+
+    params <- list(NULL)
+    
+    if(!is.null(java.parameters)){
+        options(java.parameters = java.parameters)
+        params <- c(java.parameters = java.parameters)
+    }
+    
+    # Data Frame to Tetrad Dataset
+    score <- dataFrames2TetradBdeuScoreImages(dfs, structurePrior, samplePrior)
+
+    imagesBDeu <- list()
+    class(imagesBDeu) <- "imagesBDeu"
+
+    imagesBDeu$datasets <- deparse(substitute(df))
+
+    cat("Datasets:\n")
+    cat(deparse(substitute(df)),"\n")
+
+    # Initiate imagesBDeu Discrete
+    imagesBDeu_instance <- .jnew("edu/cmu/tetrad/search/imagesBDeu", score)
+    .jcall(imagesBDeu_instance, "V", "setMaxDegree", as.integer(maxDegree))
+    .jcall(imagesBDeu_instance, "V", "setNumPatternsToStore", as.integer(0))
+    .jcall(imagesBDeu_instance, "V", "setFaithfulnessAssumed", faithfulnessAssumed)
+    .jcall(imagesBDeu_instance, "V", "setParallelism", as.integer(numOfThreads))
+    .jcall(imagesBDeu_instance, "V", "setVerbose", verbose)
+
+    if(!is.null(priorKnowledge)){
+        .jcall(imagesBDeu_instance, "V", "setKnowledge", priorKnowledge)
+    }
+
+    params <- c(params, structurePrior = as.double(structurePrior))
+    params <- c(params, samplePrior = as.double(samplePrior))
+    params <- c(params, maxDegree = as.integer(maxDegree))
+    params <- c(params, faithfulnessAssumed = as.logical(faithfulnessAssumed))
+    params <- c(params, numOfThreads = numOfThreads)
+    params <- c(params, verbose = as.logical(verbose))
+
+    if(!is.null(priorKnowledge)){
+        params <- c(params, prior = priorKnowledge)
+    }
+    
+    imagesBDeu$parameters <- params
+
+    cat("Graph Parameters:\n")
+    cat("structurePrior = ", structurePrior,"\n")
+    cat("samplePrior = ", samplePrior,"\n")
+    cat("maxDegree = ", as.integer(maxDegree),"\n")
+    cat("faithfulnessAssumed = ", faithfulnessAssumed,"\n")
+    cat("numOfThreads = ", numOfThreads,"\n")
+    cat("verbose = ", verbose,"\n")
+
+    # Search
+    tetrad_graph <- .jcall(imagesBDeu_instance, "Ledu/cmu/tetrad/graph/Graph;", 
+        "search")
+
+    V <- extractTetradNodes(tetrad_graph)
+
+    imagesBDeu$nodes <- V
+
+    # extract edges
+    imagesBDeu_edges <- extractTetradEdges(tetrad_graph)
+
+    imagesBDeu$edges <- imagesBDeu_edges
+
+    # convert output of imagesBDeu into an R object (graphNEL)
+    imagesBDeu_graphNEL = tetradPattern2graphNEL(resultGraph = tetrad_graph,
+        verbose = verbose)
+
+    imagesBDeu$graphNEL <- imagesBDeu_graphNEL
+
+    return(imagesBDeu) 
+}
