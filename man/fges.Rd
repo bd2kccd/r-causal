@@ -7,8 +7,9 @@
  Carnegie Mellon University, Pittsburgh, PA.
 }
 \usage{
-fges(df, penaltydiscount = 4.0, maxDegree = 3, faithfulnessAssumed = TRUE, numOfThreads = 2, 
-verbose = FALSE, java.parameters = NULL)
+fges(df, penaltydiscount = 4.0, maxDegree = 3, 
+    faithfulnessAssumed = TRUE, numOfThreads = 2, 
+    verbose = FALSE, java.parameters = NULL, priorKnowledge = NULL)
 }
 \arguments{
   \item{df}{ Data Frame of the dataset. }
@@ -28,6 +29,8 @@ verbose = FALSE, java.parameters = NULL)
   \item{java.parameters}{ string indicating an optional parameters for JVM. 
   For example, java.parameters = "-Xmx1024M". By default, 
   \code{java.parameters}=\code{NULL}. }
+  \item{priorKnowledge}{ object indicating a prior knowledge of the graph. By default, 
+  \code{priorKnowledge}=\code{NULL}. }
 }
 \details{
 Fast Greedy Equivalence Search (FGES) is an implementation of the revised GES algorithm, as 
@@ -43,7 +46,10 @@ for caching sufficient statistics, for instance.
 
 To speed things up, it has been assumed that variables X and Y with 
 zero correlation do not correspond to edges in the graph. This is a restricted 
-form of the faithfulness assumption, something FGES does not assume.}
+form of the faithfulness assumption, something FGES does not assume.
+
+More detail about Fges implementation, please visit \href{http://cmu-phil.github.io/tetrad/tetrad-lib-apidocs/edu/cmu/tetrad/search/Fgs.html}{the java documentation}.
+}
 \value{
 A list containing the FGES's parameters, the input dataset, the result's nodes, 
 the result's edges, and the graphNEL causal graph result.

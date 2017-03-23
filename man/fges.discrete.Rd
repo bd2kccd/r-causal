@@ -6,9 +6,10 @@
  by Joseph D. Ramsey, Director of Research Computing, Department of Philosophy,
  Carnegie Mellon University, Pittsburgh, PA.
 }
-\usage{fgs(df, structurePrior = 1.0, samplePrior = 1.0, maxDegree = -1, 
-faithfulnessAssumed = TRUE, numOfThreads = NULL,verbose = FALSE, 
-java.parameters = NULL)
+\usage{
+fges.discrete(df, structurePrior = 1.0, samplePrior = 1.0, maxDegree = -1, 
+    faithfulnessAssumed = TRUE, numOfThreads = 2,verbose = FALSE, 
+    java.parameters = NULL, priorKnowledge = NULL)
 }
 \arguments{
   \item{df}{ Data Frame of the dataset. }
@@ -32,9 +33,11 @@ java.parameters = NULL)
   \item{java.parameters}{ string indicating an optional parameters for JVM. 
   For example, java.parameters = "-Xmx1024M". By default, 
   \code{java.parameters}=\code{NULL}. }
+  \item{priorKnowledge}{ object indicating a prior knowledge of the graph. By default, 
+  \code{priorKnowledge}=\code{NULL}. }
 }
 \details{
-Fast Greedy Search (FGS) is an implementation of the revised GES algorithm, as 
+Fast Greedy Equivalence Search (FGES) is an implementation of the revised GES algorithm, as 
 reported in Ramsey (2015) \dQuote{Scaling up Greedy Causal Search for 
 Continuous Variables} \emph{arXiv eprint arXiv:1507.07749}. It was developed 
 as specified in Chickering (2002) \dQuote{Optimal structure identification 
@@ -47,22 +50,25 @@ for caching sufficient statistics, for instance.
 
 To speed things up, it has been assumed that variables X and Y with 
 zero correlation do not correspond to edges in the graph. This is a restricted 
-form of the faithfulness assumption, something FGS does not assume.}
+form of the faithfulness assumption, something FGES does not assume.
+
+More detail about Fges implementation, please visit \href{http://cmu-phil.github.io/tetrad/tetrad-lib-apidocs/edu/cmu/tetrad/search/Fgs.html}{the java documentation}.
+}
 \value{
-A list containing the FGS's parameters, the input dataset, the result's nodes, 
+A list containing the FGES's parameters, the input dataset, the result's nodes, 
 the result's edges, and the graphNEL causal graph result.
 }
 \examples{
 data("audiology")    #Load the charity dataset
-#Compute FGS search
-fgs.discrete <- fgs.discrete(df=audiology,structurePrior=1.0,samplePrior=1.0, 
+#Compute FGES search
+fges.discrete <- fges.discrete(df=audiology,structurePrior=1.0,samplePrior=1.0, 
 maxDegree = -1, faithfulnessAssumed = TRUE, numOfThreads = 2,verbose = TRUE)
-fgs.discrete$parameters #Show the FGS's parameters
-fgsfgs.discretedatasets #Show the dataset
-fgs.discrete$nodes #Show the result's nodes
-fgs.discrete$edges #Show the result's edges
+fges.discrete$parameters #Show the FGES's parameters
+fges.discretedatasets #Show the dataset
+fges.discrete$nodes #Show the result's nodes
+fges.discrete$edges #Show the result's edges
 }
-\keyword{fgs}
+\keyword{fges}
 \keyword{ges}
 \keyword{causal graphs}
 \keyword{discrete data}
