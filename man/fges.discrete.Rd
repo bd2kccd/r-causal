@@ -59,12 +59,12 @@ A list containing the FGES's parameters, the input dataset, the result's nodes,
 the result's edges, and the graphNEL causal graph result.
 }
 \examples{
-data("audiology")    #Load the charity dataset
+data("audiology")    #Load the audiology dataset
 #Compute FGES search
 fges.discrete <- fges.discrete(df=audiology,structurePrior=1.0,samplePrior=1.0, 
 maxDegree = -1, faithfulnessAssumed = TRUE, numOfThreads = 2,verbose = TRUE)
 fges.discrete$parameters #Show the FGES's parameters
-fges.discretedatasets #Show the dataset
+fges.discrete$datasets #Show the dataset
 fges.discrete$nodes #Show the result's nodes
 fges.discrete$edges #Show the result's edges
 }

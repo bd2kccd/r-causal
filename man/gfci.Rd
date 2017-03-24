@@ -22,6 +22,11 @@ gfci(df, penaltydiscount = 2.0, maxDegree = 3, maxPathLength = -1, significance 
   \item{maxPathLength}{ integer indicating a maximum length for any discriminating path. 
   It ranges from -1 for unlimited degree, otherwise a number 
   >= 0. By default, \code{maxPathLength}=-1. }
+  \item{significance}{ floating point indicating the statistical value (between zero and one) for the conditional independence test.  By default, 
+  \code{significance}=0.05. }
+  \item{completeRuleSetUsed}{ boolean indicating whether or not the search applies 
+  the complete rule set.  \code{completeRuleSetUsed} is 
+  \code{FALSE} by default. }
   \item{faithfulnessAssumed}{ boolean indicating whether or not the search assumes 
   that zero effect adjacencies are not in the graph.  \code{faithfulnessAssumed} is 
   \code{TRUE} by default. }

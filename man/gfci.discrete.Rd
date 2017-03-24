@@ -25,12 +25,14 @@
   \item{maxPathLength}{ integer indicating a maximum length for any discriminating path. 
   It ranges from -1 for unlimited degree, otherwise a number 
   >= 0. By default, \code{maxPathLength}=-1. }
-  \item{faithfulnessAssumed}{ boolean indicating whether or not the search uses 
-  that zero effect adjacencies are not in the graph.  \code{faithfulnessAssumed} is 
-  \code{TRUE} by default. }
+  \item{significance}{ floating point indicating the statistical value (between zero and one) for the conditional independence test.  By default, 
+  \code{significance}=0.05. }  
   \item{completeRuleSetUsed}{ boolean indicating whether or not the search applies 
   the complete rule set.  \code{completeRuleSetUsed} is 
   \code{FALSE} by default. }
+  \item{faithfulnessAssumed}{ boolean indicating whether or not the search uses 
+  that zero effect adjacencies are not in the graph.  \code{faithfulnessAssumed} is 
+  \code{TRUE} by default. }
   \item{verbose}{ boolean indicating whether or not if verbose output should 
   be printed.  \code{verbose} is \code{FALSE} by default. }
   \item{java.parameters}{ string indicating an optional parameters for JVM. 
@@ -51,12 +53,12 @@ possible d-separation paths and to utilize unshielded colliders found by FGES.
 More detail about GFci implementation, please visit \href{http://cmu-phil.github.io/tetrad/tetrad-lib-apidocs/edu/cmu/tetrad/search/GFci.html}{the java documentation}.
 }
 \examples{
-data("audiology")    #Load the charity dataset
+data("audiology")    #Load the audiology dataset
 #Compute gfci search
 gfci.discrete <- gfci.discrete(df=audiology, structurePrior=1.0, samplePrior=1.0, 
 maxDegree = -1, faithfulnessAssumed = TRUE, verbose = TRUE)
 gfci.discrete$parameters #Show the gfci's parameters
-gfci.discretedatasets #Show the dataset
+gfci.discrete$datasets #Show the dataset
 gfci.discrete$nodes #Show the result's nodes
 gfci.discrete$edges #Show the result's edges
 }
