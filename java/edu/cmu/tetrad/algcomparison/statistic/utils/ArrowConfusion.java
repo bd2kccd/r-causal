@@ -2,9 +2,7 @@ package edu.cmu.tetrad.algcomparison.statistic.utils;
 
 import edu.cmu.tetrad.graph.*;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * A confusion matrix for arrows--i.e. TP, FP, TN, FN for counts of arrow endpoints.
