@@ -26,7 +26,10 @@ bayesEst(df, depth = 3, significance = 0.05, verbose = FALSE,
   \code{priorKnowledge}=\code{NULL}. }
 }
 \details{
-More detail about bayesEst implementation, please visit \href{http://cmu-phil.github.io/tetrad/tetrad-lib-apidocs/edu/cmu/tetrad/cmd/TetradCmd.html}{the java documentation}.
+The Bayes estimator uses the maximum likelihood estimation in order to estimate causal graph.
+
+
+More detail about bayesEst implementation, please visit \href{https://github.com/cmu-phil/tetrad/blob/development/tetrad-lib/src/main/java/edu/cmu/tetrad/cmd/TetradCmd.java}{the java code}.
 }
 \value{
 A list containing the bayesEst's parameters, the input dataset, the result's nodes, 
