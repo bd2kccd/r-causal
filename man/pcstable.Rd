@@ -31,7 +31,7 @@ pcstable(df, continuous = TRUE, depth = 3, aggressivelyPreventCycles = FALSE,
 \details{
 This method implements the Implements the PC ("Peter/Clark") algorithm, as specified in Chapter 6 of Spirtes, Glymour, and Scheines, "Causation, Prediction, and Search," 2nd edition, with a modified rule set in step D due to Chris Meek. For the modified rule set, see Chris Meek (1995), "Causal inference and causal explanation with background knowledge."
 
-In addition, the PC Stable modification to PC has been included (Colombo and Maathuis).
+In addition, the PC Stable modification to PC has been included (\href{http://www.jmlr.org/papers/volume15/colombo14a/source/colombo14a.pdf}{Colombo and Maathuis, 2014}).
 
 More detail about pcstable implementation, please visit \href{http://cmu-phil.github.io/tetrad/tetrad-lib-apidocs/edu/cmu/tetrad/search/PcStable.html}{the java documentation}.
 }

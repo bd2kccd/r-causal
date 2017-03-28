@@ -35,6 +35,8 @@ pcmax(df, continuous = TRUE, depth = -1, maxPathLength = 3,
 \details{
 This method implements a modification of the the PC ("Peter/Clark") algorithm, as specified in Chapter 6 of Spirtes, Glymour, and Scheines, "Causation, Prediction, and Search," 2nd edition, with a modified rule set in step D due to Chris Meek. For the modified rule set, see Chris Meek (1995), "Causal inference and causal explanation with background knowledge."
 
+In addition, the modification to PC by \href{https://arxiv.org/abs/1610.00378}{maximizing p-value} has been included.
+
 More detail about pcmax implementation, please visit \href{http://cmu-phil.github.io/tetrad/tetrad-lib-apidocs/edu/cmu/tetrad/search/PcMax.html}{the java documentation}.
 }
 \value{
