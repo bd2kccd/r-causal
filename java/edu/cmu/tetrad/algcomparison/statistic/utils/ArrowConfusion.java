@@ -2,7 +2,9 @@ package edu.cmu.tetrad.algcomparison.statistic.utils;
 
 import edu.cmu.tetrad.graph.*;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A confusion matrix for arrows--i.e. TP, FP, TN, FN for counts of arrow endpoints.
@@ -37,6 +39,9 @@ public class ArrowConfusion {
         TCfn = 0;
         TCfp = 0;
 
+        Set<Edge> allOriented = new HashSet<>();
+        allOriented.addAll(this.truth.getEdges());
+        allOriented.addAll(this.est.getEdges());
 
         // Get edges from the true Graph to compute TruePositives, TrueNegatives and FalseNeagtives
         //    System.out.println(this.truth.getEdges());

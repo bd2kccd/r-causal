@@ -26,6 +26,8 @@ import edu.cmu.tetrad.util.TetradSerializable;
 import java.awt.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents an edge node1 *-# node2 where * and # are endpoints of type
@@ -38,6 +40,9 @@ import java.io.ObjectInputStream;
  */
 public class Edge implements TetradSerializable, Comparable {
     static final long serialVersionUID = 23L;
+
+    public enum Property {dd, nl, pd, pl}
+
     private Node node1;
     private Node node2;
     private Endpoint endpoint1;
@@ -47,6 +52,10 @@ public class Edge implements TetradSerializable, Comparable {
     private transient Color lineColor = null;
 
     private boolean dashed = false;
+
+    private List<Property> properties = new ArrayList<>();
+    
+    private List<EdgeTypeProbability> edgeTypeProbabilities = new ArrayList<>();
 
     //=========================CONSTRUCTORS============================//
 
@@ -241,6 +250,46 @@ public class Edge implements TetradSerializable, Comparable {
         buf.append(" ");
         buf.append(getNode2());
 
+        // Bootstrapping edge type distribution
+        List<EdgeTypeProbability> edgeTypeDist = getEdgeTypeProbabilities();
+        if(edgeTypeDist.size() > 0){
+            buf.append(" ");
+            for (int i = 0; i < edgeTypeDist.size(); i++) {
+            	EdgeTypeProbability etp = edgeTypeDist.get(i);
+    			String _type = "" + etp.getEdgeType();
+    			switch (etp.getEdgeType()) {
+    			case nil:
+    				_type = "no edge";
+    				break;
+    			case ta:
+    				_type = "-->";
+    				break;
+    			case at:
+    				_type = "<--";
+    				break;
+    			case ca:
+    				_type = "o->";
+    				break;
+    			case ac:
+    				_type = "<-o";
+    				break;
+    			case cc:
+    				_type = "o-o";
+    				break;
+    			case aa:
+    				_type = "<->";
+    				break;
+    			case tt:
+    				_type = "---";
+    				break;
+    			default:
+    				break;
+    			}
+    			
+    			buf.append("[" + _type + "]:" + String.format("%.4f", etp.getProbability()));
+            }
+        }
+        
         return buf.toString();
     }
 
@@ -375,6 +424,36 @@ public class Edge implements TetradSerializable, Comparable {
     public void setDashed(boolean dashed) {
         this.dashed = dashed;
     }
+
+    public void addProperty(Property property) {
+        if (!properties.contains(property)) {
+            this.properties.add(property);
+        }
+    }
+
+    public void removeProperty(Property property) {
+        this.properties.remove(property);
+    }
+
+    public ArrayList<Property> getProperties() {
+        return new ArrayList<>(this.properties);
+    }
+
+    public void addEdgeTypeProbability(EdgeTypeProbability prob){
+	if(!edgeTypeProbabilities.contains(prob)){
+		this.edgeTypeProbabilities.add(prob);
+	}
+    }
+    
+    public void removeEdgeTypeProbability(EdgeTypeProbability prob){
+	this.edgeTypeProbabilities.remove(prob);
+    }
+    
+    public List<EdgeTypeProbability> getEdgeTypeProbabilities() {
+        return edgeTypeProbabilities;
+    }
+
+    
 }
 
 
