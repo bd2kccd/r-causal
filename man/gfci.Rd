@@ -51,7 +51,7 @@ More detail about GFci implementation, please visit \href{http://cmu-phil.github
 }
 \examples{
 data("charity")    #Load the charity dataset
-gfci <- gfci(df = charity, penaltydiscount = 2, maxDegree = -1, faithfulnessAsummed = TRUE,
+gfci <- gfci(df = charity, penaltydiscount = 2, maxDegree = -1, faithfulnessAssummed = TRUE,
     verbose = TRUE)    #Compute gfci search
 gfci$parameters #Show the gfci's parameters
 gfci$datasets #Show the dataset
