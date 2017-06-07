@@ -72,6 +72,22 @@ dataFrame2TetradSemBicScore <- function(df,penaltydiscount = 4.0){
 }
 
 ########################################################
+# converter: R dataframe into Tetrad ConditionalGaussianScore
+# requires dataframe with named columns
+# Dataset is mixed data
+# requires rJava, assumes the JVM is running from the
+# latest Tetrad jar.
+dataFrame2TetradConditionalGaussianScore <- function(df,
+    numCategoriesToDiscretize = 4, penaltydiscount = 4, structurePrior = 1.0){
+    boxData <- loadMixedData(df, numCategoriesToDiscretize)
+    score <- .jnew("edu/cmu/tetrad/search/ConditionalGaussianScore",
+                boxData, structurePrior, TRUE)
+    score$setPenaltyDiscount(penaltydiscount)
+    score <- .jcast(score, "edu/cmu/tetrad/search/Score")
+    return(score)
+}
+
+########################################################
 # converter: R covariance matrix into Tetrad covariance matrix
 rCovMatrix2TetradCovMatrix <- function(covmat, node_list, sample_size){
   mat <- .jarray(covmat, dispatch=TRUE)
@@ -279,4 +295,61 @@ loadDiscreteData <- function(df){
                             data, node_list)
     boxData <- .jcast(boxData, "edu/cmu/tetrad/data/DataSet")
 	return(boxData)
+}
+
+############################################################
+loadMixedData <- function(df, numCategoriesToDiscretize = 4){
+    node_names <- colnames(df)
+    cont_list <- c()
+    disc_list <- c()
+    node_list <- .jnew("java/util/ArrayList")
+    for (i in 1:length(node_names)){
+        nodname <- .jnew("java/lang/String", node_names[i])
+        cate <- unique(df[[node_names[i]]])
+        if(length(cate) > numCategoriesToDiscretize){
+            # Continuous variable
+            nodi <- .jnew("edu/cmu/tetrad/data/ContinuousVariable", nodname)
+            node_list$add(nodi)
+            
+            cont_list <- c(cont_list, node_names[i])
+        }else{
+            # Discrete variable
+            cate <- sort(cate)
+            cate_list <- .jnew("java/util/ArrayList")
+            for(j in 1:length(cate)){
+                cate_list$add(as.character(cate[j]))
+            }
+            cate_list <- .jcast(cate_list, "java/util/List")
+            nodi <- .jnew("edu/cmu/tetrad/data/DiscreteVariable",
+            nodname, cate_list)
+            node_list$add(nodi)
+            
+            # Substitute a new categorial value
+            cate <- data.frame(cate)
+            new_col <- sapply(df[,i],function(x,cate)
+            as.integer(which(cate[,1] == x)),cate=cate)
+            new_col = as.integer(new_col - 1)
+            df[,i] <- (data.frame(new_col))[,1]
+            
+            disc_list <- c(disc_list, node_names[i])
+        }
+    }
+    
+    cont_df <- df[cont_list]
+    cont_mt <- as.matrix(cont_df)
+    cont_mat <- .jarray(cont_mt, dispatch=TRUE)
+    
+    disc_df <- df[disc_list]
+    disc_mt <- as.matrix(disc_df)
+    disc_mat <- .jarray(disc_mt, dispatch=TRUE)
+    
+    node_list <- .jcast(node_list, "java/util/List")
+    mixedDataBox <- .jnew("edu/cmu/tetrad/data/MixedDataBox", node_list,
+                        as.integer(nrow(df)), cont_mat, disc_mat)
+    
+    data <- .jcast(mixedDataBox, "edu/cmu/tetrad/data/DataBox")
+    boxData <- .jnew("edu/cmu/tetrad/data/BoxDataSet",
+    data, node_list)
+    boxData <- .jcast(boxData, "edu/cmu/tetrad/data/DataSet")
+    return(boxData)
 }
