@@ -344,6 +344,7 @@ loadMixedData <- function(df, numCategoriesToDiscretize = 4){
     cont_mat <- .jarray(cont_mt, dispatch=TRUE)
     
     disc_mt <- as.matrix(disc_df)
+    disc_mt <- t(disc_mt)
     disc_mat <- .jarray(disc_mt, dispatch=TRUE)
     
     node_list <- .jcast(node_list, "java/util/List")
