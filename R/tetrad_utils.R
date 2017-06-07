@@ -300,8 +300,8 @@ loadDiscreteData <- function(df){
 ############################################################
 loadMixedData <- function(df, numCategoriesToDiscretize = 4){
     node_names <- colnames(df)
-    cont_df <- data.frame()
-    disc_df <- data.frame()
+    cont_df <- df
+    disc_df <- df
     node_list <- .jnew("java/util/ArrayList")
     for (i in 1:length(node_names)){
         nodname <- .jnew("java/lang/String", node_names[i])
@@ -311,11 +311,8 @@ loadMixedData <- function(df, numCategoriesToDiscretize = 4){
             nodi <- .jnew("edu/cmu/tetrad/data/ContinuousVariable", nodname)
             node_list$add(nodi)
             
-            cont_df <- cbind(cont_df, df[node_names[i]])
-            
             # Replace the continuous column with a zero-int-value column
-            disc_df <- cbind(disc_df, df[node_names[i]])
-            disc_df[,i] <- apply(disc_df[node_names[i]],1,function(x)as.integer(0))
+            disc_df[,i] <- apply(disc_df[i],1,function(x)as.integer(0))
         }else{
             # Discrete variable
             cate <- sort(cate)
@@ -334,12 +331,11 @@ loadMixedData <- function(df, numCategoriesToDiscretize = 4){
             as.integer(which(cate[,1] == x)),cate=cate)
             new_col = as.integer(new_col - 1)
             df[,i] <- (data.frame(new_col))[,1]
-            
-            disc_df <- cbind(disc_df, df[node_names[i]])
-            
+
+            disc_df[,i] <- df[,i]
+
             # Replace the discrete column with a zero-double-value column
-            cont_df <- cbind(cont_df, df[node_names[i]])
-            cont_df[,i] <- apply(cont_df[node_names[i]],1,function(x)as.double(0))
+            cont_df[,i] <- apply(cont_df[i],1,function(x)as.double(0))
         }
     }
     
