@@ -341,13 +341,13 @@ loadMixedData <- function(df, numCategoriesToDiscretize = 4){
     for(row in 1:nrow(df)){
         for(j in 1:length(cont_list)){
             col <- as.integer(cont_list[i])
-            value <- .jnew("java/lang/Double", as.double(df[row][col]))
+            value <- .jnew("java/lang/Double", as.double(df[row,col]))
             value <- .jcast(value, "java/lang/Number")
             mixedDataBox$set(row,col,value)
         }
         for(j in 1:length(disc_list)){
             col <- as.integer(disc_list[i])
-            value <- .jnew("java/lang/Integer", as.integer(df[row][col]))
+            value <- .jnew("java/lang/Integer", as.integer(df[row,col]))
             value <- .jcast(value, "java/lang/Number")
             mixedDataBox$set(row,col,value)
         }
