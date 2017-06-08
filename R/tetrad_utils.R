@@ -339,15 +339,17 @@ loadMixedData <- function(df, numCategoriesToDiscretize = 4){
     mixedDataBox <- .jnew("edu/cmu/tetrad/data/MixedDataBox", node_list,as.integer(nrow(df)))
     
     for(row in 1:nrow(df)){
-        for(col in 1:length(cont_list)){
+        for(j in 1:length(cont_list)){
+            col <- cont_list[j]
             value <- .jnew("java/lang/Double", as.character(df[row,col]))
             value <- .jcast(value, "java/lang/Number")
-            mixedDataBox$set(row-1,col-1,value)
+            mixedDataBox$set(as.integer(row-1),as.integer(col-1),value)
         }
-        for(col in 1:length(disc_list)){
+        for(j in 1:length(disc_list)){
+            col <- disc_list[j]
             value <- .jnew("java/lang/Integer", as.character(df[row,col]))
             value <- .jcast(value, "java/lang/Number")
-            mixedDataBox$set(row-1,col-1,value)
+            mixedDataBox$set(as.integer(row-1),as.integer(col-1),value)
         }
     }
     
