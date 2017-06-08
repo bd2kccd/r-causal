@@ -1,5 +1,8 @@
-fges <- function(df, penaltydiscount = 4.0, maxDegree = 3, 
-    faithfulnessAssumed = TRUE, numOfThreads = 2, 
+#int[] inputs, int[] outputs, boolean useGES, DataSet data, int[] trueInputs,
+#                    double alphaPC, double  alphaSober, double gesDiscount
+
+
+fges <- function(inputs, outputs, useGES=TRUE, data, trueInputs, alphaPC=.05, alphaSober=.05, gesDiscount=2,
     verbose = FALSE, java.parameters = NULL, priorKnowledge = NULL){
     
     params <- list(NULL)
@@ -10,38 +13,46 @@ fges <- function(df, penaltydiscount = 4.0, maxDegree = 3,
     }
 
     # Data Frame to Tetrad Dataset
-    score <- dataFrame2TetradSemBicScore(df,penaltydiscount)
+    score <- dataFrame2TetradSemBicScore(data)
 
-    fges <- list()
-    class(fges) <- "fges"
+    dm <- list()
+    class(dm) <- "DMSearch"
 
-    fges$datasets <- deparse(substitute(df))
+    dm$datasets <- deparse(substitute(df))
 
     cat("Datasets:\n")
     cat(deparse(substitute(df)),"\n\n")
 
-    # Initiate FGES
-    fges_instance <- .jnew("edu/cmu/tetrad/search/Fges", score)
-    .jcall(fges_instance, "V", "setMaxDegree", as.integer(maxDegree))
-    .jcall(fges_instance, "V", "setNumPatternsToStore", as.integer(0))
-    .jcall(fges_instance, "V", "setFaithfulnessAssumed", faithfulnessAssumed)
-    .jcall(fges_instance, "V", "setParallelism", as.integer(numOfThreads))
-    .jcall(fges_instance, "V", "setVerbose", verbose)
+    # Initiate DMSearch
+    dm_instance <- .jnew("edu/cmu/tetrad/search/DMSearch", inputs, outputs, useGES, data, trueInputs, alphaPC, alphaSober, gesDiscount)
+    ## .jcall(fges_instance, "V", "setMaxDegree", as.integer(maxDegree))
+    ## .jcall(fges_instance, "V", "setNumPatternsToStore", as.integer(0))
+    ## .jcall(fges_instance, "V", "setFaithfulnessAssumed", faithfulnessAssumed)
+    ## .jcall(fges_instance, "V", "setParallelism", as.integer(numOfThreads))
+    ## .jcall(fges_instance, "V", "setVerbose", verbose)
 
-    if(!is.null(priorKnowledge)){
-        .jcall(fges_instance, "V", "setKnowledge", priorKnowledge)
-    }
+    ## if(!is.null(priorKnowledge)){
+    ##     .jcall(fges_instance, "V", "setKnowledge", priorKnowledge)
+    ## }
 
-    params <- c(params, penaltydiscount = as.double(penaltydiscount))
-    params <- c(params, maxDegree = as.integer(maxDegree))
-    params <- c(params, faithfulnessAssumed = as.logical(faithfulnessAssumed))
-    params <- c(params, numOfThreads = as.integer(numOfThreads))
-    params <- c(params, verbose = as.logical(verbose))
 
-    if(!is.null(priorKnowledge)){
-        params <- c(params, prior = priorKnowledge)
-    }
-    fges$parameters <- params
+    params <- c(params, alphaPC)
+    params <- c(params, alphaSober)
+    params <- c(params, gesDiscount)
+    params <- c(params, verbose)
+    
+    
+    ## params <- c(params, penaltydiscount = as.double(penaltydiscount))
+    ## params <- c(params, maxDegree = as.integer(maxDegree))
+    ## params <- c(params, faithfulnessAssumed = as.logical(faithfulnessAssumed))
+    ## params <- c(params, numOfThreads = as.integer(numOfThreads))
+    ## params <- c(params, verbose = as.logical(verbose))
+
+    ## if(!is.null(priorKnowledge)){
+    ##     params <- c(params, prior = priorKnowledge)
+    ## }
+
+    dm$parameters <- params
 
     cat("Graph Parameters:\n")
     cat("penalty discount = ", penaltydiscount,"\n")
@@ -56,18 +67,18 @@ fges <- function(df, penaltydiscount = 4.0, maxDegree = 3,
 
     V <- extractTetradNodes(tetrad_graph)
 
-    fges$nodes <- V
+    dm$nodes <- V
 
     # extract edges
-    fges_edges <- extractTetradEdges(tetrad_graph)
+    dm_edges <- extractTetradEdges(tetrad_graph)
 
-    fges$edges <- fges_edges
+    dm$edges <- dm_edges
 
     # convert output of FGES into an R object (graphNEL)
-    fges_graphNEL = tetradPattern2graphNEL(resultGraph = tetrad_graph,
+    dm_graphNEL = tetradPattern2graphNEL(resultGraph = tetrad_graph,
         verbose = verbose)
 
-    fges$graphNEL <- fges_graphNEL
+    dm$graphNEL <- dm_graphNEL
 
-    return(fges)
+    return(dm)
 }
