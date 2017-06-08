@@ -52,10 +52,5 @@ randomDag <- function(seed = NULL, numNodes = 10, numEdges = 10, java.parameters
     randomDag$edges <- randomDag_edges
     randomDag$dag <- dag
 
-	# convert output of randomDag into an R object (graphNEL)
-    randomDag_graphNEL = tetradPattern2graphNEL(resultGraph = dag, verbose = TRUE)
-
-    randomDag$graphNEL <- randomDag_graphNEL
-
     return(randomDag)
 }

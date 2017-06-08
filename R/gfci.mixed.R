@@ -65,16 +65,24 @@ gfci.mixed <- function(df, numCategoriesToDiscretize = 4, penaltydiscount = 4,
     cat("verbose = ", verbose,"\n")
     
     # Search
-    tetrad_graph <- .jcall(gfci_instance, "Ledu/cmu/tetrad/graph/Graph;", "search")
+    tetrad_graph <- .jcall(gfci_instance, "Ledu/cmu/tetrad/graph/Graph;", "search", check=FALSE)
 
-    V <- extractTetradNodes(tetrad_graph)
-
-    gfci$nodes <- V
-
-    # extract edges
-    gfci_edges <- extractTetradEdges(tetrad_graph)
-
-    gfci$edges <- gfci_edges
+    if(!is.null(e <- .jgetEx())){
+        .jclear()
+        gfci$nodes <- NULL
+        gfci$edges <- NULL
+        print("Java exception was raised")
+        print(e)
+    }else{
+        V <- extractTetradNodes(tetrad_graph)
+        
+        gfci$nodes <- V
+        
+        # extract edges
+        gfci_edges <- extractTetradEdges(tetrad_graph)
+        
+        gfci$edges <- gfci_edges
+    }
 
     return(gfci)
 }

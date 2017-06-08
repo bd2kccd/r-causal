@@ -102,52 +102,51 @@ rCovMatrix2TetradCovMatrix <- function(covmat, node_list, sample_size){
 ########################################################
 # converter: Tetrad edge type into graphNEL edge list
 # requires list of nodes and a set of edges
-
 # extract nodes: 
-tetradPattern2graphNEL <- function(resultGraph, 
-    verbose = FALSE){
-	
-	V <- extractTetradNodes(resultGraph)
-	
-    if(verbose){
-        cat("\nGraph Nodes:\n")
-        for(i in 1:length(V)){
-            cat(V[i]," ")
-        }
-        cat("\n\n")
-    }
+# tetradPattern2graphNEL <- function(resultGraph,
+#    verbose = FALSE){
+#
+#	V <- extractTetradNodes(resultGraph)
+
+#    if(verbose){
+#        cat("\nGraph Nodes:\n")
+#        for(i in 1:length(V)){
+#            cat(V[i]," ")
+#        }
+#        cat("\n\n")
+#    }
     
 	# extract edges
-	fgs_edges <- extractTetradEdges(resultGraph)
-	edgemat <- str_split_fixed(fgs_edges,  pattern=" ", n=3)
+#	fgs_edges <- extractTetradEdges(resultGraph)
+#	edgemat <- str_split_fixed(fgs_edges,  pattern=" ", n=3)
 
-    if(verbose){
-        cat("Graph Edges:\n")
-        if(length(fgs_edges) > 0){
-            for(i in 1:length(fgs_edges)){
-                cat(fgs_edges[i],"\n")
-            }
-        }
-    }
+#    if(verbose){
+#        cat("Graph Edges:\n")
+#        if(length(fgs_edges) > 0){
+#            for(i in 1:length(fgs_edges)){
+#                cat(fgs_edges[i],"\n")
+#            }
+#        }
+#    }
 
 	# find undirected edge indices
-	undir <- which(edgemat[,2]=="---")
+#	undir <- which(edgemat[,2]=="---")
 	
 	# for each undirected edge, create a new edge with the two variables 
 	# in reversed order. Also, remove the edge column, but name the columns
-	edgemat <- rbind(edgemat[,c(1,3)], edgemat[undir,c(3,1)])
-	colnames(edgemat) <- c("Parent", "Child")
+#	edgemat <- rbind(edgemat[,c(1,3)], edgemat[undir,c(3,1)])
+#	colnames(edgemat) <- c("Parent", "Child")
 	
 	# create edge list for graphNEL format
-	edgel <- list(NULL)
-	for (i in 1:length(V)){
-		edgel[[i]] <- edgemat[which(edgemat[,1]==V[i]),2]
-	}
-	names(edgel) <- V
+#	edgel <- list(NULL)
+#	for (i in 1:length(V)){
+#		edgel[[i]] <- edgemat[which(edgemat[,1]==V[i]),2]
+#	}
+#	names(edgel) <- V
 	
-	outputgraph <- graphNEL(nodes=V, edgeL=edgel, edgemode="directed")
-	return(outputgraph)
-}
+#	outputgraph <- graphNEL(nodes=V, edgeL=edgel, edgemode="directed")
+#	return(outputgraph)
+#}
 
 ############################################################
 # extract nodes from Tetrad graph result
@@ -345,7 +344,7 @@ loadMixedData <- function(df, numCategoriesToDiscretize = 4){
                 col <- cont_list[j]
                 # print(paste("col:",col,sep=" "))
                 value <- as.character(df[row,col])
-                print(value)
+                #print(value)
                 value <- .jnew("java/lang/Double", value)
                 value <- .jcast(value, "java/lang/Number")
                 mixedDataBox$set(as.integer(row-1),as.integer(col-1),value)
@@ -356,7 +355,7 @@ loadMixedData <- function(df, numCategoriesToDiscretize = 4){
                 col <- disc_list[j]
                 # print(paste("col:",col,sep=" "))
                 value <- as.character(df[row,col])
-                print(value)
+                # print(value)
                 value <- .jnew("java/lang/Integer", value)
                 value <- .jcast(value, "java/lang/Number")
                 mixedDataBox$set(as.integer(row-1),as.integer(col-1),value)

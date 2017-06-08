@@ -56,16 +56,24 @@ cfci <- function(df, continuous = TRUE, depth = 3, significance = 0.05, verbose 
 
     # Search
     tetrad_graph <- .jcall(cfci_instance, "Ledu/cmu/tetrad/graph/Graph;", 
-        "search")
+        "search", check=FALSE)
 
-    V <- extractTetradNodes(tetrad_graph)
-
-    cfci$nodes <- V
-
-    # extract edges
-    cfci_edges <- extractTetradEdges(tetrad_graph)
-
-    cfci$edges <- cfci_edges
+    if(!is.null(e <- .jgetEx())){
+        .jclear()
+        cfci$nodes <- NULL
+        cfci$edges <- NULL
+        print("Java exception was raised")
+        print(e)
+    }else{
+        V <- extractTetradNodes(tetrad_graph)
+        
+        cfci$nodes <- V
+        
+        # extract edges
+        cfci_edges <- extractTetradEdges(tetrad_graph)
+        
+        cfci$edges <- cfci_edges
+    }
 
     return(cfci)
 }
