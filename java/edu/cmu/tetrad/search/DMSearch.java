@@ -124,7 +124,7 @@ public class DMSearch {
 
         DataSet data = getData();
 
-        //2DO: Break stuff below here into seperate fuct/classes.
+        //2DO: Break stuff below here into separate fuct/classes.
         this.cov = new CovarianceMatrixOnTheFly(data);
 
 
@@ -170,9 +170,7 @@ public class DMSearch {
 //            pc.setKnowledge(knowledge);
 //            pc.setMaxIndegree(0);
             if (verbose) {
-                if (verbose) {
-                    System.out.println("Running PC Search");
-                }
+                System.out.println("Running PC Search");
             }
 //            pattern = pc.search();
             double penalty = 2;
@@ -212,7 +210,7 @@ public class DMSearch {
 
     }
 
-    public LatentStructure applyDmSearch(Graph pattern, Set<String> inputString, double penalty) {
+    private LatentStructure applyDmSearch(Graph pattern, Set<String> inputString, double penalty) {
 
         List<Set<Node>> outputParentsList = new ArrayList<>();
         final List<Node> patternNodes = pattern.getNodes();
@@ -220,8 +218,6 @@ public class DMSearch {
 //        2DO: add testcase to see how sort compares 10, 11, 1, etc.
         java.util.Collections.sort(patternNodes, new Comparator<Node>() {
             public int compare(Node node1, Node node2) {
-//2DO: string length error here. Fix.
-
                 if (node1.getName().length() > node2.getName().length()) {
                     return (1);
                 } else if (node1.getName().length() < node2.getName().length()) {
@@ -290,19 +286,13 @@ public class DMSearch {
             List<Set<Node>> nextSet = outputParentsList.subList(sublistStart, outputParentsList.size());
             //If no next set, then just add var.
             if (nextSet.isEmpty()) {
-//                for (int head = 0; head < (set1.size()); head++) {
                 sameSetParents.addAll(set1);
-//                }
             }
             for (Set<Node> set2 : nextSet) {
                 if (!(set1.size() == 0 || set2.size() == 0) && set1.equals(set2)) {
-//                    for (int head = 0; head < (set1.size()); head++) {
                     sameSetParents.addAll(set1);
-//                    }
                 } else if (set1.size() > 0) {
-//                    for (int head = 0; head < (set1.size()); head++) {
                     sameSetParents.addAll(set1);
-//                    }
                 }
             }
 
@@ -355,10 +345,6 @@ public class DMSearch {
             System.out.println("Finding initial latent-latent effects");
         }
 
-
-//        System.out.println(latentsSortedByInputSetSize);
-
-
         TreeSet<Node> inputs1 = new TreeSet<>(new Comparator<Node>() {
             public int compare(Node node1, Node node2) {
 
@@ -393,10 +379,6 @@ public class DMSearch {
 
         //Finding initial latent-latent Effects.
         for (int i = 0; i <= latentsSortedByInputSetSize.keySet().size(); i++) {
-
-//          2DO: Need to only perform this test if haven't already looked at latent. (for latent 1).
-
-
             TreeSet<TreeSet<Node>> sortedInputs = new TreeSet<>(new Comparator<TreeSet<Node>>() {
                 public int compare(TreeSet<Node> o1, TreeSet<Node> o2) {
                     int size = o1.size() - o2.size();
@@ -494,7 +476,6 @@ public class DMSearch {
         }
 
 
-//        Ensuring no nulls in latenteffects map.
         SortedSet<Node> emptyTreeSet = new TreeSet<>(new Comparator<Node>() {
             public int compare(Node node1, Node node2) {
 
@@ -510,6 +491,7 @@ public class DMSearch {
             }
         });
 
+//        Ensuring no nulls in latenteffects map.
         for (Node latent : structure.getLatents()) {
             if (structure.latentEffects.get(latent) == null) {
                 structure.latentEffects.put(latent, emptyTreeSet);
@@ -519,7 +501,6 @@ public class DMSearch {
         if (verbose) {
             System.out.println("Structure prior to Sober's step:");
         }
-//        System.out.println(structure);
 
         if (verbose) {
             System.out.println("Applying Sober's step ");
@@ -701,7 +682,7 @@ public class DMSearch {
 
     // Removes subset of inputs from any latent's input set.
     //Inputs are latent structure, the set of inputs which are to be removed, the number of
-    // inputs in the superset, and the identity of the latent they are a subset of,
+    // inputs in the superset, and the identity of the latent they are a subset of.
     private TreeMap removeSetInputs(LatentStructure structure, SortedSet<Node> set, int sizeOfSuperset, Node latentForSuperset, TreeMap<TreeSet<Node>, Node> map) {
         for (Node latent : structure.latents) {
             if (structure.inputs.get(latent).equals(set)) {
@@ -816,7 +797,7 @@ public class DMSearch {
         Map<Node, SortedSet<Node>> latentEffects = new TreeMap<>();
 
 
-        public LatentStructure() {
+        private LatentStructure() {
         }
 
         public void addRecord(Node latent, SortedSet<Node> inputs, SortedSet<Node> outputs, SortedSet<Node> latentEffects) {
@@ -843,15 +824,15 @@ public class DMSearch {
             return latents.contains(latent);
         }
 
-        public SortedSet<Node> getInputs(Node latent) {
+        private SortedSet<Node> getInputs(Node latent) {
             return new TreeSet<>(inputs.get(latent));
         }
 
-        public SortedSet<Node> getOutputs(Node latent) {
+        private SortedSet<Node> getOutputs(Node latent) {
             return new TreeSet<>(outputs.get(latent));
         }
 
-        public SortedSet<Node> getLatentEffects(Node latent) {
+        private SortedSet<Node> getLatentEffects(Node latent) {
             return new TreeSet<>(latentEffects.get(latent));
         }
 
@@ -914,23 +895,23 @@ public class DMSearch {
 
     }
 
-    //Empty constructor for java-type settings.
+    //Empty constructor for java-type setting.
     public DMSearch(){}
 
 
     //Constructor for use with R.
     public DMSearch(int[] inputs, int[] outputs, boolean useGES, DataSet data, int[] trueInputs,
-                    double alphaPC, double  alphaSober, double gesDiscount){
+                    double alphaPC, double  alphaSober, double gesDiscount, boolean verbose, int minDiscount){
         if (useGES == false) {
-            pcVersion(inputs, outputs, data, trueInputs, alphaPC, alphaSober);
+            pcVersion(inputs, outputs, data, trueInputs, alphaPC, alphaSober, verbose);
 
         } else {
-            gesVersion(inputs, outputs, data, trueInputs, alphaSober, gesDiscount);
+            gesVersion(inputs, outputs, data, trueInputs, alphaSober, gesDiscount, verbose, minDiscount);
         }
     }
 
     private void pcVersion(int[] inputs, int[] outputs, DataSet data, int[] trueInputs, double alphaPC,
-                          double  alphaSober){
+                          double  alphaSober, boolean verbose){
         this.setInputs(inputs);
         this.setOutputs(outputs);
         this.setTrueInputs(trueInputs);
@@ -939,10 +920,13 @@ public class DMSearch {
         this.setAlphaSober(alphaSober);
         this.setData(data);
 
+        this.setVerbose(verbose);
+
+
     }
 
     private void gesVersion(int[] inputs, int[] outputs, DataSet data, int[] trueInputs, double  alphaSober,
-                           double gesDiscount){
+                           double gesDiscount, boolean verbose, int minDiscount){
         this.setInputs(inputs);
         this.setOutputs(outputs);
         this.setTrueInputs(trueInputs);
@@ -951,7 +935,10 @@ public class DMSearch {
         this.setAlphaSober(alphaSober);
         this.setData(data);
         this.setTrueInputs(trueInputs);
-//        search.search();
+
+        this.setMinDiscount(minDiscount);
+
+        this.setVerbose(verbose);
 
     }
 
