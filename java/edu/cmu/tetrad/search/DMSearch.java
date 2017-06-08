@@ -7,6 +7,7 @@ import org.apache.commons.math3.linear.SingularMatrixException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.lang.reflect.Array;
 import java.util.*;
 
 /**
@@ -912,5 +913,47 @@ public class DMSearch {
 
 
     }
+
+    //Empty constructor for java-type settings.
+    public DMSearch(){}
+
+
+    //Constructor for use with R.
+    public DMSearch(int[] inputs, int[] outputs, boolean useGES, DataSet data, int[] trueInputs,
+                    double alphaPC, double  alphaSober, double gesDiscount){
+        if (useGES == false) {
+            pcVersion(inputs, outputs, data, trueInputs, alphaPC, alphaSober);
+
+        } else {
+            gesVersion(inputs, outputs, data, trueInputs, alphaSober, gesDiscount);
+        }
+    }
+
+    private void pcVersion(int[] inputs, int[] outputs, DataSet data, int[] trueInputs, double alphaPC,
+                          double  alphaSober){
+        this.setInputs(inputs);
+        this.setOutputs(outputs);
+        this.setTrueInputs(trueInputs);
+
+        this.setAlphaPC(alphaPC);
+        this.setAlphaSober(alphaSober);
+        this.setData(data);
+
+    }
+
+    private void gesVersion(int[] inputs, int[] outputs, DataSet data, int[] trueInputs, double  alphaSober,
+                           double gesDiscount){
+        this.setInputs(inputs);
+        this.setOutputs(outputs);
+        this.setTrueInputs(trueInputs);
+
+        this.setDiscount(gesDiscount);
+        this.setAlphaSober(alphaSober);
+        this.setData(data);
+        this.setTrueInputs(trueInputs);
+//        search.search();
+
+    }
+
 
 }
