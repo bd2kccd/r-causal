@@ -32,8 +32,8 @@ The Bayes estimator uses the maximum likelihood estimation in order to estimate 
 More detail about bayesEst implementation, please visit \href{https://github.com/cmu-phil/tetrad/blob/development/tetrad-lib/src/main/java/edu/cmu/tetrad/cmd/TetradCmd.java}{the java code}.
 }
 \value{
-A list containing the bayesEst's parameters, the input dataset, the result's nodes, 
-the result's edges, and the graphNEL causal graph result.
+A list containing the bayesEst's parameters, the input dataset, the result's nodes, and 
+the result's edges.
 }
 \examples{
 data("audiology")

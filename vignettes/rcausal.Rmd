@@ -1,7 +1,7 @@
 ---
 title: "rcausal"
 author: "Chirayu Wongchokprasitti"
-date: "June 23, 2016"
+date: "June 9, 2017"
 abstract: >
   This package is a R wrapper containing the Tetrad Library.
 output: 
@@ -17,7 +17,7 @@ R Wrapper for Tetrad Library, for more details see
 <https://github.com/bd2kccd/r-causal>.
 
 ## R Library Requirement
-R >= 3.2.0, stringr, rJava, graph, RBGL, Rgraphviz
+R >= 3.3.0, stringr, rJava, graph, RBGL, Rgraphviz
 
 ## Installation
 
@@ -27,16 +27,6 @@ R >= 3.2.0, stringr, rJava, graph, RBGL, Rgraphviz
 ### These packages should be available upon building due to DESCRIPTION imports clause.
 #install.packages("stringr")
 #install.packages("rJava")
-## try http:// if https:// URLs are not supported
-source("https://bioconductor.org/biocLite.R")
-options(warn=-1)
-if(! require("graph"))
-   biocLite("graph")
-if(! require("RBGL"))
-  biocLite("RBGL")
-if(! require("Rgraphviz"))
-  biocLite("Rgraphviz") # For plotting graph
-options(warn=1)
 ```
 
 ### Install the r-causal from github
@@ -57,6 +47,4 @@ fgs$parameters #Show the FGS's parameters
 fgs$datasets #Show the dataset
 fgs$nodes #Show the result's nodes
 fgs$edges #Show the result's edges
-library(Rgraphviz)
-plot(fgs$graphNEL) #Plot the causal model
 ```

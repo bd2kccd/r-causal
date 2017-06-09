@@ -1,22 +1,26 @@
-\name{fges.discrete}
-\alias{fges.discrete}
-\title{Fast Greedy Equivalence Search on Discrete Data}
+\name{fges.mixed}
+\alias{fges.mixed}
+\title{Fast Greedy Equivalence Search on Mixed Data}
 \description{
- \code{fges.discrete} is the revised Greedy Equivalence Search (GES) algorithm developed 
+ \code{fges.mixed} is the revised Greedy Equivalence Search (GES) algorithm developed 
  by Joseph D. Ramsey, Director of Research Computing, Department of Philosophy,
  Carnegie Mellon University, Pittsburgh, PA.
 }
 \usage{
-fges.discrete(df, structurePrior = 1.0, samplePrior = 1.0, maxDegree = -1, 
-    faithfulnessAssumed = TRUE, numOfThreads = 2,verbose = FALSE, 
-    java.parameters = NULL, priorKnowledge = NULL)
+fges.mixed(df, numCategoriesToDiscretize = 4, penaltydiscount = 4,
+    structurePrior = 1.0, maxDegree = 3, 
+    faithfulnessAssumed = TRUE, numOfThreads = 2, 
+    verbose = FALSE, java.parameters = NULL, priorKnowledge = NULL)
 }
 \arguments{
   \item{df}{ Data Frame of the dataset. }
+  \item{numCategoriesToDiscretize}{A number of categories determines the variable type is discrete or continuous. 
+  By default, \code{numCategoriesToDiscretize}=4. }
+  \item{penaltydiscount}{ floating point indicating the (BIC score) 
+  penalty term for continuous searches.  By default, 
+  \code{penaltydiscount}=4.0. }
   \item{structurePrior}{ Structure Prior.  By default, 
   \code{structurePrior}=1.0. }
-  \item{samplePrior}{ Sample Prior.  By default, 
-  \code{samplePrior}=1.0. }
   \item{maxDegree}{ integer indicating a number of degree of any node for the forward 
   reevaluation step. It ranges from -1 for unlimited degree, otherwise a number 
   >= 0. In the forward reevaluation step, subsets of neighbors up to degree 
@@ -25,9 +29,6 @@ fges.discrete(df, structurePrior = 1.0, samplePrior = 1.0, maxDegree = -1,
   \item{faithfulnessAssumed}{ boolean indicating whether or not the search assumes 
   that zero effect adjacencies are not in the graph.  \code{faithfulnessAssumed} is 
   \code{TRUE} by default. }
-  \item{numOfThreads}{ A number of threads.  By default, 
-  \code{numOfThreads}=2. }
-  
   \item{verbose}{ boolean indicating whether or not if verbose output should 
   be printed.  \code{verbose} is \code{FALSE} by default. }
   \item{java.parameters}{ string indicating an optional parameters for JVM. 
@@ -59,16 +60,15 @@ A list containing the FGES's parameters, the input dataset, the result's nodes,
 and the result's edges.
 }
 \examples{
-data("audiology")    #Load the audiology dataset
-#Compute FGES search
-fges.discrete <- fges.discrete(df=audiology,structurePrior=1.0,samplePrior=1.0, 
-maxDegree = -1, faithfulnessAssumed = TRUE, numOfThreads = 2,verbose = TRUE)
-fges.discrete$parameters #Show the FGES's parameters
-fges.discrete$datasets #Show the dataset
-fges.discrete$nodes #Show the result's nodes
-fges.discrete$edges #Show the result's edges
+data("charity")    #Load the charity dataset
+fges <- fges.mixed(df = charity, numCategoriesToDiscretize = 4, penaltydiscount = 2, structurePrior = 1.0, maxDegree = -1, 
+    faithfulnessAsummed = TRUE, numOfThreads = 2, verbose = TRUE)    #Compute mixed-data FGES search
+fges$parameters #Show the FGES's parameters
+fges$datasets #Show the dataset
+fges$nodes #Show the result's nodes
+fges$edges #Show the result's edges
 }
 \keyword{fges}
 \keyword{ges}
 \keyword{causal graphs}
-\keyword{discrete data}
+\keyword{mixed data}
