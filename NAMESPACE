@@ -1,6 +1,6 @@
 import(rJava)
-importFrom(graph, graphNEL)
-import(RBGL)
+#importFrom(graph, graphNEL)
+#import(RBGL)
 importFrom(stringr, str_split_fixed)
 export("bayesEst")
 export("ccd")
