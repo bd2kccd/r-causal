@@ -57,7 +57,7 @@ More detail about GFci implementation, please visit \href{http://cmu-phil.github
 \examples{
 data("charity")    #Load the charity dataset
 gfci <- gfci.mixed(df = charity, numCategoriesToDiscretize = 4, penaltydiscount = 2, structurePrior = 1.0, maxDegree = -1, 
-    faithfulnessAssummed = TRUE, verbose = TRUE)    #Compute gfci search
+    faithfulnessAssumed = TRUE, verbose = TRUE)    #Compute gfci search
 gfci$parameters #Show the gfci's parameters
 gfci$datasets #Show the dataset
 gfci$nodes #Show the result's nodes
