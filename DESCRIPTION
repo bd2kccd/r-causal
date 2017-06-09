@@ -5,7 +5,7 @@ Title: R-Causal Library
 Author: Chirayu Wongchokprasitti
 Maintainer: Chirayu Wongchokprasitti <chw20@pitt.edu>
 Description: This package is a R wrapper containing the Tetrad Library.
-Depends: R (>= 3.3.0), graph, RBGL
+Depends: R (>= 3.3.0)
 Suggests: BiocStyle, knitr, rmarkdown
 Imports: rJava, stringr
 SystemRequirements: Java (>= 1.8), JRI
