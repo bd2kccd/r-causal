@@ -62,7 +62,7 @@ and the result's edges.
 \examples{
 data("charity")    #Load the charity dataset
 fges <- fges.mixed(df = charity, numCategoriesToDiscretize = 4, penaltydiscount = 2, structurePrior = 1.0, maxDegree = -1, 
-    faithfulnessAsummed = TRUE, numOfThreads = 2, verbose = TRUE)    #Compute mixed-data FGES search
+    faithfulnessAssumed = TRUE, numOfThreads = 2, verbose = TRUE)    #Compute mixed-data FGES search
 fges$parameters #Show the FGES's parameters
 fges$datasets #Show the dataset
 fges$nodes #Show the result's nodes
