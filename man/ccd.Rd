@@ -34,8 +34,8 @@ The search method returns an instance of a Graph but it also constructs two list
 More detail about ccd implementation, please visit \href{http://cmu-phil.github.io/tetrad/tetrad-lib-apidocs/edu/cmu/tetrad/search/Ccd.html}{the java documentation}.
 }
 \value{
-A list containing the ccd's parameters, the input dataset, the result's nodes, 
-the result's edges, and the graphNEL causal graph result.
+A list containing the ccd's parameters, the input dataset, the result's nodes, and 
+the result's edges.
 }
 \examples{
 data("audiology")

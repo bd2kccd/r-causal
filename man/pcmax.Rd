@@ -40,8 +40,8 @@ In addition, the modification to PC by \href{https://arxiv.org/abs/1610.00378}{m
 More detail about pcmax implementation, please visit \href{http://cmu-phil.github.io/tetrad/tetrad-lib-apidocs/edu/cmu/tetrad/search/PcMax.html}{the java documentation}.
 }
 \value{
-A list containing the pcmax's parameters, the input dataset, the result's nodes, 
-the result's edges, and the graphNEL causal graph result.
+A list containing the pcmax's parameters, the input dataset, the result's nodes, and 
+the result's edges.
 }
 \examples{
 data("audiology")

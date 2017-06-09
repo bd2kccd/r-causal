@@ -102,52 +102,51 @@ rCovMatrix2TetradCovMatrix <- function(covmat, node_list, sample_size){
 ########################################################
 # converter: Tetrad edge type into graphNEL edge list
 # requires list of nodes and a set of edges
-
 # extract nodes: 
-tetradPattern2graphNEL <- function(resultGraph, 
-    verbose = FALSE){
-	
-	V <- extractTetradNodes(resultGraph)
-	
-    if(verbose){
-        cat("\nGraph Nodes:\n")
-        for(i in 1:length(V)){
-            cat(V[i]," ")
-        }
-        cat("\n\n")
-    }
+# tetradPattern2graphNEL <- function(resultGraph,
+#    verbose = FALSE){
+#
+#	V <- extractTetradNodes(resultGraph)
+
+#    if(verbose){
+#        cat("\nGraph Nodes:\n")
+#        for(i in 1:length(V)){
+#            cat(V[i]," ")
+#        }
+#        cat("\n\n")
+#    }
     
 	# extract edges
-	fgs_edges <- extractTetradEdges(resultGraph)
-	edgemat <- str_split_fixed(fgs_edges,  pattern=" ", n=3)
+#	fgs_edges <- extractTetradEdges(resultGraph)
+#	edgemat <- str_split_fixed(fgs_edges,  pattern=" ", n=3)
 
-    if(verbose){
-        cat("Graph Edges:\n")
-        if(length(fgs_edges) > 0){
-            for(i in 1:length(fgs_edges)){
-                cat(fgs_edges[i],"\n")
-            }
-        }
-    }
+#    if(verbose){
+#        cat("Graph Edges:\n")
+#        if(length(fgs_edges) > 0){
+#            for(i in 1:length(fgs_edges)){
+#                cat(fgs_edges[i],"\n")
+#            }
+#        }
+#    }
 
 	# find undirected edge indices
-	undir <- which(edgemat[,2]=="---")
+#	undir <- which(edgemat[,2]=="---")
 	
 	# for each undirected edge, create a new edge with the two variables 
 	# in reversed order. Also, remove the edge column, but name the columns
-	edgemat <- rbind(edgemat[,c(1,3)], edgemat[undir,c(3,1)])
-	colnames(edgemat) <- c("Parent", "Child")
+#	edgemat <- rbind(edgemat[,c(1,3)], edgemat[undir,c(3,1)])
+#	colnames(edgemat) <- c("Parent", "Child")
 	
 	# create edge list for graphNEL format
-	edgel <- list(NULL)
-	for (i in 1:length(V)){
-		edgel[[i]] <- edgemat[which(edgemat[,1]==V[i]),2]
-	}
-	names(edgel) <- V
+#	edgel <- list(NULL)
+#	for (i in 1:length(V)){
+#		edgel[[i]] <- edgemat[which(edgemat[,1]==V[i]),2]
+#	}
+#	names(edgel) <- V
 	
-	outputgraph <- graphNEL(nodes=V, edgeL=edgel, edgemode="directed")
-	return(outputgraph)
-}
+#	outputgraph <- graphNEL(nodes=V, edgeL=edgel, edgemode="directed")
+#	return(outputgraph)
+#}
 
 ############################################################
 # extract nodes from Tetrad graph result
@@ -311,7 +310,7 @@ loadMixedData <- function(df, numCategoriesToDiscretize = 4){
             nodi <- .jnew("edu/cmu/tetrad/data/ContinuousVariable", nodname)
             node_list$add(nodi)
             
-            cont_list <- c(cont_list, node_names[i])
+            cont_list <- c(cont_list, i)
         }else{
             # Discrete variable
             cate <- sort(cate)
@@ -330,26 +329,43 @@ loadMixedData <- function(df, numCategoriesToDiscretize = 4){
             as.integer(which(cate[,1] == x)),cate=cate)
             new_col = as.integer(new_col - 1)
             df[,i] <- (data.frame(new_col))[,1]
-            
-            disc_list <- c(disc_list, node_names[i])
+
+            disc_list <- c(disc_list, i)
         }
     }
     
-    cont_df <- df[cont_list]
-    cont_mt <- as.matrix(cont_df)
-    cont_mat <- .jarray(cont_mt, dispatch=TRUE)
-    
-    disc_df <- df[disc_list]
-    disc_mt <- as.matrix(disc_df)
-    disc_mat <- .jarray(disc_mt, dispatch=TRUE)
-    
     node_list <- .jcast(node_list, "java/util/List")
-    mixedDataBox <- .jnew("edu/cmu/tetrad/data/MixedDataBox", node_list,
-                        as.integer(nrow(df)), cont_mat, disc_mat)
+    mixedDataBox <- .jnew("edu/cmu/tetrad/data/MixedDataBox", node_list,as.integer(nrow(df)))
+    
+    for(row in 1:nrow(df)){
+        # print(paste("row:",row,sep=" "))
+        if(length(cont_list) > 0){
+            for(j in 1:length(cont_list)){
+                col <- cont_list[j]
+                # print(paste("col:",col,sep=" "))
+                value <- as.character(df[row,col])
+                #print(value)
+                value <- .jnew("java/lang/Double", value)
+                value <- .jcast(value, "java/lang/Number")
+                mixedDataBox$set(as.integer(row-1),as.integer(col-1),value)
+            }
+        }
+        if(length(disc_list) > 0){
+            for(j in 1:length(disc_list)){
+                col <- disc_list[j]
+                # print(paste("col:",col,sep=" "))
+                value <- as.character(df[row,col])
+                # print(value)
+                value <- .jnew("java/lang/Integer", value)
+                value <- .jcast(value, "java/lang/Number")
+                mixedDataBox$set(as.integer(row-1),as.integer(col-1),value)
+            }
+        }
+    }
     
     data <- .jcast(mixedDataBox, "edu/cmu/tetrad/data/DataBox")
     boxData <- .jnew("edu/cmu/tetrad/data/BoxDataSet",
-    data, node_list)
+                data, node_list)
     boxData <- .jcast(boxData, "edu/cmu/tetrad/data/DataSet")
     return(boxData)
 }

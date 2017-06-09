@@ -11,8 +11,10 @@ cfci						Conservative version of FCI
 fci							Fast Causal Inference algorithm
 rfci						FCI algorithm with Augmented Rules
 gfci                        Greedy Continuous FCI algorithm with Augmented Rules
+gfci.mixed		Greedy Mixed Data FCI algorithm with Augmented Rules
 gfci.discrete               Greedy Discrete FCI algorithm with Augmented Rules
 fges                        Fast Greedy Equivalence Search for Causal and Statistical Model Discovery on Continuous Data
+fges.mixed               Fast Greedy Equivalence Search for Causal and Statistical Model Discovery on Mixed Data
 fges.discrete               Fast Greedy Equivalence Search for Causal and Statistical Model Discovery on Discrete Data
 priorKnowledge              Prior Knowledge Object Creation Function
 priorKnowledgeFromFile      Load Prior Knowledge File Function

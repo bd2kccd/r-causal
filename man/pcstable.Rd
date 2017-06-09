@@ -36,8 +36,8 @@ In addition, the PC Stable modification to PC has been included (\href{http://ww
 More detail about pcstable implementation, please visit \href{http://cmu-phil.github.io/tetrad/tetrad-lib-apidocs/edu/cmu/tetrad/search/PcStable.html}{the java documentation}.
 }
 \value{
-A list containing the pcstable's parameters, the input dataset, the result's nodes, 
-the result's edges, and the graphNEL causal graph result.
+A list containing the pcstable's parameters, the input dataset, the result's nodes, and 
+the result's edges.
 }
 \examples{
 data("audiology")
