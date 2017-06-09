@@ -1,6 +1,6 @@
 \name{fges}
 \alias{fges}
-\title{Fast Greedy Equivalence Search}
+\title{Fast Greedy Equivalence Search on Continuous}
 \description{
  \code{fges} is the revised Greedy Equivalence Search (GES) algorithm developed 
  by Joseph D. Ramsey, Director of Research Computing, Department of Philosophy,
@@ -52,7 +52,7 @@ More detail about Fges implementation, please visit \href{http://cmu-phil.github
 }
 \value{
 A list containing the FGES's parameters, the input dataset, the result's nodes, 
-the result's edges, and the graphNEL causal graph result.
+and the result's edges.
 }
 \examples{
 data("charity")    #Load the charity dataset

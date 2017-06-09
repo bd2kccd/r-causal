@@ -60,22 +60,24 @@ pcstable <- function(df, continuous = TRUE, depth = 3, aggressivelyPreventCycles
 
     # Search
     tetrad_graph <- .jcall(pcstable_instance, "Ledu/cmu/tetrad/graph/Graph;", 
-        "search")
+        "search", check=FALSE)
 
-    V <- extractTetradNodes(tetrad_graph)
-
-    pcstable$nodes <- V
-
-    # extract edges
-    pcstable_edges <- extractTetradEdges(tetrad_graph)
-
-    pcstable$edges <- pcstable_edges
-
-    # convert output of PC-Stable into an R object (graphNEL)
-    pcstable_graphNEL = tetradPattern2graphNEL(resultGraph = tetrad_graph,
-        verbose = verbose)
-
-    pcstable$graphNEL <- pcstable_graphNEL
-
+    if(!is.null(e <- .jgetEx())){
+        .jclear()
+        pcstable$nodes <- NULL
+        pcstable$edges <- NULL
+        print("Java exception was raised")
+        print(e)
+    }else{
+        V <- extractTetradNodes(tetrad_graph)
+        
+        pcstable$nodes <- V
+        
+        # extract edges
+        pcstable_edges <- extractTetradEdges(tetrad_graph)
+        
+        pcstable$edges <- pcstable_edges
+    }
+    
     return(pcstable)
 }

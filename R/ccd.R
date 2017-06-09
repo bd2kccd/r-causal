@@ -56,16 +56,24 @@ ccd <- function(df, continuous = TRUE, depth = 3, significance = 0.05,
 
     # Search
     tetrad_graph <- .jcall(ccd_instance, "Ledu/cmu/tetrad/graph/Graph;", 
-        "search")
+        "search", check=FALSE)
 
-    V <- extractTetradNodes(tetrad_graph)
-
-    ccd$nodes <- V
-
-    # extract edges
-    ccd_edges <- extractTetradEdges(tetrad_graph)
-
-    ccd$edges <- ccd_edges
+    if(!is.null(e <- .jgetEx())){
+        .jclear()
+        ccd$nodes <- NULL
+        ccd$edges <- NULL
+        print("Java exception was raised")
+        print(e)
+    }else{
+        V <- extractTetradNodes(tetrad_graph)
+        
+        ccd$nodes <- V
+        
+        # extract edges
+        ccd_edges <- extractTetradEdges(tetrad_graph)
+        
+        ccd$edges <- ccd_edges
+    }
 
     return(ccd)
 }

@@ -63,22 +63,24 @@ pcmax <- function(df, continuous = TRUE, depth = -1, maxPathLength = 3,
 
     # Search
     tetrad_graph <- .jcall(pcmax_instance, "Ledu/cmu/tetrad/graph/Graph;", 
-        "search")
+        "search", check=FALSE)
 
-    V <- extractTetradNodes(tetrad_graph)
-
-    pcmax$nodes <- V
-
-    # extract edges
-    pcmax_edges <- extractTetradEdges(tetrad_graph)
-
-    pcmax$edges <- pcmax_edges
-
-    # convert output of PcMax into an R object (graphNEL)
-    pcmax_graphNEL = tetradPattern2graphNEL(resultGraph = tetrad_graph,
-        verbose = verbose)
-
-    pcmax$graphNEL <- pcmax_graphNEL
-
+    if(!is.null(e <- .jgetEx())){
+        .jclear()
+        pcmax$nodes <- NULL
+        pcmax$edges <- NULL
+        print("Java exception was raised")
+        print(e)
+    }else{
+        V <- extractTetradNodes(tetrad_graph)
+        
+        pcmax$nodes <- V
+        
+        # extract edges
+        pcmax_edges <- extractTetradEdges(tetrad_graph)
+        
+        pcmax$edges <- pcmax_edges
+    }
+    
     return(pcmax)
 }
