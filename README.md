@@ -4,7 +4,7 @@ R Wrapper for Tetrad Library
 ## R Library Requirement
 R >= 3.3.0, 
 [stringr](https://cran.r-project.org/web/packages/stringr/),
-[rJava](https://cran.r-project.org/web/packages/rJava/index.html), 
+[rJava](https://cran.r-project.org/web/packages/rJava/index.html) 
 
 ## Installation
 
