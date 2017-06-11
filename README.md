@@ -84,13 +84,6 @@ fges.discrete <- fges.discrete(df=audiology,structurePrior=1.0,samplePrior=1.0,
 depth = -1, heuristicSpeedup = TRUE, numOfThreads = 2,verbose = TRUE, priorKnowledge = prior)
 ```
 
-### Convert Rgraphviz to igraph one
-```R
-library(igraph)
-igraph <- igraph.from.graphNEL(fges.discrete$graphNEL)
-plot(igraph)
-```
-
 ## Useful `rJava` Trouble-shooting Installation in Mac OS X Links
 
 1. [http://stackoverflow.com/questions/26948777/how-can-i-make-rjava-use-the-newer-version-of-java-on-osx/32544358#32544358](http://stackoverflow.com/questions/26948777/how-can-i-make-rjava-use-the-newer-version-of-java-on-osx/32544358#32544358)
