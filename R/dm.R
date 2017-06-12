@@ -31,11 +31,13 @@ dm <- function(inputs, outputs, useGES=TRUE, data, trueInputs, alphaPC=.05, alph
 
     dm$datasets <- deparse(substitute(df))
 
-    cat("Datasets:\n")
-    cat(deparse(substitute(df)),"\n\n")
+#    cat("Datasets:\n")
+#    cat(deparse(substitute(df)),"\n\n")
 
     # Initiate DMSearch
     dm_instance <- .jnew("edu/cmu/tetrad/search/DMSearch", inputs, outputs, useGES, data, trueInputs, alphaPC, alphaSober, gesDiscount, verbose, minDiscount)
+
+  
     ## .jcall(fges_instance, "V", "setMaxDegree", as.integer(maxDegree))
     ## .jcall(fges_instance, "V", "setNumPatternsToStore", as.integer(0))
     ## .jcall(fges_instance, "V", "setFaithfulnessAssumed", faithfulnessAssumed)
@@ -46,12 +48,16 @@ dm <- function(inputs, outputs, useGES=TRUE, data, trueInputs, alphaPC=.05, alph
     ##     .jcall(fges_instance, "V", "setKnowledge", priorKnowledge)
     ## }
 
-
+    params <- c(params, useGES)
     params <- c(params, alphaPC)
     params <- c(params, alphaSober)
     params <- c(params, gesDiscount)
+    params <- c(params, minDiscount)
     params <- c(params, verbose)
-    
+
+                                            
+
+    params<- c(params, minDiscount)
     
     ## params <- c(params, penaltydiscount = as.double(penaltydiscount))
     ## params <- c(params, maxDegree = as.integer(maxDegree))
@@ -65,12 +71,12 @@ dm <- function(inputs, outputs, useGES=TRUE, data, trueInputs, alphaPC=.05, alph
 
     dm$parameters <- params
 
-    cat("Graph Parameters:\n")
-    cat("penalty discount = ", penaltydiscount,"\n")
-    cat("maxDegree = ", as.integer(maxDegree),"\n")
-    cat("faithfulnessAssumed = ", faithfulnessAssumed,"\n")
-    cat("numOfThreads = ", as.integer(numOfThreads),"\n")
-    cat("verbose = ", verbose,"\n")
+#    cat("Graph Parameters:\n")
+#    cat("penalty discount = ", penaltydiscount,"\n")
+#    cat("maxDegree = ", as.integer(maxDegree),"\n")
+#    cat("faithfulnessAssumed = ", faithfulnessAssumed,"\n")
+#    cat("numOfThreads = ", as.integer(numOfThreads),"\n")
+#    cat("verbose = ", verbose,"\n")
 
     # Search
     tetrad_graph <- .jcall(fges_instance, "Ledu/cmu/tetrad/graph/Graph;", 

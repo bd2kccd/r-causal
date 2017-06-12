@@ -1,6 +1,7 @@
 audiology                   The standardized version of the audiology Data
 bayesEst					Bayesian estimation algorithm
 charity                     Donations and Charity Data
+dm			    "Detect MIMIC" algorithm
 pc							"Peter/Clark" algorithm
 pcmax						Modified "Peter/Clark" algorithm with respect to the Meek rule
 pcstable					PC Stable modification to PC has been included

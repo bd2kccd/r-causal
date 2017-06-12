@@ -19,5 +19,6 @@ export("pcstable")
 export("priorKnowledge")
 export("priorKnowledgeFromFile")
 export("randomDag")
+export("dm")
 # Export all names
 # exportPattern(".")
