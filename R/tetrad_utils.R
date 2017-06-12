@@ -71,6 +71,15 @@ dataFrame2TetradSemBicScore <- function(df,penaltydiscount = 4.0){
     return(score)
 }
 
+dataFrame2TetradDataSet <- function(df){
+    boxData <- loadMixedData(df)
+##    score <- .jnew("edu/cmu/tetrad/data/DataSet", )
+##    score$setStructurePrior(as.double(structurePrior))
+ ##   score$setSamplePrior(as.double(samplePrior))
+##    score <- .jcast(score, "edu/cmu/tetrad/search/Score")
+    return(boxData)
+}
+
 ########################################################
 # converter: R covariance matrix into Tetrad covariance matrix
 rCovMatrix2TetradCovMatrix <- function(covmat, node_list, sample_size){

@@ -26,7 +26,8 @@ dm <- function(inputs, outputs, useGES=TRUE, data, trueInputs, alphaPC=.05, alph
 
     ## Data Frame to Tetrad Dataset
 
-    data <- loadMixedData(data)
+    data <- dataFrame2TetradDataSet(data)
+##    data <- loadMixedData(data)
     ## data <- dataFrame2TetradSemBicScore(data)
 
     dm <- list()
