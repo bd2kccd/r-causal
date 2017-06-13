@@ -65,10 +65,10 @@ gfci <- function(df, penaltydiscount = 2.0, maxDegree = 3, maxPathLength = -1, s
 
     if(!is.null(e <- .jgetEx())){
         .jclear()
-        gfci$nodes <- NULL
+        gfci$nodes <- colnames(df)
         gfci$edges <- NULL
-        print("Java exception was raised")
-        print(e)
+        # print("Java exception was raised")
+        # print(e)
     }else{
         V <- extractTetradNodes(tetrad_graph)
         

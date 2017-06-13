@@ -69,10 +69,10 @@ gfci.mixed <- function(df, numCategoriesToDiscretize = 4, penaltydiscount = 4,
 
     if(!is.null(e <- .jgetEx())){
         .jclear()
-        gfci$nodes <- NULL
+        gfci$nodes <- colnames(df)
         gfci$edges <- NULL
-        print("Java exception was raised")
-        print(e)
+        # print("Java exception was raised")
+        # print(e)
     }else{
         V <- extractTetradNodes(tetrad_graph)
         
