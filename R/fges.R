@@ -56,10 +56,10 @@ fges <- function(df, penaltydiscount = 4.0, maxDegree = 3,
 
     if(!is.null(e <- .jgetEx())){
         .jclear()
-        fges$nodes <- NULL
+        fges$nodes <- colnames(df)
         fges$edges <- NULL
-        print("Java exception was raised")
-        print(e)
+        # print("Java exception was raised")
+        # print(e)
     }else{
         V <- extractTetradNodes(tetrad_graph)
         
