@@ -1,4 +1,4 @@
-fas <- function(df, depth = -1, significance = 0.05, sepsetsReturnEmptyIfNotFixed = FALSE,
+fas <- function(df, depth = 3, significance = 0.05, sepsetsReturnEmptyIfNotFixed = FALSE,
     verbose = FALSE, java.parameters = NULL, priorKnowledge = NULL){
     
     params <- list(NULL)
