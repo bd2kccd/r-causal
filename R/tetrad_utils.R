@@ -71,15 +71,6 @@ dataFrame2TetradSemBicScore <- function(df,penaltydiscount = 4.0){
     return(score)
 }
 
-dataFrame2TetradDataSet <- function(df){
-    boxData <- loadMixedData(df)
-##    score <- .jnew("edu/cmu/tetrad/data/DataSet", )
-##    score$setStructurePrior(as.double(structurePrior))
- ##   score$setSamplePrior(as.double(samplePrior))
-##    score <- .jcast(score, "edu/cmu/tetrad/search/Score")
-    return(boxData)
-}
-
 ########################################################
 # converter: R dataframe into Tetrad ConditionalGaussianScore
 # requires dataframe with named columns
@@ -304,8 +295,6 @@ loadDiscreteData <- function(df){
     boxData <- .jcast(boxData, "edu/cmu/tetrad/data/DataSet")
 	return(boxData)
 }
-<<<<<<< HEAD
-=======
 
 ############################################################
 loadMixedData <- function(df, numCategoriesToDiscretize = 4){
@@ -380,4 +369,3 @@ loadMixedData <- function(df, numCategoriesToDiscretize = 4){
     boxData <- .jcast(boxData, "edu/cmu/tetrad/data/DataSet")
     return(boxData)
 }
->>>>>>> upstream/master
