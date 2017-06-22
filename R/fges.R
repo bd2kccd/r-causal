@@ -52,22 +52,24 @@ fges <- function(df, penaltydiscount = 4.0, maxDegree = 3,
 
     # Search
     tetrad_graph <- .jcall(fges_instance, "Ledu/cmu/tetrad/graph/Graph;", 
-        "search")
+        "search", check=FALSE)
 
-    V <- extractTetradNodes(tetrad_graph)
-
-    fges$nodes <- V
-
-    # extract edges
-    fges_edges <- extractTetradEdges(tetrad_graph)
-
-    fges$edges <- fges_edges
-
-    # convert output of FGES into an R object (graphNEL)
-    fges_graphNEL = tetradPattern2graphNEL(resultGraph = tetrad_graph,
-        verbose = verbose)
-
-    fges$graphNEL <- fges_graphNEL
-
+    if(!is.null(e <- .jgetEx())){
+        .jclear()
+        fges$nodes <- colnames(df)
+        fges$edges <- NULL
+        # print("Java exception was raised")
+        # print(e)
+    }else{
+        V <- extractTetradNodes(tetrad_graph)
+        
+        fges$nodes <- V
+        
+        # extract edges
+        fges_edges <- extractTetradEdges(tetrad_graph)
+        
+        fges$edges <- fges_edges
+    }
+    
     return(fges)
 }

@@ -34,8 +34,8 @@ This class is based off a copy of Fci.java taken from the repository on 2008/12/
 More detail about cfci implementation, please visit \href{http://cmu-phil.github.io/tetrad/tetrad-lib-apidocs/edu/cmu/tetrad/search/Cfci.html}{the java documentation}.
 }
 \value{
-A list containing the cfci's parameters, the input dataset, the result's nodes, 
-the result's edges, and the graphNEL causal graph result.
+A list containing the cfci's parameters, the input dataset, the result's nodes, and 
+the result's edges.
 }
 \examples{
 data("audiology")

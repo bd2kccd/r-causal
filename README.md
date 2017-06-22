@@ -2,12 +2,9 @@
 R Wrapper for Tetrad Library
 
 ## R Library Requirement
-R >= 3.2.0, 
+R >= 3.3.0, 
 [stringr](https://cran.r-project.org/web/packages/stringr/),
-[rJava](https://cran.r-project.org/web/packages/rJava/index.html), 
-[graph](http://bioconductor.org/packages/release/bioc/html/graph.html), 
-[RBGL] (http://bioconductor.org/packages/release/bioc/html/RBGL.html), 
-[Rgraphviz] (http://bioconductor.org/packages/release/bioc/html/Rgraphviz.html)
+[rJava](https://cran.r-project.org/web/packages/rJava/index.html) 
 
 ## Installation
 
@@ -15,11 +12,6 @@ R >= 3.2.0,
 ```R
 install.packages("stringr")
 install.packages("rJava")
-## try http:// if https:// URLs are not supported
-source("https://bioconductor.org/biocLite.R") 
-biocLite("graph")
-biocLite("RBGL")
-biocLite("Rgraphviz") # For plotting graph
 ```
 - Install r-causal from github:
 
@@ -42,9 +34,6 @@ fges$parameters #Show the FGES's parameters
 fges$datasets #Show the dataset
 fges$nodes #Show the result's nodes
 fges$edges #Show the result's edges
-
-library(Rgraphviz)
-plot(fges$graphNEL) #Plot the causal model
 ```
 ### Discrete Dataset
 ```R
@@ -57,8 +46,6 @@ fges.discrete$parameters #Show the FGES Discrete's parameters
 fges.discrete$datasets #Show the dataset
 fges.discrete$nodes #Show the result's nodes
 fges.discrete$edges #Show the result's edges
-library(Rgraphviz)
-plot(fges.discrete$graphNEL) #Plot the causal model
 ```
 
 ### Prior Knowledge
@@ -95,13 +82,6 @@ heuristicSpeedup = TRUE, numOfThreads = 2, verbose = TRUE, priorKnowledge = prio
 prior <- priorKnowledgeFromFile('audiology.prior')
 fges.discrete <- fges.discrete(df=audiology,structurePrior=1.0,samplePrior=1.0, 
 depth = -1, heuristicSpeedup = TRUE, numOfThreads = 2,verbose = TRUE, priorKnowledge = prior)
-```
-
-### Convert Rgraphviz to igraph one
-```R
-library(igraph)
-igraph <- igraph.from.graphNEL(fges.discrete$graphNEL)
-plot(igraph)
 ```
 
 ## Useful `rJava` Trouble-shooting Installation in Mac OS X Links

@@ -54,23 +54,25 @@ fges.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, maxDegree
     cat("verbose = ", verbose,"\n")
 
     # Search
-    tetrad_graph <- .jcall(fges_instance, "Ledu/cmu/tetrad/graph/Graph;", 
-        "search")
+    tetrad_graph <- .jcall(fges_instance, "Ledu/cmu/tetrad/graph/Graph;",
+        "search", check=FALSE)
 
-    V <- extractTetradNodes(tetrad_graph)
+    if(!is.null(e <- .jgetEx())){
+        .jclear()
+        fges$nodes <- colnames(df)
+        fges$edges <- NULL
+        # print("Java exception was raised")
+        # print(e)
+    }else{
+        V <- extractTetradNodes(tetrad_graph)
+    
+        fges$nodes <- V
+    
+        # extract edges
+        fges_edges <- extractTetradEdges(tetrad_graph)
+    
+        fges$edges <- fges_edges
+    }
 
-    fges$nodes <- V
-
-    # extract edges
-    fges_edges <- extractTetradEdges(tetrad_graph)
-
-    fges$edges <- fges_edges
-
-    # convert output of FGES into an R object (graphNEL)
-    fges_graphNEL = tetradPattern2graphNEL(resultGraph = tetrad_graph,
-        verbose = verbose)
-
-    fges$graphNEL <- fges_graphNEL
-
-    return(fges) 
+    return(fges)
 }

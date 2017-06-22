@@ -56,7 +56,7 @@ More detail about Fges implementation, please visit \href{http://cmu-phil.github
 }
 \value{
 A list containing the FGES's parameters, the input dataset, the result's nodes, 
-the result's edges, and the graphNEL causal graph result.
+and the result's edges.
 }
 \examples{
 data("audiology")    #Load the audiology dataset

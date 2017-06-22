@@ -18,8 +18,8 @@ randomDag(seed = NULL, numNodes = 10, numEdges = 10, java.parameters = NULL)
 More detail about randomDag implementation, please visit \href{http://cmu-phil.github.io/tetrad/tetrad-lib-apidocs/edu/cmu/tetrad/cmd/TetradCmd.html}{the java documentation}.
 }
 \value{
-A list containing the randomDag's parameters, the input dataset, the result's nodes, 
-the result's edges, and the graphNEL causal graph result.
+A list containing the randomDag's parameters, the input dataset, the result's nodes, and 
+the result's edges.
 }
 \examples{
 randomDag <- randomDag(numNodes = 10, numEdges = 10)
