@@ -1,4 +1,4 @@
-fas.discrete <- function(df, numCategoriesToDiscretize = 4, depth = 3, significance = 0.05, sepsetsReturnEmptyIfNotFixed = FALSE, verbose = FALSE, java.parameters = NULL,
+fas.mixed <- function(df, numCategoriesToDiscretize = 4, depth = 3, significance = 0.05, sepsetsReturnEmptyIfNotFixed = FALSE, verbose = FALSE, java.parameters = NULL,
     priorKnowledge = NULL){
     
     params <- list(NULL)
