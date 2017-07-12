@@ -1,5 +1,14 @@
 audiology                   The standardized version of the audiology Data
 bayesEst					Bayesian estimation algorithm
+bootstrap.rfci				Bootstrapping of FCI algorithm with Augmented Rules on Continuous Data
+bootstrap.rfci.mixed		Bootstrapping of FCI algorithm with Augmented Rules on Mixed Data
+bootstrap.rfci.discrete		Bootstrapping of FCI algorithm with Augmented Rules on Discrete Data
+bootstrap.gfci              Bootstrapping of Greedy Continuous FCI algorithm with Augmented Rules
+bootstrap.gfci.mixed		Bootstrapping of Greedy Mixed Data FCI algorithm with Augmented Rules
+bootstrap.gfci.discrete     Bootstrapping of Greedy Discrete FCI algorithm with Augmented Rules
+bootstrap.fges              Bootstrapping of Fast Greedy Equivalence Search for Causal and Statistical Model Discovery on Continuous Data
+bootstrap.fges.mixed        Bootstrapping of Fast Greedy Equivalence Search for Causal and Statistical Model Discovery on Mixed Data
+bootstrap.fges.discrete     Bootstrapping of Fast Greedy Equivalence Search for Causal and Statistical Model Discovery on Discrete Data
 charity                     Donations and Charity Data
 pc							"Peter/Clark" algorithm
 pcmax						Modified "Peter/Clark" algorithm with respect to the Meek rule
@@ -9,15 +18,17 @@ cpcstable					Conservative version of PC Stable
 ccd							Cyclic Causal Discovery algorithm
 cfci						Conservative version of FCI
 fci							Fast Causal Inference algorithm
-rfci						FCI algorithm with Augmented Rules
+rfci						FCI algorithm with Augmented Rules on Continuous Data
+rfci.mixed					FCI algorithm with Augmented Rules on Mixed Data
+rfci.discrete				FCI algorithm with Augmented Rules on Discrete Data
 gfci                        Greedy Continuous FCI algorithm with Augmented Rules
-gfci.mixed		Greedy Mixed Data FCI algorithm with Augmented Rules
+gfci.mixed					Greedy Mixed Data FCI algorithm with Augmented Rules
 gfci.discrete               Greedy Discrete FCI algorithm with Augmented Rules
 fges                        Fast Greedy Equivalence Search for Causal and Statistical Model Discovery on Continuous Data
-fges.mixed               Fast Greedy Equivalence Search for Causal and Statistical Model Discovery on Mixed Data
+fges.mixed               	Fast Greedy Equivalence Search for Causal and Statistical Model Discovery on Mixed Data
 fges.discrete               Fast Greedy Equivalence Search for Causal and Statistical Model Discovery on Discrete Data
 fas                        Continuous Fast Adjacency Search
-fas.mixed		Mixed Data Fast Adjacency Search
+fas.mixed					Mixed Data Fast Adjacency Search
 fas.discrete               Discrete Fast Adjacency Search
 priorKnowledge              Prior Knowledge Object Creation Function
 priorKnowledgeFromFile      Load Prior Knowledge File Function

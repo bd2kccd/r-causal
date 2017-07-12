@@ -1,4 +1,4 @@
-rfci <- function(df, continuous = TRUE, depth = 3, significance = 0.05, 
+rfci <- function(df, depth = 3, significance = 0.05,
     completeRuleSetUsed = FALSE, verbose = FALSE, java.parameters = NULL, 
     priorKnowledge = NULL){
     
@@ -10,16 +10,9 @@ rfci <- function(df, continuous = TRUE, depth = 3, significance = 0.05,
     }
 
     # Data Frame to Independence Test
-    indTest = NULL
-    if(continuous){
-    	tetradData <- loadContinuousData(df)
-    	indTest <- .jnew("edu/cmu/tetrad/search/IndTestFisherZ", tetradData, 
-            significance)
-    }else{
-    	tetradData <- loadDiscreteData(df)
-    	indTest <- .jnew("edu/cmu/tetrad/search/IndTestChiSquare", tetradData, 
-    		significance)
-    }
+    tetradData <- loadContinuousData(df)
+    indTest <- .jnew("edu/cmu/tetrad/search/IndTestFisherZ", tetradData,
+    significance)
     
 	indTest <- .jcast(indTest, "edu/cmu/tetrad/search/IndependenceTest")
 
@@ -53,7 +46,6 @@ rfci <- function(df, continuous = TRUE, depth = 3, significance = 0.05,
     rfci$parameters <- params
 
     cat("Graph Parameters:\n")
-    cat("continuous = ", continuous,"\n")
     cat("depth = ", as.integer(depth),"\n")
     cat("significance = ", as.numeric(significance),"\n")
     cat("completeRuleSetUsed = ", completeRuleSetUsed, "\n")
