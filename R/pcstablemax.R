@@ -1,4 +1,4 @@
-pcmax <- function(df, continuous = TRUE, depth = -1, maxPathLength = 3, 
+pcstablemax <- function(df, continuous = TRUE, depth = -1, maxPathLength = 3,
 	useHeuristic = TRUE, significance = 0.05,
     verbose = FALSE, java.parameters = NULL, priorKnowledge = NULL){
     
