@@ -11,8 +11,8 @@ bootstrap.fges.mixed        Bootstrapping of Fast Greedy Equivalence Search for 
 bootstrap.fges.discrete     Bootstrapping of Fast Greedy Equivalence Search for Causal and Statistical Model Discovery on Discrete Data
 charity                     Donations and Charity Data
 pc							"Peter/Clark" algorithm
-pcmax						Modified "Peter/Clark" algorithm with respect to the Meek rule
 pcstable					PC Stable modification to PC has been included
+pcstablemax					Modified "Peter/Clark" algorithm with respect to the Meek rule
 cpc							Conservative version of PC
 cpcstable					Conservative version of PC Stable
 ccd							Cyclic Causal Discovery algorithm

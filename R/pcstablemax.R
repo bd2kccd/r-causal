@@ -31,7 +31,7 @@ pcmax <- function(df, continuous = TRUE, depth = -1, maxPathLength = 3,
     cat(deparse(substitute(df)),"\n\n")
 
     # Initiate PcMax
-    pcmax_instance <- .jnew("edu/cmu/tetrad/search/PcMax", indTest)
+    pcmax_instance <- .jnew("edu/cmu/tetrad/search/PcStableMax", indTest)
     .jcall(pcmax_instance, "V", "setDepth", as.integer(depth))
     .jcall(pcmax_instance, "V", "setMaxPathLength", as.integer(maxPathLength))
     .jcall(pcmax_instance, "V", "setUseHeuristic", useHeuristic)
