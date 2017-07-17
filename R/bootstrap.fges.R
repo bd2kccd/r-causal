@@ -30,13 +30,13 @@ bootstrap.fges <- function(df, penaltydiscount = 4.0, maxDegree = 3,
     .jcall(parameters_instance, "V", "set", "maxDegree", parameter_instance)
     faithfulnessAssumed <- .jnew("java/lang/Boolean", faithfulnessAssumed)
     parameter_instance <- .jcast(maxDegree, "java/lang/Object")
-    .jcall(parameters_instance, "V", "set", "faithfulnessAssumed", faithfulnessAssumed)
+    .jcall(parameters_instance, "V", "set", "faithfulnessAssumed", parameter_instance)
     numPatternsToStore <- .jnew("java/lang/Integer", as.integer(0))
     parameter_instance <- .jcast(numPatternsToStore, "java/lang/Object")
     .jcall(parameters_instance, "V", "set", "numPatternsToStore", parameter_instance)
     verbose <- .jnew("java/lang/Boolean", verbose)
     parameter_instance <- .jcast(verbose, "java/lang/Object")
-    .jcall(parameters_instance, "V", "set", "verbose", verbose)
+    .jcall(parameters_instance, "V", "set", "verbose", parameter_instance)
 
     # Initiate Bootstrapping FGES
     algoName <- .jfield("edu/pitt/dbmi/algo/bootstrap/BootstrapAlgName",, "FGES")
