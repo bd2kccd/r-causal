@@ -23,13 +23,34 @@ bootstrap.rfci.discrete <- function(df, depth = 3, maxPathLength = -1,
 
     # Parameters
     parameters_instance <- .jnew("edu/cmu/tetrad/util/Parameters")
-    .jcall(parameters_instance, "V", "set", "depth", as.integer(depth))
-    .jcall(parameters_instance, "V", "set", "maxPathLength", as.integer(maxPathLength))
-    .jcall(parameters_instance, "V", "set", "alpha", significance)
-    .jcall(parameters_instance, "V", "set", "completeRuleSetUsed", completeRuleSetUsed)
-    .jcall(parameters_instance, "V", "set", "faithfulnessAssumed", faithfulnessAssumed)
-    .jcall(parameters_instance, "V", "set", "numPatternsToStore", as.integer(0))
-    .jcall(parameters_instance, "V", "set", "verbose", verbose)
+    
+    obj_depth <- .jnew("java/lang/Integer", as.integer(depth))
+    parameter_instance <- .jcast(obj_depth, "java/lang/Object")
+    .jcall(parameters_instance, "V", "set", "depth", parameter_instance)
+    
+    obj_maxPathLength <- .jnew("java/lang/Integer", as.integer(maxPathLength))
+    parameter_instance <- .jcast(obj_maxPathLength, "java/lang/Object")
+    .jcall(parameters_instance, "V", "set", "maxPathLength", parameter_instance)
+    
+    obj_significance <- .jnew("java/lang/Double", significance)
+    parameter_instance <- .jcast(obj_significance, "java/lang/Object")
+    .jcall(parameters_instance, "V", "set", "alpha", parameter_instance)
+    
+    obj_completeRuleSetUsed <- .jnew("java/lang/Boolean", completeRuleSetUsed)
+    parameter_instance <- .jcast(obj_completeRuleSetUsed, "java/lang/Object")
+    .jcall(parameters_instance, "V", "set", "completeRuleSetUsed", parameter_instance)
+    
+    obj_faithfulnessAssumed <- .jnew("java/lang/Boolean", faithfulnessAssumed)
+    parameter_instance <- .jcast(obj_faithfulnessAssumed, "java/lang/Object")
+    .jcall(parameters_instance, "V", "set", "faithfulnessAssumed", parameter_instance)
+    
+    numPatternsToStore <- .jnew("java/lang/Integer", as.integer(0))
+    parameter_instance <- .jcast(numPatternsToStore, "java/lang/Object")
+    .jcall(parameters_instance, "V", "set", "numPatternsToStore", parameter_instance)
+    
+    obj_verbose <- .jnew("java/lang/Boolean", verbose)
+    parameter_instance <- .jcast(obj_verbose, "java/lang/Object")
+    .jcall(parameters_instance, "V", "set", "verbose", parameter_instance)
 
     # Initiate Bootstrapping RFCI Discrete
     algoName <- .jfield("edu/pitt/dbmi/algo/bootstrap/BootstrapAlgName",, "RFCI")
