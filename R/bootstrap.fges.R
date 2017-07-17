@@ -22,18 +22,23 @@ bootstrap.fges <- function(df, penaltydiscount = 4.0, maxDegree = 3,
 
     # Parameters
     parameters_instance <- .jnew("edu/cmu/tetrad/util/Parameters")
-    penaltydiscount <- .jnew("java/lang/Double", penaltydiscount)
-    parameter_instance <- .jcast(penaltydiscount, "java/lang/Object")
+    
+    obj_penaltydiscount <- .jnew("java/lang/Double", penaltydiscount)
+    parameter_instance <- .jcast(obj_penaltydiscount, "java/lang/Object")
     .jcall(parameters_instance, "V", "set", "penaltyDiscount", parameter_instance)
-    maxDegree <- .jnew("java/lang/Integer", as.integer(maxDegree))
-    parameter_instance <- .jcast(maxDegree, "java/lang/Object")
+    
+    obj_maxDegree <- .jnew("java/lang/Integer", as.integer(maxDegree))
+    parameter_instance <- .jcast(obj_maxDegree, "java/lang/Object")
     .jcall(parameters_instance, "V", "set", "maxDegree", parameter_instance)
-    faithfulnessAssumed <- .jnew("java/lang/Boolean", faithfulnessAssumed)
-    parameter_instance <- .jcast(maxDegree, "java/lang/Object")
+    
+    obj_faithfulnessAssumed <- .jnew("java/lang/Boolean", faithfulnessAssumed)
+    parameter_instance <- .jcast(obj_faithfulnessAssumed, "java/lang/Object")
     .jcall(parameters_instance, "V", "set", "faithfulnessAssumed", parameter_instance)
+    
     numPatternsToStore <- .jnew("java/lang/Integer", as.integer(0))
     parameter_instance <- .jcast(numPatternsToStore, "java/lang/Object")
     .jcall(parameters_instance, "V", "set", "numPatternsToStore", parameter_instance)
+    
     obj_verbose <- .jnew("java/lang/Boolean", verbose)
     parameter_instance <- .jcast(obj_verbose, "java/lang/Object")
     .jcall(parameters_instance, "V", "set", "verbose", parameter_instance)
@@ -51,7 +56,7 @@ bootstrap.fges <- function(df, penaltydiscount = 4.0, maxDegree = 3,
         .jcall(fges_instance, "V", "setKnowledge", priorKnowledge)
     }
 
-    params <- c(params, penaltyDiscount = as.double(penaltydiscount))
+    params <- c(params, penaltyDiscount = penaltydiscount)
     params <- c(params, maxDegree = as.integer(maxDegree))
     params <- c(params, faithfulnessAssumed = as.logical(faithfulnessAssumed))
     params <- c(params, numBootstrapSamples = as.integer(numBootstrapSamples))
