@@ -34,8 +34,8 @@ bootstrap.fges <- function(df, penaltydiscount = 4.0, maxDegree = 3,
     numPatternsToStore <- .jnew("java/lang/Integer", as.integer(0))
     parameter_instance <- .jcast(numPatternsToStore, "java/lang/Object")
     .jcall(parameters_instance, "V", "set", "numPatternsToStore", parameter_instance)
-    verbose <- .jnew("java/lang/Boolean", verbose)
-    parameter_instance <- .jcast(verbose, "java/lang/Object")
+    obj_verbose <- .jnew("java/lang/Boolean", verbose)
+    parameter_instance <- .jcast(obj_verbose, "java/lang/Object")
     .jcall(parameters_instance, "V", "set", "verbose", parameter_instance)
 
     # Initiate Bootstrapping FGES
