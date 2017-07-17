@@ -29,7 +29,7 @@ bootstrap.fges.mixed <- function(df, numCategoriesToDiscretize = 4, penaltydisco
     
     obj_structurePrior <- .jnew("java/lang/Double", structurePrior)
     parameter_instance <- .jcast(obj_structurePrior, "java/lang/Object")
-    .jcall(parameters_instance, "V", "set", "structurePrior", obj_structurePrior)
+    .jcall(parameters_instance, "V", "set", "structurePrior", parameter_instance)
     
     obj_maxDegree <- .jnew("java/lang/Integer", as.integer(maxDegree))
     parameter_instance <- .jcast(obj_maxDegree, "java/lang/Object")
