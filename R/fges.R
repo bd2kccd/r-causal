@@ -1,8 +1,7 @@
 fges <- function(df, penaltydiscount = 4.0, maxDegree = 3, 
-    faithfulnessAssumed = TRUE, numOfThreads = 2, 
-    verbose = FALSE, java.parameters = NULL, priorKnowledge = NULL){
+    faithfulnessAssumed = TRUE, verbose = FALSE, java.parameters = NULL, priorKnowledge = NULL){
     
-    params <- list(NULL)
+    params <- list()
     
     if(!is.null(java.parameters)){
         options(java.parameters = java.parameters)
@@ -25,7 +24,6 @@ fges <- function(df, penaltydiscount = 4.0, maxDegree = 3,
     .jcall(fges_instance, "V", "setMaxDegree", as.integer(maxDegree))
     .jcall(fges_instance, "V", "setNumPatternsToStore", as.integer(0))
     .jcall(fges_instance, "V", "setFaithfulnessAssumed", faithfulnessAssumed)
-    .jcall(fges_instance, "V", "setParallelism", as.integer(numOfThreads))
     .jcall(fges_instance, "V", "setVerbose", verbose)
 
     if(!is.null(priorKnowledge)){
@@ -35,7 +33,6 @@ fges <- function(df, penaltydiscount = 4.0, maxDegree = 3,
     params <- c(params, penaltydiscount = as.double(penaltydiscount))
     params <- c(params, maxDegree = as.integer(maxDegree))
     params <- c(params, faithfulnessAssumed = as.logical(faithfulnessAssumed))
-    params <- c(params, numOfThreads = as.integer(numOfThreads))
     params <- c(params, verbose = as.logical(verbose))
 
     if(!is.null(priorKnowledge)){
@@ -47,7 +44,6 @@ fges <- function(df, penaltydiscount = 4.0, maxDegree = 3,
     cat("penalty discount = ", penaltydiscount,"\n")
     cat("maxDegree = ", as.integer(maxDegree),"\n")
     cat("faithfulnessAssumed = ", faithfulnessAssumed,"\n")
-    cat("numOfThreads = ", as.integer(numOfThreads),"\n")
     cat("verbose = ", verbose,"\n")
 
     # Search

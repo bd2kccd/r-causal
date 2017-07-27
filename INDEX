@@ -18,6 +18,7 @@ cpcstable					Conservative version of PC Stable
 ccd							Cyclic Causal Discovery algorithm
 cfci						Conservative version of FCI
 fci							Fast Causal Inference algorithm
+images.sembic				ImaGES algorithm with continuous datasets
 rfci						FCI algorithm with Augmented Rules on Continuous Data
 rfci.mixed					FCI algorithm with Augmented Rules on Mixed Data
 rfci.discrete				FCI algorithm with Augmented Rules on Discrete Data
