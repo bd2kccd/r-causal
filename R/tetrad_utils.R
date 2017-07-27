@@ -64,7 +64,7 @@ dataFrame2TetradBDeuScore <- function(df,structurePrior = 1.0,
 dataFrames2TetradSemBicScoreImages <- function(dfs,penaltydiscount = 4.0){
     datasets <- .jnew("java/util/ArrayList")
     for(i in 1:length(dfs)){
-        df <- dfs[i]
+        df <- dfs[[i]]
         boxData <- loadContinuousData(df)
         dataModel <- .jcast(boxData, "edu/cmu/tetrad/data/DataModel")
         datasets$add(dataModel)
