@@ -56,6 +56,28 @@ dataFrame2TetradBDeuScore <- function(df,structurePrior = 1.0,
 }
 
 ########################################################
+# converter: a list of R dataframes into Tetrad SemBicScoreImages
+# requires a list of dataframes with named columns
+# Dataset is continuous
+# requires rJava, assumes the JVM is running from the
+# latest Tetrad jar.
+dataFrames2TetradSemBicScoreImages <- function(dfs,penaltydiscount = 4.0){
+    datasets <- .jnew("java/util/ArrayList")
+    for(i in 1:length(dfs)){
+        df <- dfs[[i]]
+        boxData <- loadContinuousData(df)
+        dataModel <- .jcast(boxData, "edu/cmu/tetrad/data/DataModel")
+        datasets$add(dataModel)
+        
+    }
+    datasets <- .jcast(datasets, "java/util/List")
+    score <- .jnew("edu/cmu/tetrad/search/SemBicScoreImages", datasets)
+    score$setPenaltyDiscount(penaltydiscount)
+    score <- .jcast(score, "edu/cmu/tetrad/search/Score")
+    return(score)
+}
+
+########################################################
 # converter: R dataframe into Tetrad SemBicScore
 # requires dataframe with named columns
 # Dataset is continuous

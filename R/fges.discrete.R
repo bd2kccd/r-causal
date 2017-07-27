@@ -1,8 +1,8 @@
 fges.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, maxDegree = 3, 
-	faithfulnessAssumed = TRUE, numOfThreads = 2, verbose = FALSE, java.parameters = NULL, 
+	faithfulnessAssumed = TRUE, verbose = FALSE, java.parameters = NULL,
 	priorKnowledge = NULL){
 
-    params <- list(NULL)
+    params <- list()
     
     if(!is.null(java.parameters)){
         options(java.parameters = java.parameters)
@@ -25,7 +25,6 @@ fges.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, maxDegree
     .jcall(fges_instance, "V", "setMaxDegree", as.integer(maxDegree))
     .jcall(fges_instance, "V", "setNumPatternsToStore", as.integer(0))
     .jcall(fges_instance, "V", "setFaithfulnessAssumed", faithfulnessAssumed)
-    .jcall(fges_instance, "V", "setParallelism", as.integer(numOfThreads))
     .jcall(fges_instance, "V", "setVerbose", verbose)
 
     if(!is.null(priorKnowledge)){
@@ -36,7 +35,6 @@ fges.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, maxDegree
     params <- c(params, samplePrior = as.double(samplePrior))
     params <- c(params, maxDegree = as.integer(maxDegree))
     params <- c(params, faithfulnessAssumed = as.logical(faithfulnessAssumed))
-    params <- c(params, numOfThreads = numOfThreads)
     params <- c(params, verbose = as.logical(verbose))
 
     if(!is.null(priorKnowledge)){
@@ -50,7 +48,6 @@ fges.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, maxDegree
     cat("samplePrior = ", samplePrior,"\n")
     cat("maxDegree = ", as.integer(maxDegree),"\n")
     cat("faithfulnessAssumed = ", faithfulnessAssumed,"\n")
-    cat("numOfThreads = ", numOfThreads,"\n")
     cat("verbose = ", verbose,"\n")
 
     # Search
