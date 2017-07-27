@@ -12,17 +12,6 @@ images.sembic <- function(dfs, penaltydiscount = 4.0, maxDegree = 3,
     images <- list()
     class(images) <- "images.sembic"
 
-    cat("Datasets:\n")
-    datasets <- c()
-    for(i in 1:length(dfs)){
-        df <- dfs[[i]]
-        datasets[i] <- deparse(substitute(df))
-        cat(deparse(substitute(df)),"\n")
-    }
-    cat("\n")
-
-    images$datasets <- datasets
-
     # Data Frame to Tetrad Dataset
     score <- dataFrames2TetradSemBicScoreImages(dfs,penaltydiscount)
     
