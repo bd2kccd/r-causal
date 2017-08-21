@@ -14,92 +14,89 @@
 
 
 dm <- function(inputs, outputs, useGES=TRUE, data, trueInputs, alphaPC=.05, alphaSober=.05, gesDiscount=10,
-    verbose = FALSE, minDiscount=4, java.parameters = NULL, priorKnowledge = NULL){
+    verbose = FALSE, minDiscount=4, java.parameters = NULL){
     
-    params <- list(NULL)
+    params <- list()
+    params$java.parameters <- list()
     
     if(!is.null(java.parameters)){
         options(java.parameters = java.parameters)
-        params <- c(java.parameters = java.parameters)
+        params$java.parameters <- java.parameters
     }
-
-
-    ## Data Frame to Tetrad Dataset
-
-    data <- dataFrame2TetradDataSet(data)
-##    data <- loadMixedData(data)
-    ## data <- dataFrame2TetradSemBicScore(data)
 
     dm <- list()
     class(dm) <- "DMSearch"
 
     dm$datasets <- deparse(substitute(df))
 
-    ## cat("Datasets:\n")
-    ## cat(deparse(substitute(df)),"\n\n")
-
     ## Initiate DMSearch
-    dm_instance <- .jnew("edu/cmu/tetrad/search/DMSearch", inputs, outputs, useGES, data, trueInputs, alphaPC, alphaSober, gesDiscount, verbose, minDiscount)
+    dm_instance <- .jnew("edu/cmu/tetrad/search/DMSearch")
 
-  
-    ## .jcall(fges_instance, "V", "setMaxDegree", as.integer(maxDegree))
-    ## .jcall(fges_instance, "V", "setNumPatternsToStore", as.integer(0))
-    ## .jcall(fges_instance, "V", "setFaithfulnessAssumed", faithfulnessAssumed)
-    ## .jcall(fges_instance, "V", "setParallelism", as.integer(numOfThreads))
-    ## .jcall(fges_instance, "V", "setVerbose", verbose)
+    if(useGES==FALSE){
 
-    ## if(!is.null(priorKnowledge)){
-    ##     .jcall(fges_instance, "V", "setKnowledge", priorKnowledge)
-    ## }
+    ## Use PC for adj. search.
+    .jcall(dm_instance, "V", "setInputs", .jarray(as.integer(inputs)))
+    .jcall(dm_instance, "V", "setOutputs", .jarray(as.integer(outputs)))
+    .jcall(dm_instance, "V", "setTrueInputs", .jarray(as.integer(trueInputs)))
+    .jcall(dm_instance, "V", "setData", data)
+    .jcall(dm_instance, "V", "setVerbose", verbose)
+    .jcall(dm_instance, "V", "setAlphaPC", as.double(alphaPC))
+    .jcall(dm_instance, "V", "setAlphaSober", as.double(alphaSober))
+    }
+    else{
+    ## Use FGES for adj. search.
+    .jcall(dm_instance, "V", "setInputs", .jarray(as.integer(inputs)))
+    .jcall(dm_instance, "V", "setOutputs", .jarray(as.integer(outputs)))
+    .jcall(dm_instance, "V", "setTrueInputs", .jarray(as.integer(trueInputs)))
+    .jcall(dm_instance, "V", "setData", data)
+    .jcall(dm_instance, "V", "setVerbose", verbose)
+    .jcall(dm_instance, "V", "setAlphaSober", as.double(alphaSober))
+    .jcall(dm_instance, "V", "setDiscount", as.double(gesDiscount))
+    .jcall(dm_instance, "V", "setMinDiscount", as.integer(minDiscount))
+    }
+## TODO: Get alternative constructor working (might not work as isn't in compiled jar used for rcausal right now.
+## dm_instance <-.jnew("edu/cmu/tetrad/search/DMSearch", .jarray(as.integer(inputs)), .jarray(as.integer(outputs)), useGES, data, .jarray(as.integer(trueInputs)), as.double(alphaPC), as.double(alphaSober), as.double(gesDiscount), verbose, as.integer(minDiscount))
 
-    params <- c(params, useGES)
-    params <- c(params, alphaPC)
-    params <- c(params, alphaSober)
-    params <- c(params, gesDiscount)
-    params <- c(params, minDiscount)
-    params <- c(params, verbose)
-
-                                            
-
-    params<- c(params, minDiscount)
-    
-    ## params <- c(params, penaltydiscount = as.double(penaltydiscount))
-    ## params <- c(params, maxDegree = as.integer(maxDegree))
-    ## params <- c(params, faithfulnessAssumed = as.logical(faithfulnessAssumed))
-    ## params <- c(params, numOfThreads = as.integer(numOfThreads))
-    ## params <- c(params, verbose = as.logical(verbose))
-
-    ## if(!is.null(priorKnowledge)){
-    ##     params <- c(params, prior = priorKnowledge)
-    ## }
+    params$useGES <- useGES
+    params$alphaPC <- alphaPC
+    params$alphaSober <-alphaSober
+    params$gesDiscount <- gesDiscount
+    params$minDiscount <- minDiscount
+    params$verbose <- verbose
 
     dm$parameters <- params
 
-    ## cat("Graph Parameters:\n")
-    ## cat("penalty discount = ", penaltydiscount,"\n")
-    ## cat("maxDegree = ", as.integer(maxDegree),"\n")
-    ## cat("faithfulnessAssumed = ", faithfulnessAssumed,"\n")
-    ## cat("numOfThreads = ", as.integer(numOfThreads),"\n")
-    ## cat("verbose = ", verbose,"\n")
-
     ## Search
-    tetrad_graph <- .jcall(fges_instance, "Ledu/cmu/tetrad/graph/Graph;", 
+    dm_graph <- .jcall(dm_instance, "Ledu/cmu/tetrad/graph/Graph;", 
         "search")
 
-    V <- extractTetradNodes(tetrad_graph)
 
-    dm$nodes <- V
+    if(!is.null(e <- .jgetEx())){
+        .jclear()
+        dm$nodes <- colnames(df)
+        dm$edges <- NULL
+        print("Java exception was raised")
+        print(e)
+    }else{
+        V <- extractTetradNodes(dm_graph)
 
-    ## extract edges
-    dm_edges <- extractTetradEdges(tetrad_graph)
-
-    dm$edges <- dm_edges
-
-    ## convert output of DM into an R object (graphNEL)
-    dm_graphNEL = tetradPattern2graphNEL(resultGraph = tetrad_graph,
-        verbose = verbose)
-
-    dm$graphNEL <- dm_graphNEL
+        ## Get nodes.
+        dm$nodes <- V
+        
+        ## extract edges
+        dm_edges <- extractTetradEdges(dm_graph)
+        
+        dm$edges <- dm_edges
+    }
 
     return(dm)
 }
+
+
+dm(inputs=c(0,1), outputs=c(2,3), data=loadContinuousData(data.frame(X0=rnorm(100), X1=rnorm(100), X2=rnorm(100), X3=rnorm(100))), trueInputs=c(0,1))
+
+
+
+
+
+
