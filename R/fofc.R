@@ -5,6 +5,7 @@
 ## fofcAlgorithm = Either GAP or SAG
 ## alpha = alpha value to be used in test.
 ## java.parameters = additional settings for java.
+## Returns: latent variable clusters (as an edge list).
 fofc <- function(df, TestType = "TETRAD_WISHART", fofcAlgorithm = "GAP", 
     alpha = .01, java.parameters = NULL){
      
@@ -40,9 +41,6 @@ fofc <- function(df, TestType = "TETRAD_WISHART", fofcAlgorithm = "GAP",
 
     ## Search
     fofc_graph <- .jcall(fofc_instance, "Ledu/cmu/tetrad/graph/Graph;", "search")
-
-    ##List to contain results of fofc search.
-    #fofc <- list()
 
     if(!is.null(e <- .jgetEx())){
         .jclear()
