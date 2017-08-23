@@ -10,7 +10,7 @@
 ## alphaPC=alpha value used by PC algorithm.
 ## alphaSober=alpha value used when preforming Sober's step.
 ## gesDiscount=Penalty used by the FGES algorithm.
-## Returns an endogenous latent variable graph (graphNEl format).
+## Returns an endogenous latent variable graph (as an edge list).
 
 
 dm <- function(inputs, outputs, useGES=TRUE, data, trueInputs, alphaPC=.05, alphaSober=.05, gesDiscount=10,
@@ -24,6 +24,7 @@ dm <- function(inputs, outputs, useGES=TRUE, data, trueInputs, alphaPC=.05, alph
         params$java.parameters <- java.parameters
     }
 
+	data <- loadContinuousData(data)
     dm <- list()
     class(dm) <- "DMSearch"
 
@@ -54,7 +55,7 @@ dm <- function(inputs, outputs, useGES=TRUE, data, trueInputs, alphaPC=.05, alph
     .jcall(dm_instance, "V", "setDiscount", as.double(gesDiscount))
     .jcall(dm_instance, "V", "setMinDiscount", as.integer(minDiscount))
     }
-## TODO: Get alternative constructor working (might not work as isn't in compiled jar used for rcausal right now.
+## T0D0: Get alternative constructor working (might not work as isn't in compiled jar used for rcausal right now.
 ## dm_instance <-.jnew("edu/cmu/tetrad/search/DMSearch", .jarray(as.integer(inputs)), .jarray(as.integer(outputs)), useGES, data, .jarray(as.integer(trueInputs)), as.double(alphaPC), as.double(alphaSober), as.double(gesDiscount), verbose, as.integer(minDiscount))
 
     params$useGES <- useGES
@@ -91,9 +92,6 @@ dm <- function(inputs, outputs, useGES=TRUE, data, trueInputs, alphaPC=.05, alph
 
     return(dm)
 }
-
-
-dm(inputs=c(0,1), outputs=c(2,3), data=loadContinuousData(data.frame(X0=rnorm(100), X1=rnorm(100), X2=rnorm(100), X3=rnorm(100))), trueInputs=c(0,1))
 
 
 
