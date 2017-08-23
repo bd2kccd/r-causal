@@ -8,6 +8,9 @@
 fofc <- function(df, TestType = "TETRAD_WISHART", fofcAlgorithm = "GAP", 
     alpha = .01, java.parameters = NULL){
      
+    params <- list()
+    params$java.parameters <- list()
+
     if(!is.null(java.parameters)){
         options(java.parameters = java.parameters)
         params <- c(java.parameters = java.parameters)
@@ -16,6 +19,19 @@ fofc <- function(df, TestType = "TETRAD_WISHART", fofcAlgorithm = "GAP",
     ## Converting to Tetrad dataset.
     df<-loadContinuousData(df)
     
+	fofc <- list()
+    class(fofc) <- "fofc"
+
+
+    fofc$datasets <- deparse(substitute(data))
+
+
+    params$TestType <- TestType
+    params$fofcAlgorithm <- fofcAlgorithm
+    params$alpha <-alpha
+
+    fofc$parameters <- params
+
     fofcAlgorithmPath <- "edu/cmu/tetrad/search/FindOneFactorClusters"
     TestTypePath <- "edu/cmu/tetrad/search/TestType"
 
@@ -26,7 +42,7 @@ fofc <- function(df, TestType = "TETRAD_WISHART", fofcAlgorithm = "GAP",
     fofc_graph <- .jcall(fofc_instance, "Ledu/cmu/tetrad/graph/Graph;", "search")
 
     ##List to contain results of fofc search.
-    fofc <- list()
+    #fofc <- list()
 
     if(!is.null(e <- .jgetEx())){
         .jclear()
