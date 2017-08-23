@@ -1,4 +1,10 @@
 
+
+## Arguments: df=Dataset
+## TestType = Either TETRAD_WISHART or TETRAD_DELTA
+## fofcAlgorithm = Either GAP or SAG
+## alpha = alpha value to be used in test.
+## java.parameters = additional settings for java.
 fofc <- function(df, TestType = "TETRAD_WISHART", fofcAlgorithm = "GAP", 
     alpha = .01, java.parameters = NULL){
      
@@ -7,10 +13,10 @@ fofc <- function(df, TestType = "TETRAD_WISHART", fofcAlgorithm = "GAP",
         params <- c(java.parameters = java.parameters)
     }
 
-	## Converting to Tetrad dataset.
-	df<-loadContinuousData(df)
+    ## Converting to Tetrad dataset.
+    df<-loadContinuousData(df)
     
-	fofcAlgorithmPath <- "edu/cmu/tetrad/search/FindOneFactorClusters"
+    fofcAlgorithmPath <- "edu/cmu/tetrad/search/FindOneFactorClusters"
     TestTypePath <- "edu/cmu/tetrad/search/TestType"
 
     ## Instantiate fofc object.

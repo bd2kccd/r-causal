@@ -55,8 +55,15 @@ dm <- function(inputs, outputs, useGES=TRUE, data, trueInputs, alphaPC=.05, alph
     .jcall(dm_instance, "V", "setDiscount", as.double(gesDiscount))
     .jcall(dm_instance, "V", "setMinDiscount", as.integer(minDiscount))
     }
-## T0D0: Get alternative constructor working (might not work as isn't in compiled jar used for rcausal right now.
-## dm_instance <-.jnew("edu/cmu/tetrad/search/DMSearch", .jarray(as.integer(inputs)), .jarray(as.integer(outputs)), useGES, data, .jarray(as.integer(trueInputs)), as.double(alphaPC), as.double(alphaSober), as.double(gesDiscount), verbose, as.integer(minDiscount))
+## T0D0: Get alternative constructor working (might not work as isn't
+## in compiled jar used for rcausal right now.
+    ## dm_instance <-.jnew("edu/cmu/tetrad/search/DMSearch",
+                        ## .jarray(as.integer(inputs)),
+                        ## .jarray(as.integer(outputs)), useGES, data,
+                        ## .jarray(as.integer(trueInputs)),
+                        ## as.double(alphaPC), as.double(alphaSober),
+                        ## as.double(gesDiscount), verbose,
+                        ## as.integer(minDiscount))
 
     params$useGES <- useGES
     params$alphaPC <- alphaPC
