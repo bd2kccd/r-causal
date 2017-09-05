@@ -10,6 +10,7 @@ bootstrap.fges              Bootstrapping of Fast Greedy Equivalence Search for 
 bootstrap.fges.mixed        Bootstrapping of Fast Greedy Equivalence Search for Causal and Statistical Model Discovery on Mixed Data
 bootstrap.fges.discrete     Bootstrapping of Fast Greedy Equivalence Search for Causal and Statistical Model Discovery on Discrete Data
 charity                     Donations and Charity Data
+dm			    "Detect MIMIC" algorithm
 pc							"Peter/Clark" algorithm
 pcstable					PC Stable modification to PC has been included
 pcstablemax					Modified "Peter/Clark" algorithm with respect to the Meek rule
@@ -25,6 +26,7 @@ rfci.discrete				FCI algorithm with Augmented Rules on Discrete Data
 gfci                        Greedy Continuous FCI algorithm with Augmented Rules
 gfci.mixed					Greedy Mixed Data FCI algorithm with Augmented Rules
 gfci.discrete               Greedy Discrete FCI algorithm with Augmented Rules
+fofc			    Find One Factor Clusters algorithm.
 fges                        Fast Greedy Equivalence Search for Causal and Statistical Model Discovery on Continuous Data
 fges.mixed               	Fast Greedy Equivalence Search for Causal and Statistical Model Discovery on Mixed Data
 fges.discrete               Fast Greedy Equivalence Search for Causal and Statistical Model Discovery on Discrete Data
