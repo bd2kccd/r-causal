@@ -2,11 +2,11 @@
 
                                         
 ## Arguments:
-## inputs = indicies of input variables.
-## outputs=indicies of output variables.
+## inputs = indices of input variables.
+## outputs=indices of output variables.
 ## useGES = true if algorithm should use GES to determine input-output adjacencies, otherwise uses PC.
 ## data=the dataset containing variables and observations to run the search on.
-## trueInputs=indicies of input variables that should be included in the search (can be used to run search over a subset of input variables).
+## trueInputs=indices of input variables that should be included in the search (can be used to run search over a subset of input variables).
 ## alphaPC=alpha value used by PC algorithm.
 ## alphaSober=alpha value used when preforming Sober's step.
 ## gesDiscount=Penalty used by the FGES algorithm.
@@ -61,15 +61,6 @@ dm <- function(inputs, outputs, useGES=TRUE, data, trueInputs, alphaPC=.05, alph
     .jcall(dm_instance, "V", "setDiscount", as.double(gesDiscount))
     .jcall(dm_instance, "V", "setMinDiscount", as.integer(minDiscount))
     }
-## T0D0: Get alternative constructor working (might not work as isn't
-## in compiled jar used for rcausal right now.
-    ## dm_instance <-.jnew("edu/cmu/tetrad/search/DMSearch",
-                        ## .jarray(as.integer(inputs)),
-                        ## .jarray(as.integer(outputs)), useGES, data,
-                        ## .jarray(as.integer(trueInputs)),
-                        ## as.double(alphaPC), as.double(alphaSober),
-                        ## as.double(gesDiscount), verbose,
-                        ## as.integer(minDiscount))
 
     params$useGES <- useGES
     params$alphaPC <- alphaPC
