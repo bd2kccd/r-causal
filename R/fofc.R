@@ -29,7 +29,7 @@ fofc <- function(df, TestType = "TETRAD_WISHART", fofcAlgorithm = "GAP",
 
     params$TestType <- TestType
     params$fofcAlgorithm <- fofcAlgorithm
-    params$alpha <-alpha
+    params$alpha <- alpha
 
     fofc$parameters <- params
 

@@ -24,6 +24,12 @@ dm <- function(inputs, outputs, useGES=TRUE, data, trueInputs, alphaPC=.05, alph
         params$java.parameters <- java.parameters
     }
 
+	orig.names <- names(data)
+	new.names <-  paste("X", 0:(ncol(data)-1), sep="")
+
+	## Need to rename variables as algorithm requires all variables be labeled: X0, X1, etc...
+	names(data) <-new.names
+
 	data <- loadContinuousData(data)
     dm <- list()
     class(dm) <- "DMSearch"
@@ -88,19 +94,50 @@ dm <- function(inputs, outputs, useGES=TRUE, data, trueInputs, alphaPC=.05, alph
     }else{
         V <- extractTetradNodes(dm_graph)
 
+		## Restoring original names to nodes.
+		for(i in 1:length(new.names)){
+			for(j in 1:length(orig.names)){
+				if(i==j){
+					V <- gsub(V, pattern=paste("^", new.names[j], "$", collapse="", sep=""), replace=paste(orig.names[i], " ", collapse="", sep=""))
+				}				
+			}
+		}      
+
+
         ## Get nodes.
         dm$nodes <- V
         
         ## extract edges
         dm_edges <- extractTetradEdges(dm_graph)
-        
+
+		## Restoring original names to edges.
+		for(i in 1:length(new.names)){
+			for(j in 1:length(orig.names)){
+				if(i==j){
+					dm_edges <- gsub(dm_edges, pattern=paste("^", new.names[j], " ", collapse="", sep=""), replace=paste(orig.names[i], " ", collapse="", sep=""))
+					dm_edges <- gsub(dm_edges, pattern=paste(" ", new.names[j], collapse="", sep=""), replace=paste(" ", orig.names[i], collapse="", sep=""))
+					}				
+			}
+		}      
         dm$edges <- dm_edges
     }
 
     return(dm)
 }
 
+### Example.
+##set.seed(123)
+##a=rnorm(1000); b=rnorm(1000); c=rnorm(1000)+a+b; d=rnorm(1000)+a+b
+##temp <- data.frame(a, b, c, d)
 
+##dm(data=temp, inputs=c(0,1), outputs=c(2,3), useGES=TRUE, trueInputs=c(0,1))
+##Should produce following output:
+
+##$nodes
+##[1] "L0" "a " "b " "c " "d "
+
+##$edges
+##[1] "a --> L0" "b --> L0" "L0 --> c" "L0 --> d"
 
 
 
