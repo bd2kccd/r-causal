@@ -37,7 +37,10 @@ fofc <- function(df, TestType = "TETRAD_WISHART", fofcAlgorithm = "GAP",
     TestTypePath <- "edu/cmu/tetrad/search/TestType"
 
     ## Instantiate fofc object.
-    fofc_instance <- .jnew("edu/cmu/tetrad/search/FindOneFactorClusters", df, .jfield(TestTypePath,name=TestType), .jfield(paste(fofcAlgorithmPath, "$Algorithm", sep=""), name=fofcAlgorithm), as.double(alpha))
+    fofc_instance <- .jnew("edu/cmu/tetrad/search/FindOneFactorClusters",
+                           df, .jfield(TestTypePath,name=TestType),
+                           .jfield(paste(fofcAlgorithmPath, "$Algorithm", sep=""), name=fofcAlgorithm),
+                           as.double(alpha))
 
     ## Search
     fofc_graph <- .jcall(fofc_instance, "Ledu/cmu/tetrad/graph/Graph;", "search")

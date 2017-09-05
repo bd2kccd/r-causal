@@ -94,14 +94,16 @@ dm <- function(inputs, outputs, useGES=TRUE, data, trueInputs, alphaPC=.05, alph
     }else{
         V <- extractTetradNodes(dm_graph)
 
-		## Restoring original names to nodes.
-		for(i in 1:length(new.names)){
-			for(j in 1:length(orig.names)){
-				if(i==j){
-					V <- gsub(V, pattern=paste("^", new.names[j], "$", collapse="", sep=""), replace=paste(orig.names[i], " ", collapse="", sep=""))
-				}				
-			}
-		}      
+        ## Restoring original names to nodes.
+        for(i in 1:length(new.names)){
+            for(j in 1:length(orig.names)){
+                if(i==j){
+                    V <- gsub(V,
+                              pattern=paste("^", new.names[j], "$", collapse="", sep=""),
+                              replace=paste(orig.names[i], " ", collapse="", sep=""))
+                }				
+            }
+        }      
 
 
         ## Get nodes.
@@ -110,15 +112,19 @@ dm <- function(inputs, outputs, useGES=TRUE, data, trueInputs, alphaPC=.05, alph
         ## extract edges
         dm_edges <- extractTetradEdges(dm_graph)
 
-		## Restoring original names to edges.
-		for(i in 1:length(new.names)){
-			for(j in 1:length(orig.names)){
-				if(i==j){
-					dm_edges <- gsub(dm_edges, pattern=paste("^", new.names[j], " ", collapse="", sep=""), replace=paste(orig.names[i], " ", collapse="", sep=""))
-					dm_edges <- gsub(dm_edges, pattern=paste(" ", new.names[j], collapse="", sep=""), replace=paste(" ", orig.names[i], collapse="", sep=""))
-					}				
-			}
-		}      
+        ## Restoring original names to edges.
+        for(i in 1:length(new.names)){
+            for(j in 1:length(orig.names)){
+                if(i==j){
+                    dm_edges <- gsub(dm_edges,
+                                     pattern=paste("^", new.names[j], " ", collapse="", sep=""),
+                                     replace=paste(orig.names[i], " ", collapse="", sep=""))
+                    dm_edges <- gsub(dm_edges,
+                                     pattern=paste(" ", new.names[j], collapse="", sep=""),
+                                     replace=paste(" ", orig.names[i], collapse="", sep=""))
+                }				
+            }
+        }      
         dm$edges <- dm_edges
     }
 
