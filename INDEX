@@ -1,14 +1,5 @@
 audiology                   The standardized version of the audiology Data
 bayesEst					Bayesian estimation algorithm
-bootstrap.rfci				Bootstrapping of FCI algorithm with Augmented Rules on Continuous Data
-bootstrap.rfci.mixed		Bootstrapping of FCI algorithm with Augmented Rules on Mixed Data
-bootstrap.rfci.discrete		Bootstrapping of FCI algorithm with Augmented Rules on Discrete Data
-bootstrap.gfci              Bootstrapping of Greedy Continuous FCI algorithm with Augmented Rules
-bootstrap.gfci.mixed		Bootstrapping of Greedy Mixed Data FCI algorithm with Augmented Rules
-bootstrap.gfci.discrete     Bootstrapping of Greedy Discrete FCI algorithm with Augmented Rules
-bootstrap.fges              Bootstrapping of Fast Greedy Equivalence Search for Causal and Statistical Model Discovery on Continuous Data
-bootstrap.fges.mixed        Bootstrapping of Fast Greedy Equivalence Search for Causal and Statistical Model Discovery on Mixed Data
-bootstrap.fges.discrete     Bootstrapping of Fast Greedy Equivalence Search for Causal and Statistical Model Discovery on Discrete Data
 charity                     Donations and Charity Data
 dm			    "Detect MIMIC" algorithm
 pc							"Peter/Clark" algorithm

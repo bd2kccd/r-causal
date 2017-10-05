@@ -38,28 +38,21 @@ dm <- function(inputs, outputs, useGES=TRUE, data, trueInputs, alphaPC=.05, alph
 
     ## Initiate DMSearch
     dm_instance <- .jnew("edu/cmu/tetrad/search/DMSearch")
+	.jcall(dm_instance, "V", "setInputs", .jarray(as.integer(inputs)))
+    .jcall(dm_instance, "V", "setOutputs", .jarray(as.integer(outputs)))
+    .jcall(dm_instance, "V", "setTrueInputs", .jarray(as.integer(trueInputs)))
+    .jcall(dm_instance, "V", "setData", data)
+    .jcall(dm_instance, "V", "setVerbose", verbose)
+    .jcall(dm_instance, "V", "setAlphaSober", as.double(alphaSober))
 
     if(useGES==FALSE){
-
-    ## Use PC for adj. search.
-    .jcall(dm_instance, "V", "setInputs", .jarray(as.integer(inputs)))
-    .jcall(dm_instance, "V", "setOutputs", .jarray(as.integer(outputs)))
-    .jcall(dm_instance, "V", "setTrueInputs", .jarray(as.integer(trueInputs)))
-    .jcall(dm_instance, "V", "setData", data)
-    .jcall(dm_instance, "V", "setVerbose", verbose)
-    .jcall(dm_instance, "V", "setAlphaPC", as.double(alphaPC))
-    .jcall(dm_instance, "V", "setAlphaSober", as.double(alphaSober))
+	    ## Use PC for adj. search.
+    	.jcall(dm_instance, "V", "setAlphaPC", as.double(alphaPC))
     }
     else{
-    ## Use FGES for adj. search.
-    .jcall(dm_instance, "V", "setInputs", .jarray(as.integer(inputs)))
-    .jcall(dm_instance, "V", "setOutputs", .jarray(as.integer(outputs)))
-    .jcall(dm_instance, "V", "setTrueInputs", .jarray(as.integer(trueInputs)))
-    .jcall(dm_instance, "V", "setData", data)
-    .jcall(dm_instance, "V", "setVerbose", verbose)
-    .jcall(dm_instance, "V", "setAlphaSober", as.double(alphaSober))
-    .jcall(dm_instance, "V", "setDiscount", as.double(gesDiscount))
-    .jcall(dm_instance, "V", "setMinDiscount", as.integer(minDiscount))
+    	## Use FGES for adj. search.
+    	.jcall(dm_instance, "V", "setDiscount", as.double(gesDiscount))
+    	.jcall(dm_instance, "V", "setMinDiscount", as.integer(minDiscount))
     }
 
     params$useGES <- useGES

@@ -1,5 +1,3 @@
-
-
 ## Arguments: df=Dataset
 ## TestType = Either TETRAD_WISHART or TETRAD_DELTA
 ## fofcAlgorithm = Either GAP or SAG
