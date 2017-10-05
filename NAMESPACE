@@ -37,6 +37,6 @@ export("pcstablemax")
 export("priorKnowledge")
 export("priorKnowledgeFromFile")
 export("randomDag")
-export("dm")
+export("fofc")
 # Export all names
 # exportPattern(".")
