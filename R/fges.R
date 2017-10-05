@@ -62,8 +62,10 @@ fges <- function(df, penaltyDiscount = 4.0, maxDegree = 3,
     	parameters_instance$set("verbose", parameter_instance)
     	
     	# Initiate Bootstrapping FGES
-		fges_instance <- .jnew("edu/pitt/dbmi/algo/bootstrap/GeneralBootstrapTest", tetradData, algorithm, numBootstrap)
-		edgeEnsemble <- .jfield("edu/pitt/dbmi/algo/bootstrap/BootstrapEdgeEnsemble",name=ensembleMethod)
+		fges_instance <- .jnew("edu/pitt/dbmi/algo/bootstrap/GeneralBootstrapTest", 
+								tetradData, algorithm, numBootstrap)
+		edgeEnsemble <- .jfield("edu/pitt/dbmi/algo/bootstrap/BootstrapEdgeEnsemble", 
+								name=ensembleMethod)
 		fges_instance$setEdgeEnsemble(edgeEnsemble)
 		fges_instance$setParameters(parameters_instance)
 	}
