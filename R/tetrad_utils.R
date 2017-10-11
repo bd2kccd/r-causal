@@ -45,6 +45,29 @@ ugraphToTetradGraph <- function(ugmat, node_list){
 # Dataset is discrete.
 # requires rJava, assumes the JVM is running from the
 # latest Tetrad jar.
+dataFrames2TetradBDeuScoreImages <- function(dfs,structurePrior = 1.0, 
+    samplePrior = 1.0){
+    datasets <- .jnew("java/util/ArrayList")
+    for(i in 1:length(dfs)){
+        df <- dfs[[i]]
+        boxData <- loadDiscreteData(df)
+        dataModel <- .jcast(boxData, "edu/cmu/tetrad/data/DataModel")
+        datasets$add(dataModel)
+        
+    }
+    score <- .jnew("edu/cmu/tetrad/search/BdeuScoreImages", datasets)
+    score$setStructurePrior(as.double(structurePrior))
+    score$setSamplePrior(as.double(samplePrior))
+    score <- .jcast(score, "edu/cmu/tetrad/search/Score")
+    return(score)
+}
+
+########################################################
+# converter: R dataframe into Tetrad BDeuScore wrapping a BoxDataSet
+# requires dataframe with named columns
+# Dataset is discrete.
+# requires rJava, assumes the JVM is running from the
+# latest Tetrad jar.
 dataFrame2TetradBDeuScore <- function(df,structurePrior = 1.0, 
     samplePrior = 1.0){
     boxData <- loadDiscreteData(df)

@@ -1,5 +1,6 @@
-rfci.mixed <- function(df, numCategoriesToDiscretize = 4, depth = 3, significance = 0.05,
-    completeRuleSetUsed = FALSE, verbose = FALSE, java.parameters = NULL, 
+rfci.mixed <- function(df, numCategoriesToDiscretize = 4, depth = 3, alpha = 0.05,
+    completeRuleSetUsed = FALSE, numBootstrap = -1, ensembleMethod = 'Highest', 
+    verbose = FALSE, java.parameters = NULL, 
     priorKnowledge = NULL){
     
     params <- list(NULL)
@@ -9,13 +10,6 @@ rfci.mixed <- function(df, numCategoriesToDiscretize = 4, depth = 3, significanc
         params <- c(java.parameters = java.parameters)
     }
 
-    # Data Frame to Independence Test
-    tetradData <- loadMixedData(df, numCategoriesToDiscretize)
-    indTest <- .jnew("edu/cmu/tetrad/search/IndTestConditionalGaussianLRT",
-    tetradData, significance)
-    
-	indTest <- .jcast(indTest, "edu/cmu/tetrad/search/IndependenceTest")
-
     rfci <- list()
     class(rfci) <- "rfci.mixed"
 
@@ -24,20 +18,67 @@ rfci.mixed <- function(df, numCategoriesToDiscretize = 4, depth = 3, significanc
     cat("Datasets:\n")
     cat(deparse(substitute(df)),"\n\n")
 
-    # Initiate RFCI
-    rfci_instance <- .jnew("edu/cmu/tetrad/search/Rfci", indTest)
-    .jcall(rfci_instance, "V", "setDepth", as.integer(depth))
-    .jcall(rfci_instance, "V", "setCompleteRuleSetUsed", completeRuleSetUsed)
-    .jcall(rfci_instance, "V", "setVerbose", verbose)
+	rfci_instance <- NULL
+
+	tetradData <- loadMixedData(df, numCategoriesToDiscretize)
+
+	if(numBootstrap < 1){
+    	# Data Frame to Independence Test   
+    	indTest <- .jnew("edu/cmu/tetrad/search/IndTestConditionalGaussianLRT",
+    				tetradData, alpha)
+    
+		indTest <- .jcast(indTest, "edu/cmu/tetrad/search/IndependenceTest")
+	
+	    # Initiate RFCI
+    	rfci_instance <- .jnew("edu/cmu/tetrad/search/Rfci", indTest)
+    	.jcall(rfci_instance, "V", "setDepth", as.integer(depth))
+    	.jcall(rfci_instance, "V", "setCompleteRuleSetUsed", completeRuleSetUsed)
+	}else{
+		indTest <- .jnew("edu/cmu/tetrad/algcomparison/independence/ConditionalGaussianLRT")
+		indTest <- .jcast(indTest, "edu/cmu/tetrad/algcomparison/independence/IndependenceWrapper")
+		
+		algorithm <- .jnew("edu/cmu/tetrad/algcomparison/algorithm/oracle/pag/Rfci", indTest)
+		algorithm <- .jcast(algorithm, "edu/cmu/tetrad/algcomparison/algorithm/Algorithm")
+		
+		# Parameters
+    	parameters_instance <- .jnew("edu/cmu/tetrad/util/Parameters")
+    
+    	obj_depth <- .jnew("java/lang/Integer", as.integer(depth))
+    	parameter_instance <- .jcast(obj_depth, "java/lang/Object")
+    	parameters_instance$set("depth", parameter_instance)
+    
+    	obj_alpha <- .jnew("java/lang/Double", alpha)
+    	parameter_instance <- .jcast(obj_alpha, "java/lang/Object")
+    	parameters_instance$set("alpha", parameter_instance)
+    	
+    	obj_completeRuleSetUsed <- .jnew("java/lang/Boolean", completeRuleSetUsed)
+    	parameter_instance <- .jcast(obj_completeRuleSetUsed, "java/lang/Object")
+    	parameters_instance$set("completeRuleSetUsed", parameter_instance)
+    
+    	obj_verbose <- .jnew("java/lang/Boolean", verbose)
+    	parameter_instance <- .jcast(obj_verbose, "java/lang/Object")
+    	parameters_instance$set("verbose", parameter_instance)
+	
+		# Initiate Bootstrapping RFCI
+		rfci_instance <- .jnew("edu/pitt/dbmi/algo/bootstrap/GeneralBootstrapTest", tetradData, algorithm, numBootstrap)
+		edgeEnsemble <- .jfield("edu/pitt/dbmi/algo/bootstrap/BootstrapEdgeEnsemble", name=ensembleMethod)
+		rfci_instance$setEdgeEnsemble(edgeEnsemble)
+		rfci_instance$setParameters(parameters_instance)
+	}
+	
+	rfci_instance$setVerbose(verbose)
 
     if(!is.null(priorKnowledge)){
         .jcall(rfci_instance, "V", "setKnowledge", priorKnowledge)
     }
 
-	params <- c(params, continuous = as.logical(continuous))
     params <- c(params, depth = as.integer(depth))
-    params <- c(params, significance = significance)
+    params <- c(params, alpha = alpha)
     params <- c(params, completeRuleSetUsed = as.logical(completeRuleSetUsed))
+    if(numBootstrap > 0){
+	    params <- c(params, numBootstrap = as.integer(numBootstrap))
+    	params <- c(params, ensembleMethod = ensembleMethod)
+    }
     params <- c(params, verbose = as.logical(verbose))
 
     if(!is.null(priorKnowledge)){
@@ -48,8 +89,12 @@ rfci.mixed <- function(df, numCategoriesToDiscretize = 4, depth = 3, significanc
     cat("Graph Parameters:\n")
     cat("numCategoriesToDiscretize = ", as.integer(numCategoriesToDiscretize), "\n")
     cat("depth = ", as.integer(depth),"\n")
-    cat("significance = ", as.numeric(significance),"\n")
+    cat("alpha = ", as.numeric(alpha),"\n")
     cat("completeRuleSetUsed = ", completeRuleSetUsed, "\n")
+    if(numBootstrap > 0){
+	    cat("numBootstrap = ", as.integer(numBootstrap),"\n")
+    	cat("ensembleMethod = ", ensembleMethod,"\n")
+    }
     cat("verbose = ", verbose,"\n")
 
     # Search

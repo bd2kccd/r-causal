@@ -1,41 +1,37 @@
-fges.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, maxDegree = 3, 
-	faithfulnessAssumed = TRUE, numBootstrap = -1, ensembleMethod = 'Highest', 
-	verbose = FALSE, java.parameters = NULL,
-	priorKnowledge = NULL){
-
+images.bdeu <- function(dfs, structurePrior = 1.0, samplePrior = 1.0, maxDegree = 3,
+    faithfulnessAssumed = TRUE, numBootstrap = -1, ensembleMethod = 'Highest', 
+    verbose = FALSE, java.parameters = NULL, priorKnowledge = NULL){
+    
     params <- list()
     
     if(!is.null(java.parameters)){
         options(java.parameters = java.parameters)
         params <- c(java.parameters = java.parameters)
     }
+
+    images <- list()
+    class(images) <- "images.bdeu"
     
-    fges <- list()
-    class(fges) <- "fges.discrete"
-
-    fges$datasets <- deparse(substitute(df))
-
-    cat("Datasets:\n")
-    cat(deparse(substitute(df)),"\n")
-
-	fges_instance <- NULL
+    images_instance <- NULL
     
 	if(numBootstrap < 1){
 	    # Data Frame to Tetrad Dataset
-    	score <- dataFrame2TetradBDeuScore(df, structurePrior, samplePrior)
-
-		# Initiate FGES Discrete
-    	fges_instance <- .jnew("edu/cmu/tetrad/search/Fges", score)
-    	.jcall(fges_instance, "V", "setMaxDegree", as.integer(maxDegree))
-    	.jcall(fges_instance, "V", "setNumPatternsToStore", as.integer(0))
-    	.jcall(fges_instance, "V", "setFaithfulnessAssumed", faithfulnessAssumed)
+    	score <- dataFrames2TetradBDeuScoreImages(dfs, structurePrior, samplePrior)
+	
+    	# Initiate ImaGES BDeu
+    	images_instance <- .jnew("edu/cmu/tetrad/search/Fges", score)
+    	.jcall(images_instance, "V", "setMaxDegree", as.integer(maxDegree))
+    	.jcall(images_instance, "V", "setNumPatternsToStore", as.integer(0))
+	    .jcall(images_instance, "V", "setFaithfulnessAssumed", faithfulnessAssumed)
 	}else{
-		tetradData <- loadDiscreteData(df)
-		
-		score <- .jnew("edu/cmu/tetrad/algcomparison/score/BdeuScore")
-		score <- .jcast(score, "edu/cmu/tetrad/algcomparison/score/ScoreWrapper")
-		
-		algorithm <- .jnew("edu/cmu/tetrad/algcomparison/algorithm/oracle/pattern/Fges", score)
+		datasets <- .jnew("java/util/ArrayList")
+	    for(i in 1:length(dfs)){
+    	    df <- dfs[[i]]
+        	boxData <- loadDiscreteData(df)
+        	datasets$add(boxData)     
+    	}
+    	
+		algorithm <- .jnew("edu/cmu/tetrad/algcomparison/algorithm/multi/ImagesBDeu")
 		algorithm <- .jcast(algorithm, "edu/cmu/tetrad/algcomparison/algorithm/Algorithm")
 	
 	    # Parameters
@@ -62,17 +58,17 @@ fges.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, maxDegree
     	parameter_instance <- .jcast(obj_verbose, "java/lang/Object")
     	parameters_instance$set("verbose", parameter_instance)
     	
-    	# Initiate Bootstrapping FGES
-		fges_instance <- .jnew("edu/pitt/dbmi/algo/bootstrap/GeneralBootstrapTest", tetradData, algorithm, numBootstrap)
+    	# Initiate Bootstrapping ImaGES BDeu
+		images_instance <- .jnew("edu/pitt/dbmi/algo/bootstrap/GeneralBootstrapTest", datasets, algorithm, numBootstrap)
 		edgeEnsemble <- .jfield("edu/pitt/dbmi/algo/bootstrap/BootstrapEdgeEnsemble", name=ensembleMethod)
-		fges_instance$setEdgeEnsemble(edgeEnsemble)
-		fges_instance$setParameters(parameters_instance)
+		images_instance$setEdgeEnsemble(edgeEnsemble)
+		images_instance$setParameters(parameters_instance)
 	}
-    
-    fges_instance$setVerbose(verbose)
+	
+    images_instance$setVerbose(verbose)
 
     if(!is.null(priorKnowledge)){
-        .jcall(fges_instance, "V", "setKnowledge", priorKnowledge)
+        .jcall(images_instance, "V", "setKnowledge", priorKnowledge)
     }
 
     params <- c(params, structurePrior = as.double(structurePrior))
@@ -88,8 +84,7 @@ fges.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, maxDegree
     if(!is.null(priorKnowledge)){
         params <- c(params, prior = priorKnowledge)
     }
-    
-    fges$parameters <- params
+    images$parameters <- params
 
     cat("Graph Parameters:\n")
     cat("structurePrior = ", structurePrior,"\n")
@@ -103,25 +98,25 @@ fges.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, maxDegree
     cat("verbose = ", verbose,"\n")
 
     # Search
-    tetrad_graph <- .jcall(fges_instance, "Ledu/cmu/tetrad/graph/Graph;",
+    tetrad_graph <- .jcall(images_instance, "Ledu/cmu/tetrad/graph/Graph;",
         "search", check=FALSE)
 
     if(!is.null(e <- .jgetEx())){
         .jclear()
-        fges$nodes <- colnames(df)
-        fges$edges <- NULL
+        images$nodes <- colnames(df)
+        images$edges <- NULL
         # print("Java exception was raised")
         # print(e)
     }else{
         V <- extractTetradNodes(tetrad_graph)
-    
-        fges$nodes <- V
-    
+        
+        images$nodes <- V
+        
         # extract edges
-        fges_edges <- extractTetradEdges(tetrad_graph)
-    
-        fges$edges <- fges_edges
+        images_edges <- extractTetradEdges(tetrad_graph)
+        
+        images$edges <- images_edges
     }
-
-    return(fges)
+    
+    return(images)
 }

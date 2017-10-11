@@ -1,5 +1,6 @@
-pcstable <- function(df, continuous = TRUE, depth = 3, aggressivelyPreventCycles = FALSE, 
-	significance = 0.05, verbose = FALSE, java.parameters = NULL, priorKnowledge = NULL){
+pcstable <- function(df, dataType = 0, numCategoriesToDiscretize = 4, depth = 3, alpha = 0.05, 
+	numBootstrap = -1, ensembleMethod = 'Highest', verbose = FALSE, 
+	java.parameters = NULL, priorKnowledge = NULL){
     
     params <- list(NULL)
     
@@ -9,17 +10,30 @@ pcstable <- function(df, continuous = TRUE, depth = 3, aggressivelyPreventCycles
     }
 
     # Data Frame to Independence Test
-    indTest = NULL
-    if(continuous){
+    indTest <- NULL
+    if(dataType == 0){
     	tetradData <- loadContinuousData(df)
-    	indTest <- .jnew("edu/cmu/tetrad/search/IndTestFisherZ", tetradData, significance)
-    }else{
+    	if(numBootstrap < 1){
+	    	indTest <- .jnew("edu/cmu/tetrad/search/IndTestFisherZ", tetradData, alpha)
+    	}else{
+    		indTest <- .jnew("edu/cmu/tetrad/algcomparison/independence/FisherZ")
+    	}
+    }else if(dataType == 1){
     	tetradData <- loadDiscreteData(df)
-    	indTest <- .jnew("edu/cmu/tetrad/search/IndTestChiSquare", tetradData, 
-    		significance)
+    	if(numBootstrap < 1){
+    		indTest <- .jnew("edu/cmu/tetrad/search/IndTestChiSquare", tetradData, alpha)
+    	}else{
+    		indTest <- .jnew("edu/cmu/tetrad/algcomparison/independence/ChiSquare")
+    	}
+    }else{
+    	tetradData <- loadMixedData(df, numCategoriesToDiscretize)
+    	if(numBootstrap < 1){
+    		indTest <- .jnew("edu/cmu/tetrad/search/IndTestConditionalGaussianLRT",
+        	    tetradData, alpha)
+    	}else{
+    		indTest <- .jnew("edu/cmu/tetrad/algcomparison/independence/ConditionalGaussianLRT")
+    	}
     }
-    
-	indTest <- .jcast(indTest, "edu/cmu/tetrad/search/IndependenceTest")
 
     pcstable <- list()
     class(pcstable) <- "pcstable"
@@ -29,21 +43,55 @@ pcstable <- function(df, continuous = TRUE, depth = 3, aggressivelyPreventCycles
     cat("Datasets:\n")
     cat(deparse(substitute(df)),"\n\n")
 
-    # Initiate PC-Stable
-    pcstable_instance <- .jnew("edu/cmu/tetrad/search/Pc", indTest)
-    .jcall(pcstable_instance, "V", "setDepth", as.integer(depth))
-    .jcall(pcstable_instance, "V", "setAggressivelyPreventCycles", 
-    	aggressivelyPreventCycles)
-    .jcall(pcstable_instance, "V", "setVerbose", verbose)
+	pcstable_instance <- NULL
+
+	if(numBootstrap < 1){
+		indTest <- .jcast(indTest, "edu/cmu/tetrad/search/IndependenceTest")
+
+    	# Initiate PC-Stable
+    	pcstable_instance <- .jnew("edu/cmu/tetrad/search/PcStable", indTest)
+    	.jcall(pcstable_instance, "V", "setDepth", as.integer(depth))
+    }else{
+    	indTest <- .jcast(indTest, "edu/cmu/tetrad/algcomparison/independence/IndependenceWrapper")
+		
+		algorithm <- .jnew("edu/cmu/tetrad/algcomparison/algorithm/oracle/pattern/PcStable", indTest)
+		algorithm <- .jcast(algorithm, "edu/cmu/tetrad/algcomparison/algorithm/Algorithm")
+		
+		# Parameters
+    	parameters_instance <- .jnew("edu/cmu/tetrad/util/Parameters")
+    
+    	obj_depth <- .jnew("java/lang/Integer", as.integer(depth))
+    	parameter_instance <- .jcast(obj_depth, "java/lang/Object")
+    	parameters_instance$set("depth", parameter_instance)
+    
+    	obj_alpha <- .jnew("java/lang/Double", alpha)
+    	parameter_instance <- .jcast(obj_alpha, "java/lang/Object")
+    	parameters_instance$set("alpha", parameter_instance)
+    	
+    	obj_verbose <- .jnew("java/lang/Boolean", verbose)
+    	parameter_instance <- .jcast(obj_verbose, "java/lang/Object")
+    	parameters_instance$set("verbose", parameter_instance)
+	
+		# Initiate Bootstrapping PC
+		pcstable_instance <- .jnew("edu/pitt/dbmi/algo/bootstrap/GeneralBootstrapTest", tetradData, algorithm, numBootstrap)
+		edgeEnsemble <- .jfield("edu/pitt/dbmi/algo/bootstrap/BootstrapEdgeEnsemble", name=ensembleMethod)
+		pcstable_instance$setEdgeEnsemble(edgeEnsemble)
+		pcstable_instance$setParameters(parameters_instance)
+    }
+    
+    pcstable_instance$setVerbose(verbose)
 
     if(!is.null(priorKnowledge)){
         .jcall(pcstable_instance, "V", "setKnowledge", priorKnowledge)
     }
 
-	params <- c(params, continuous = as.logical(continuous))
+	params <- c(params, dataType = as.integer(dataType))
     params <- c(params, depth = as.integer(depth))
-    params <- c(params, aggressivelyPreventCycles = as.logical(aggressivelyPreventCycles))
-    params <- c(params, significance = significance)
+    params <- c(params, alpha = alpha)
+    if(numBootstrap > 0){
+	    params <- c(params, numBootstrap = as.integer(numBootstrap))
+    	params <- c(params, ensembleMethod = ensembleMethod)
+    }
     params <- c(params, verbose = as.logical(verbose))
 
     if(!is.null(priorKnowledge)){
@@ -52,10 +100,13 @@ pcstable <- function(df, continuous = TRUE, depth = 3, aggressivelyPreventCycles
     pcstable$parameters <- params
 
     cat("Graph Parameters:\n")
-    cat("continuous = ", continuous, "\n")
+    cat("dataType = ", as.integer(dataType), "\n")
     cat("depth = ", as.integer(depth),"\n")
-    cat("aggressivelyPreventCycles = ", aggressivelyPreventCycles, "\n")
-    cat("significance = ", as.numeric(significance), "\n")
+    cat("alpha = ", alpha, "\n")
+    if(numBootstrap > 0){
+	    cat("numBootstrap = ", as.integer(numBootstrap),"\n")
+    	cat("ensembleMethod = ", ensembleMethod,"\n")
+    }
     cat("verbose = ", verbose, "\n")
 
     # Search

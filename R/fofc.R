@@ -5,7 +5,7 @@
 ## java.parameters = additional settings for java.
 ## Returns: latent variable clusters (as an edge list).
 fofc <- function(df, TestType = "TETRAD_WISHART", fofcAlgorithm = "GAP", 
-    alpha = .01, java.parameters = NULL){
+    alpha = .01, numBootstrap = -1, ensembleMethod = 'Highest', java.parameters = NULL){
      
     params <- list()
     params$java.parameters <- list()
@@ -21,9 +21,7 @@ fofc <- function(df, TestType = "TETRAD_WISHART", fofcAlgorithm = "GAP",
 	fofc <- list()
     class(fofc) <- "fofc"
 
-
     fofc$datasets <- deparse(substitute(data))
-
 
     params$TestType <- TestType
     params$fofcAlgorithm <- fofcAlgorithm
@@ -31,14 +29,51 @@ fofc <- function(df, TestType = "TETRAD_WISHART", fofcAlgorithm = "GAP",
 
     fofc$parameters <- params
 
-    fofcAlgorithmPath <- "edu/cmu/tetrad/search/FindOneFactorClusters"
-    TestTypePath <- "edu/cmu/tetrad/search/TestType"
+	fofc_instance <- NULL
 
-    ## Instantiate fofc object.
-    fofc_instance <- .jnew("edu/cmu/tetrad/search/FindOneFactorClusters",
-                           df, .jfield(TestTypePath,name=TestType),
-                           .jfield(paste(fofcAlgorithmPath, "$Algorithm", sep=""), name=fofcAlgorithm),
-                           as.double(alpha))
+	if(numBootstrap < 1){
+	    fofcAlgorithmPath <- "edu/cmu/tetrad/search/FindOneFactorClusters"
+    	TestTypePath <- "edu/cmu/tetrad/search/TestType"
+
+    	## Instantiate fofc object.
+    	fofc_instance <- .jnew("edu/cmu/tetrad/search/FindOneFactorClusters",
+        	                   df, .jfield(TestTypePath,name=TestType),
+            	               .jfield(paste(fofcAlgorithmPath, "$Algorithm", sep=""), name=fofcAlgorithm),
+                	           as.double(alpha))
+	
+	}else{
+		algorithm <- .jnew("edu/cmu/tetrad/algcomparison/algorithm/cluster/Fofc")
+		algorithm <- .jcast(algorithm, "edu/cmu/tetrad/algcomparison/algorithm/Algorithm")
+		
+		# Parameters
+    	parameters_instance <- .jnew("edu/cmu/tetrad/util/Parameters")
+    	
+    	useWishart = TRUE
+    	if(TestType != 'TETRAD_WISHART'){
+    		useWishart = FALSE;
+    	}
+    	obj_useWishart <- .jnew("java/lang/Boolean", useWishart)
+    	parameter_instance <- .jcast(obj_useWishart, "java/lang/Object")
+    	parameters_instance$set("useWishart", parameter_instance)
+    
+    	useGap = TRUE
+    	if(TestType != 'GAP'){
+    		useGap = FALSE;
+    	}
+    	obj_useGap <- .jnew("java/lang/Boolean", useGap)
+    	parameter_instance <- .jcast(obj_useGap, "java/lang/Object")
+    	parameters_instance$set("useGap", parameter_instance)
+
+    	obj_alpha <- .jnew("java/lang/Double", alpha)
+    	parameter_instance <- .jcast(obj_alpha, "java/lang/Object")
+    	parameters_instance$set("alpha", parameter_instance)
+    	
+    	# Initiate Bootstrapping FOFC
+		fofc_instance <- .jnew("edu/pitt/dbmi/algo/bootstrap/GeneralBootstrapTest", df, algorithm, numBootstrap)
+		edgeEnsemble <- .jfield("edu/pitt/dbmi/algo/bootstrap/BootstrapEdgeEnsemble", name=ensembleMethod)
+		fofc_instance$setEdgeEnsemble(edgeEnsemble)
+		fofc_instance$setParameters(parameters_instance)
+	}
 
     ## Search
     fofc_graph <- .jcall(fofc_instance, "Ledu/cmu/tetrad/graph/Graph;", "search")

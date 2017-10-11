@@ -1,4 +1,4 @@
-fas <- function(df, depth = 3, significance = 0.05, sepsetsReturnEmptyIfNotFixed = FALSE,
+fas <- function(df, depth = 3, alpha = 0.05, numBootstrap = -1, ensembleMethod = 'Highest',
     verbose = FALSE, java.parameters = NULL, priorKnowledge = NULL){
     
     params <- list(NULL)
@@ -8,12 +8,6 @@ fas <- function(df, depth = 3, significance = 0.05, sepsetsReturnEmptyIfNotFixed
         params <- c(java.parameters = java.parameters)
     }
     
-    # Data Frame to Independence Test
-    tetradData <- loadContinuousData(df)
-    indTest <- .jnew("edu/cmu/tetrad/search/IndTestFisherZ", tetradData, significance)
-    
-    indTest <- .jcast(indTest, "edu/cmu/tetrad/search/IndependenceTest")
-    
     fas <- list()
     class(fas) <- "fas"
     
@@ -22,19 +16,60 @@ fas <- function(df, depth = 3, significance = 0.05, sepsetsReturnEmptyIfNotFixed
     cat("Datasets:\n")
     cat(deparse(substitute(df)),"\n\n")
     
-    # Initiate FAS
-    fas_instance <- .jnew("edu/cmu/tetrad/search/Fas", indTest)
-    .jcall(fas_instance, "V", "setDepth", as.integer(depth))
-    .jcall(fas_instance, "V", "setSepsetsReturnEmptyIfNotFixed", sepsetsReturnEmptyIfNotFixed)
-    .jcall(fas_instance, "V", "setVerbose", verbose)
+    fas_instance <- NULL
+
+    tetradData <- loadContinuousData(df)
+    
+	if(numBootstrap < 1){
+	    # Data Frame to Independence Test
+    	indTest <- .jnew("edu/cmu/tetrad/search/IndTestFisherZ", tetradData, alpha)
+    
+    	indTest <- .jcast(indTest, "edu/cmu/tetrad/search/IndependenceTest")
+    
+    	# Initiate FAS
+    	fas_instance <- .jnew("edu/cmu/tetrad/search/Fas", indTest)
+    	.jcall(fas_instance, "V", "setDepth", as.integer(depth))
+	}else{
+		indTest <- .jnew("edu/cmu/tetrad/algcomparison/independence/FisherZ")
+		indTest <- .jcast(indTest, "edu/cmu/tetrad/algcomparison/independence/IndependenceWrapper")
+		
+		algorithm <- .jnew("edu/cmu/tetrad/algcomparison/algorithm/oracle/pattern/FAS", indTest)
+		algorithm <- .jcast(algorithm, "edu/cmu/tetrad/algcomparison/algorithm/Algorithm")
+	
+		# Parameters
+    	parameters_instance <- .jnew("edu/cmu/tetrad/util/Parameters")
+    
+    	obj_depth <- .jnew("java/lang/Integer", as.integer(depth))
+    	parameter_instance <- .jcast(obj_depth, "java/lang/Object")
+    	parameters_instance$set("depth", parameter_instance)
+    
+    	obj_alpha <- .jnew("java/lang/Double", alpha)
+    	parameter_instance <- .jcast(obj_alpha, "java/lang/Object")
+    	parameters_instance$set("alpha", parameter_instance)
+    	
+    	obj_verbose <- .jnew("java/lang/Boolean", verbose)
+    	parameter_instance <- .jcast(obj_verbose, "java/lang/Object")
+    	parameters_instance$set("verbose", parameter_instance)
+	
+		# Initiate Bootstrapping FAS
+		fas_instance <- .jnew("edu/pitt/dbmi/algo/bootstrap/GeneralBootstrapTest", tetradData, algorithm, numBootstrap)
+		edgeEnsemble <- .jfield("edu/pitt/dbmi/algo/bootstrap/BootstrapEdgeEnsemble", name=ensembleMethod)
+		fas_instance$setEdgeEnsemble(edgeEnsemble)
+		fas_instance$setParameters(parameters_instance)	
+	}
+	
+	fas_instance$setVerbose(verbose)
     
     if(!is.null(priorKnowledge)){
         .jcall(fas_instance, "V", "setKnowledge", priorKnowledge)
     }
     
     params <- c(params, depth = as.integer(depth))
-    params <- c(params, significance = significance)
-    params <- c(params, sepsetsReturnEmptyIfNotFixed = as.logical(sepsetsReturnEmptyIfNotFixed))
+    params <- c(params, alpha = alpha)
+    if(numBootstrap > 0){
+	    params <- c(params, numBootstrap = as.integer(numBootstrap))
+    	params <- c(params, ensembleMethod = ensembleMethod)
+    }
     params <- c(params, verbose = as.logical(verbose))
     
     if(!is.null(priorKnowledge)){
@@ -44,8 +79,11 @@ fas <- function(df, depth = 3, significance = 0.05, sepsetsReturnEmptyIfNotFixed
     
     cat("Graph Parameters:\n")
     cat("depth = ", as.integer(depth),"\n")
-    cat("significance = ", as.numeric(significance),"\n")
-    cat("sepsetsReturnEmptyIfNotFixed = ", sepsetsReturnEmptyIfNotFixed,"\n")
+    cat("alpha = ", as.numeric(alpha),"\n")
+    if(numBootstrap > 0){
+	    cat("numBootstrap = ", as.integer(numBootstrap),"\n")
+    	cat("ensembleMethod = ", ensembleMethod,"\n")
+    }
     cat("verbose = ", verbose,"\n")
     
     # Search

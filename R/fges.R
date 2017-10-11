@@ -19,7 +19,7 @@ fges <- function(df, penaltyDiscount = 4.0, maxDegree = 3,
 
     fges_instance <- NULL
     
-	if(numBootstrap < 0){
+	if(numBootstrap < 1){
 	    # Data Frame to Tetrad Dataset
     	score <- dataFrame2TetradSemBicScore(df, penaltyDiscount)
 
@@ -28,7 +28,6 @@ fges <- function(df, penaltyDiscount = 4.0, maxDegree = 3,
     	.jcall(fges_instance, "V", "setMaxDegree", as.integer(maxDegree))
     	.jcall(fges_instance, "V", "setNumPatternsToStore", as.integer(0))
     	.jcall(fges_instance, "V", "setFaithfulnessAssumed", faithfulnessAssumed)
-    	.jcall(fges_instance, "V", "setVerbose", verbose)
 	}else{
 		tetradData <- loadContinuousData(df)
 	
@@ -43,32 +42,28 @@ fges <- function(df, penaltyDiscount = 4.0, maxDegree = 3,
     
     	obj_penaltyDiscount <- .jnew("java/lang/Double", penaltyDiscount)
     	parameter_instance <- .jcast(obj_penaltyDiscount, "java/lang/Object")
-    	# .jcall(parameters_instance, "V", "set", "penaltyDiscount", parameter_instance)
     	parameters_instance$set("penaltyDiscount", parameter_instance)
     	
     	obj_maxDegree <- .jnew("java/lang/Integer", as.integer(maxDegree))
     	parameter_instance <- .jcast(obj_maxDegree, "java/lang/Object")
-    	# .jcall(parameters_instance, "V", "set", "maxDegree", parameter_instance)
     	parameters_instance$set("maxDegree", parameter_instance)
     
     	obj_faithfulnessAssumed <- .jnew("java/lang/Boolean", faithfulnessAssumed)
     	parameter_instance <- .jcast(obj_faithfulnessAssumed, "java/lang/Object")
-    	# .jcall(parameters_instance, "V", "set", "faithfulnessAssumed", parameter_instance)
     	parameters_instance$set("faithfulnessAssumed", parameter_instance)
     
     	obj_verbose <- .jnew("java/lang/Boolean", verbose)
     	parameter_instance <- .jcast(obj_verbose, "java/lang/Object")
-    	# .jcall(parameters_instance, "V", "set", "verbose", parameter_instance)
     	parameters_instance$set("verbose", parameter_instance)
     	
     	# Initiate Bootstrapping FGES
-		fges_instance <- .jnew("edu/pitt/dbmi/algo/bootstrap/GeneralBootstrapTest", 
-								tetradData, algorithm, numBootstrap)
-		edgeEnsemble <- .jfield("edu/pitt/dbmi/algo/bootstrap/BootstrapEdgeEnsemble", 
-								name=ensembleMethod)
+		fges_instance <- .jnew("edu/pitt/dbmi/algo/bootstrap/GeneralBootstrapTest", tetradData, algorithm, numBootstrap)
+		edgeEnsemble <- .jfield("edu/pitt/dbmi/algo/bootstrap/BootstrapEdgeEnsemble", name=ensembleMethod)
 		fges_instance$setEdgeEnsemble(edgeEnsemble)
 		fges_instance$setParameters(parameters_instance)
 	}
+
+	fges_instance$setVerbose(verbose)
 
     if(!is.null(priorKnowledge)){
         # .jcall(fges_instance, "V", "setKnowledge", priorKnowledge)
@@ -78,6 +73,10 @@ fges <- function(df, penaltyDiscount = 4.0, maxDegree = 3,
     params <- c(params, penaltyDiscount = as.double(penaltyDiscount))
     params <- c(params, maxDegree = as.integer(maxDegree))
     params <- c(params, faithfulnessAssumed = as.logical(faithfulnessAssumed))
+    if(numBootstrap > 0){
+	    params <- c(params, numBootstrap = as.integer(numBootstrap))
+    	params <- c(params, ensembleMethod = ensembleMethod)
+    }
     params <- c(params, verbose = as.logical(verbose))
 
     if(!is.null(priorKnowledge)){
@@ -89,6 +88,10 @@ fges <- function(df, penaltyDiscount = 4.0, maxDegree = 3,
     cat("penaltyDiscount = ", penaltyDiscount,"\n")
     cat("maxDegree = ", as.integer(maxDegree),"\n")
     cat("faithfulnessAssumed = ", faithfulnessAssumed,"\n")
+    if(numBootstrap > 0){
+	    cat("numBootstrap = ", as.integer(numBootstrap),"\n")
+    	cat("ensembleMethod = ", ensembleMethod,"\n")
+    }
     cat("verbose = ", verbose,"\n")
 
     # Search
