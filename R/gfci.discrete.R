@@ -138,6 +138,8 @@ gfci.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0,
         # print("Java exception was raised")
         # print(e)
     }else{
+    	gfci$graph <- tetrad_graph
+    	
         V <- extractTetradNodes(tetrad_graph)
         
         gfci$nodes <- V

@@ -111,6 +111,8 @@ fges.mixed <- function(df, numCategoriesToDiscretize = 4, penaltyDiscount = 4,
         # print("Java exception was raised")
         # print(e)
     }else{
+    	fges$graph <- tetrad_graph
+    	
         V <- extractTetradNodes(tetrad_graph)
         
         fges$nodes <- V

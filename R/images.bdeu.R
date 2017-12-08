@@ -108,6 +108,8 @@ images.bdeu <- function(dfs, structurePrior = 1.0, samplePrior = 1.0, maxDegree 
         # print("Java exception was raised")
         # print(e)
     }else{
+    	images$graph <- tetrad_graph
+    
         V <- extractTetradNodes(tetrad_graph)
         
         images$nodes <- V

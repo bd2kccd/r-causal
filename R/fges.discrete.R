@@ -113,6 +113,8 @@ fges.discrete <- function(df, structurePrior = 1.0, samplePrior = 1.0, maxDegree
         # print("Java exception was raised")
         # print(e)
     }else{
+    	fges$graph <- tetrad_graph
+    	
         V <- extractTetradNodes(tetrad_graph)
     
         fges$nodes <- V

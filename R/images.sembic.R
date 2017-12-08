@@ -101,6 +101,8 @@ images.sembic <- function(dfs, penaltyDiscount = 4.0, maxDegree = 3,
         # print("Java exception was raised")
         # print(e)
     }else{
+    	images$graph <- tetrad_graph
+    	
         V <- extractTetradNodes(tetrad_graph)
         
         images$nodes <- V

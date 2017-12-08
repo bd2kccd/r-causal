@@ -120,6 +120,8 @@ pc <- function(df, dataType = 0, numCategoriesToDiscretize = 4, depth = 3, alpha
         print("Java exception was raised")
         print(e)
     }else{
+    	pc$graph <- tetrad_graph
+    	
         V <- extractTetradNodes(tetrad_graph)
         
         pc$nodes <- V

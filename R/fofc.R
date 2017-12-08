@@ -85,6 +85,8 @@ fofc <- function(df, TestType = "TETRAD_WISHART", fofcAlgorithm = "GAP",
         print("Java exception was raised")
         print(e)
     }else{
+    	fofc$graph <- fofc_graph
+    
         V <- extractTetradNodes(fofc_graph)
 
         ## Get nodes.

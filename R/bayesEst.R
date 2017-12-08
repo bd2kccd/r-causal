@@ -66,6 +66,8 @@ bayesEst <- function(df, depth = 3, significance = 0.05, verbose = FALSE,
         est <- .jnew("edu/cmu/tetrad/bayes/MlBayesEstimator")
         im <- .jcall(est, "Ledu/cmu/tetrad/bayes/BayesIm;", "estimate", pm, tetradData)
         
+        bayesEst$graph <- dag_graph
+        
         V <- extractTetradNodes(dag_graph)
         
         bayesEst$nodes <- V

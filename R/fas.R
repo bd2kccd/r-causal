@@ -96,6 +96,8 @@ fas <- function(df, depth = 3, alpha = 0.05, numBootstrap = -1, ensembleMethod =
         # print("Java exception was raised")
         # print(e)
     }else{
+    	fas$graph <- tetrad_graph
+    	
         V <- extractTetradNodes(tetrad_graph)
         
         fas$nodes <- V

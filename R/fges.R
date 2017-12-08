@@ -105,6 +105,8 @@ fges <- function(df, penaltyDiscount = 4.0, maxDegree = 3,
         # print("Java exception was raised")
         # print(e)
     }else{
+    	fges$graph <- tetrad_graph
+    	
         V <- extractTetradNodes(tetrad_graph)
         
         fges$nodes <- V

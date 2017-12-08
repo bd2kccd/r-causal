@@ -1,6 +1,3 @@
-
-
-                                        
 ## Arguments:
 ## inputs = indices of input variables.
 ## outputs=indices of output variables.
@@ -13,8 +10,8 @@
 ## Returns an endogenous latent variable graph (as an edge list).
 
 
-dm <- function(inputs, outputs, useGES=TRUE, data, trueInputs, alphaPC=.05, alphaSober=.05, gesDiscount=10,
-    verbose = FALSE, minDiscount=4, java.parameters = NULL){
+dm <- function(inputs, outputs, useGES=TRUE, data, trueInputs, alphaPC=.05, alphaSober=.05, 
+	gesDiscount=10, verbose = FALSE, minDiscount=4, java.parameters = NULL){
     
     params <- list()
     params$java.parameters <- list()
@@ -89,6 +86,7 @@ dm <- function(inputs, outputs, useGES=TRUE, data, trueInputs, alphaPC=.05, alph
             }
         }      
 
+		dm$graph <- dm_graph
 
         ## Get nodes.
         dm$nodes <- V

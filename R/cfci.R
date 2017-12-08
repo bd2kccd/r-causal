@@ -120,6 +120,8 @@ cfci <- function(df, dataType = 0, numCategoriesToDiscretize = 4, depth = 3, alp
         print("Java exception was raised")
         print(e)
     }else{
+    	cfci$graph <- tetrad_graph
+    	
         V <- extractTetradNodes(tetrad_graph)
         
         cfci$nodes <- V

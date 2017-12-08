@@ -120,6 +120,8 @@ ccd <- function(df, dataType = 0, numCategoriesToDiscretize = 4, depth = 3, alph
         print("Java exception was raised")
         print(e)
     }else{
+    	ccd$graph <- tetrad_graph
+        
         V <- extractTetradNodes(tetrad_graph)
         
         ccd$nodes <- V

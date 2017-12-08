@@ -98,6 +98,8 @@ fas.mixed <- function(df, numCategoriesToDiscretize = 4, depth = 3, alpha = 0.05
         # print("Java exception was raised")
         # print(e)
     }else{
+    	fas$graph <- tetrad_graph
+    	
         V <- extractTetradNodes(tetrad_graph)
         
         fas$nodes <- V

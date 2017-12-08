@@ -105,6 +105,8 @@ rfci <- function(df, depth = 3, alpha = 0.05, completeRuleSetUsed = FALSE,
         print("Java exception was raised")
         print(e)
     }else{
+    	rfci$graph <- tetrad_graph
+    	
         V <- extractTetradNodes(tetrad_graph)
         
         rfci$nodes <- V

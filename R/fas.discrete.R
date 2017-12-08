@@ -97,6 +97,8 @@ fas.discrete <- function(df, depth = 3, alpha = 0.05, numBootstrap = -1,
         # print("Java exception was raised")
         # print(e)
     }else{
+    	fas$graph <- tetrad_graph
+    	
         V <- extractTetradNodes(tetrad_graph)
         
         fas$nodes <- V
