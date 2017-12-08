@@ -25,6 +25,7 @@ fges.discrete               Fast Greedy Equivalence Search for Causal and Statis
 fas                        Continuous Fast Adjacency Search
 fas.mixed					Mixed Data Fast Adjacency Search
 fas.discrete               Discrete Fast Adjacency Search
+lofs				Ling Orientation Fixed Structure
 priorKnowledge              Prior Knowledge Object Creation Function
 priorKnowledgeFromFile      Load Prior Knowledge File Function
 randomDag					Generating a Random Directed Acyclic Graph algorithm

@@ -1,6 +1,6 @@
 Package: rcausal
-Version: 0.99.10
-Date: 2017-10-11
+Version: 0.99.11
+Date: 2017-12-8
 Title: R-Causal Library
 Author: Chirayu Wongchokprasitti
 Maintainer: Chirayu Wongchokprasitti <chw20@pitt.edu>
@@ -12,4 +12,4 @@ SystemRequirements: Java (>= 1.8), JRI
 License: LGPL (>= 2.1)
 biocViews: Bayesian, GraphAndNetwork
 NeedsCompilation: no
-Packaged: 2017-10-11 EDT
+Packaged: 2017-12-8 EDT

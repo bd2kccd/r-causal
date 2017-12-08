@@ -30,5 +30,6 @@ export("priorKnowledge")
 export("priorKnowledgeFromFile")
 export("randomDag")
 export("fofc")
+export("lofs")
 # Export all names
 # exportPattern(".")
