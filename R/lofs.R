@@ -25,6 +25,7 @@ lofs <- function(tetradGraph, dfs, dataType = 0, numCategoriesToDiscretize = 4, 
     	}
         datasets$add(boxData)
     }
+    datasets <- .jcast(datasets, "java/util/List")
     
 	lofs <- list()
     class(lofs) <- "lofs"
