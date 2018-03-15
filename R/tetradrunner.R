@@ -38,6 +38,7 @@ tetradrunner <- function(algoId, dfs,testId = NULL, scoreId = NULL, priorKnowled
 	  	testAnno_instance <- .jnew("edu/cmu/tetrad/annotation/TestOfIndependenceAnnotations")
   		testClasses <- testAnno_instance$getInstance()$getAnnotatedClasses()
   		tests <- testClasses$toArray()
+  		
 		for(i in 1:tests$length){
 	  		test <- tests[[i]]
   			if(test$getAnnotation()$command() == testId){
@@ -54,6 +55,7 @@ tetradrunner <- function(algoId, dfs,testId = NULL, scoreId = NULL, priorKnowled
 	  	scoreAnno_instance <- .jnew("edu/cmu/tetrad/annotation/ScoreAnnotations")
   		scoreClasses <- scoreAnno_instance$getInstance()$getAnnotatedClasses()
   		scores <- scoreClasses$toArray()
+  		
 		for(i in 1:scores$length){
 	  		score <- scores[[i]]
   			if(score$getAnnotation()$command() == scoreId){
@@ -98,7 +100,7 @@ tetradrunner <- function(algoId, dfs,testId = NULL, scoreId = NULL, priorKnowled
   
   if(!is.null(priorKnowledge)){
         algo_instance$setKnowledge(priorKnowledge)
-    }
+  }
   
   # Parameters
   paramDescs_instance <- .jnew("edu/cmu/tetrad/util/ParamDescriptions")
@@ -120,7 +122,7 @@ tetradrunner <- function(algoId, dfs,testId = NULL, scoreId = NULL, priorKnowled
     				obj_value <- .jnew("java/lang/Double", value)
     		}
 	    	
-    		parameter_instance <- `(obj_value, "java/lang/Object")
+    		parameter_instance <- .jcast(obj_value, "java/lang/Object")
 	    	parameters_instance$set(arg, parameter_instance)
 	    	
     	}
