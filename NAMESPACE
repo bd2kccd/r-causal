@@ -31,5 +31,6 @@ export("priorKnowledgeFromFile")
 export("randomDag")
 export("fofc")
 export("lofs")
+export("tetradrunner")
 # Export all names
 # exportPattern(".")
