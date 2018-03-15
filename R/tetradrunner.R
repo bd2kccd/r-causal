@@ -27,7 +27,7 @@ tetradrunner <- function(algoId, dfs,testId = NULL, scoreId = NULL, priorKnowled
   		}
   }
   
-  if(is.null(algo_instance)){
+  if(is.null(algoClass)){
   		return(tetradrunner)
   }
 
