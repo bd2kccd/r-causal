@@ -18,15 +18,16 @@ tetradrunner <- function(algoId, dfs,testId = NULL, scoreId = NULL, priorKnowled
   
   algoClass <- NULL
   
-  for(i in 1:algoClasses$size()){
-  		algo <- algoClasses$get(i-1)
+  algos <- algoClasses$toArray()
+  for(i in 1:algos$length){
+  		algo <- algos[[i]]
   		if(algo$getAnnotation()$command() == algoId){
   			algoClass <- algo
   			break
   		}
   }
   
-  if(algo_instance == NULL){
+  if(is.null(algo_instance)){
   		return(tetradrunner)
   }
 
@@ -36,9 +37,9 @@ tetradrunner <- function(algoId, dfs,testId = NULL, scoreId = NULL, priorKnowled
   if(!is.null(testId)){
 	  	testAnno_instance <- .jnew("edu/cmu/tetrad/annotation/TestOfIndependenceAnnotations")
   		testClasses <- testAnno_instance$getInstance()$getAnnotatedClasses()
-  
-		for(i in 1:testClasses$size()){
-	  		test <- testClasses$get(i-1)
+  		tests <- testClasses$toArray()
+		for(i in 1:tests$length){
+	  		test <- tests[[i]]
   			if(test$getAnnotation()$command() == testId){
   				testClass <- test
   				break
@@ -52,9 +53,9 @@ tetradrunner <- function(algoId, dfs,testId = NULL, scoreId = NULL, priorKnowled
   if(!is.null(scoreId)){
 	  	scoreAnno_instance <- .jnew("edu/cmu/tetrad/annotation/ScoreAnnotations")
   		scoreClasses <- scoreAnno_instance$getInstance()$getAnnotatedClasses()
-  
-		for(i in 1:scoreClasses$size()){
-	  		score <- scoreClasses$get(i-1)
+  		scores <- scoreClasses$toArray()
+		for(i in 1:scores$length){
+	  		score <- scores[[i]]
   			if(score$getAnnotation()$command() == scoreId){
   				scoreClass <- score
   				break
@@ -119,7 +120,7 @@ tetradrunner <- function(algoId, dfs,testId = NULL, scoreId = NULL, priorKnowled
     				obj_value <- .jnew("java/lang/Double", value)
     		}
 	    	
-    		parameter_instance <- .jcast(obj_value, "java/lang/Object")
+    		parameter_instance <- `(obj_value, "java/lang/Object")
 	    	parameters_instance$set(arg, parameter_instance)
 	    	
     	}
