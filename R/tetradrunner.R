@@ -105,7 +105,7 @@ tetradrunner <- function(algoId, dfs,testId = NULL, scoreId = NULL, priorKnowled
   
   parameters_instance <- .jnew("edu/cmu/tetrad/util/Parameters")
   for(arg in names(arguments)){
-    	if(!is.null(paramDescs_instance$get(arg)){
+    	if(!is.null(paramDescs_instance$get(arg))){
     		
     		value <- arguments[arg]
     		parameter_instance <- NULL
