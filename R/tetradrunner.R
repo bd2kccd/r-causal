@@ -72,9 +72,9 @@ tetradrunner <- function(algoId, dfs,testId = NULL, scoreId = NULL, priorKnowled
   	dataset <- NULL
   	if(!is.list(dfs)){
 
-  		if(dataType == 0){
+  		if(dataType == 'continuous'){
   				dataset <- loadContinuousData(df)
-  		}else if(dataType == 1){
+  		}else if(dataType == 'discrete'){
   				dataset <- loadDiscreteData(df)
   		}else{
   				dataset <- loadMixedData(df, numCategoriesToDiscretize)
