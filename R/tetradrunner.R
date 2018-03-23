@@ -11,22 +11,66 @@ tetradrunner <- function(algoId, dfs,testId = NULL, scoreId = NULL, priorKnowled
         params <- c(java.parameters = java.parameters)
   }
   
+  	algoAnno_instance <- .jcall("edu/cmu/tetrad/annotation/AlgorithmAnnotations",
+							"Ledu/cmu/tetrad/annotation/AlgorithmAnnotations;",
+							"getInstance")
+  	algoClasses <- algoAnno_instance$getAnnotatedClasses()
   
-  argsList <- c("--algorithm",algoId,"--data-type",dataType)
+  	algoClass <- .jnull("java/lang/Class")
+  	
+  	algoClasses <- algoClasses$toArray()
+  	for(i in 1:algoClasses$length){
+  		algo <- algoClasses[[i]]		
+  		cmd <- algo$getAnnotation()$command()
+  		 		
+  		if(cmd == algoId){
+  			algoClass <- algo$getClazz()
+  			break
+  		}
+	}
 
-  # testId
-  if(!is.null(testId)){
-  		argsList <- c(argsList,"--test",testId)
-  }
+  	# testId
+  	testClass <- .jnull("java/lang/Class")
+	if(!is.null(testId)){
+		testAnno_instance <- .jcall("edu/cmu/tetrad/annotation/TestOfIndependenceAnnotations",
+								"Ledu/cmu/tetrad/annotation/TestOfIndependenceAnnotations;",
+								"getInstance")
+  		testClasses <- testAnno_instance$getAnnotatedClasses()
+  		testClasses <- testClasses$toArray()
+  		
+		for(i in 1:testClasses$length){
+			test <- testClasses[[i]]
+	  		cmd <- test$getAnnotation()$command()
+		  	
+		  	if(cmd == testId){
+		  		testClass <- test
+		  		break
+		  	}
+		}	
+	}
   
-  # scoreId
-  if(!is.null(scoreId)){
-		argsList <- c(argsList,"--score",scoreId)
-  }
+	# scoreId
+	scoreClass <- .jnull("java/lang/Class")
+	
+	scoreAnno_instance <- .jcall("edu/cmu/tetrad/annotation/ScoreAnnotations",
+							"Ledu/cmu/tetrad/annotation/ScoreAnnotations;",
+							"getInstance")
+  	scoreClasses <- scoreAnno_instance$getAnnotatedClasses()
+  	scoreClasses <- scoreClasses$toArray()
+  		
+	for(i in 1:scoreClasses$length){
+		score <- scoreClasses[[i]]
+	  	cmd <- score$getAnnotation()$command()
+	  	
+	  	if(cmd == scoreId){
+  			scoreClass <- score$getClazz()
+  			break
+  		}
+	}	
   
-  # dataset
-  dataset <- ""
-  if(!is.list(dfs)){
+  	# dataset
+  	dataset <- NULL
+  	if(!is.list(dfs)){
 
   		if(dataType == 0){
   				dataset <- loadContinuousData(df)
@@ -35,8 +79,10 @@ tetradrunner <- function(algoId, dfs,testId = NULL, scoreId = NULL, priorKnowled
   		}else{
   				dataset <- loadMixedData(df, numCategoriesToDiscretize)
   		}
+  		
+  		dataset <- .jcast(dataset, 'edu/cmu/tetrad/data/DataModel')
  	    
-  }else{
+  	}else{
   		
   		dataset <- .jnew("java/util/ArrayList")
 	    for(i in 1:length(dfs)){
@@ -50,23 +96,26 @@ tetradrunner <- function(algoId, dfs,testId = NULL, scoreId = NULL, priorKnowled
   					tetradData <- loadMixedData(df, numCategoriesToDiscretize)
   			}
     	    
+    	    tetradData <- .jcast(tetradData, 'edu/cmu/tetrad/data/DataModel')
+    	    
         	dataset$add(tetradData)
     	}
-  }
+    	
+    	dataset <- .jcast(dataset, "java/util/List")
+  	}
   
-  # algoFactory_instance <- .jnew("edu/cmu/tetrad/algcomparison/algorithm/AlgorithmFactory")
-  algo_instance <- .jcall("edu/cmu/tetrad/algcomparison/algorithm/AlgorithmFactory",
-  						"Ledu/cmu/tetrad/algcomparison/algorithm/Algorithm;",
-  						"create",algoClass, testClass, scoreClass)
-  # algoFactory_instance$create(algoClass, testClass, scoreClass)
+  	algo_instance <- .jcall("edu/cmu/tetrad/algcomparison/algorithm/AlgorithmFactory",
+  							"Ledu/cmu/tetrad/algcomparison/algorithm/Algorithm;",
+  							"create",algoClass, testClass, scoreClass)
   
-  if(!is.null(priorKnowledge)){
-        algo_instance$setKnowledge(priorKnowledge)
-  }
+  	if(!is.null(priorKnowledge)){
+    	algo_instance$setKnowledge(priorKnowledge)
+  	}
   
   # Parameters
-  paramDescs_instance <- .jnew("edu/cmu/tetrad/util/ParamDescriptions")
-  paramDescs_instance <- paramDescs_instance$getInstance()
+  paramDescs_instance <- .jcall("edu/cmu/tetrad/util/ParamDescriptions",
+  								"Ledu/cmu/tetrad/util/ParamDescriptions;",
+  								"getInstance")
   
   parameters_instance <- .jnew("edu/cmu/tetrad/util/Parameters")
   for(arg in names(arguments)){
@@ -197,59 +246,81 @@ testrunner.getAlgorithmDescription <- function(algoId){
 	}
 }
 
-#testrunner.getAlgorithmParameters <- function(algoId, testId = NULL, scoreId = NULL){
-#	algoAnno_instance <- .jcall("edu/cmu/tetrad/annotation/AlgorithmAnnotations",
-#							"Ledu/cmu/tetrad/annotation/AlgorithmAnnotations;",
-#							"getInstance")
-#  	algoClasses <- algoAnno_instance$getAnnotatedClasses()
-#  
-#  	algoClass <- NULL
-#  	
-#  	algoClasses <- algoClasses$toArray()
-#  	for(i in 1:algoClasses$length){
-#  		algo <- algoClasses[[i]]		
-#  		cmd <- algo$getAnnotation()$command()
-#  		
-# 		
-#  		if(cmd == algoId){
-#  			algoClass <- algo$getClazz()
-#  			break
-#  		}
-#	}
-#	
-#	# testId
-#	
-#	testClass <- .jnull()
-#	
-#	if(!is.null(testId)){
-#		testAnno_instance <- .jcall("edu/cmu/tetrad/annotation/TestOfIndependenceAnnotations",
-#								"Ledu/cmu/tetrad/annotation/TestOfIndependenceAnnotations;",
-#								"getInstance")
-#  		testClasses <- testAnno_instance$getAnnotatedClasses()
-#  		testClasses <- testClasses$toArray()
-#  		
-#		for(i in 1:testClasses$length){
-#			test <- testClasses[[i]]
-#	  		cmd <- test$getAnnotation()$command()
-#		  	
-#		  	if(cmd == testId){
-#		  		testClass <- test
-#		  		break
-#		  	}
-#		}	
-#	}
-#
-#	# scoreId
-#	scoreAnno_instance <- .jcall("edu/cmu/tetrad/annotation/ScoreAnnotations",
-#							"Ledu/cmu/tetrad/annotation/ScoreAnnotations;",
-#							"getInstance")
-#  	scoreClasses <- scoreAnno_instance$getAnnotatedClasses()
-#  	scoreClasses <- scoreClasses$toArray()
-#  		
-#	for(i in 1:scoreClasses$length){
-#		score <- scoreClasses[[i]]
-#	  	cmd <- score$getAnnotation()$command()
-#	  	cat(cmd,"\n")
-#	}	
-#	
-#}
+testrunner.getAlgorithmParameters <- function(algoId, testId = NULL, scoreId = NULL){
+	algoAnno_instance <- .jcall("edu/cmu/tetrad/annotation/AlgorithmAnnotations",
+							"Ledu/cmu/tetrad/annotation/AlgorithmAnnotations;",
+							"getInstance")
+  	algoClasses <- algoAnno_instance$getAnnotatedClasses()
+  
+  	algoClass <- .jnull("java/lang/Class")
+  	
+  	algoClasses <- algoClasses$toArray()
+  	for(i in 1:algoClasses$length){
+  		algo <- algoClasses[[i]]		
+  		cmd <- algo$getAnnotation()$command()
+  		 		
+  		if(cmd == algoId){
+  			algoClass <- algo$getClazz()
+  			break
+  		}
+	}
+	
+	# testId
+	testClass <- .jnull("java/lang/Class")
+	
+	if(!is.null(testId)){
+		testAnno_instance <- .jcall("edu/cmu/tetrad/annotation/TestOfIndependenceAnnotations",
+								"Ledu/cmu/tetrad/annotation/TestOfIndependenceAnnotations;",
+								"getInstance")
+  		testClasses <- testAnno_instance$getAnnotatedClasses()
+  		testClasses <- testClasses$toArray()
+  		
+		for(i in 1:testClasses$length){
+			test <- testClasses[[i]]
+	  		cmd <- test$getAnnotation()$command()
+		  	
+		  	if(cmd == testId){
+		  		testClass <- test
+		  		break
+		  	}
+		}	
+	}
+
+	# scoreId
+	scoreClass <- .jnull("java/lang/Class")
+	
+	scoreAnno_instance <- .jcall("edu/cmu/tetrad/annotation/ScoreAnnotations",
+							"Ledu/cmu/tetrad/annotation/ScoreAnnotations;",
+							"getInstance")
+  	scoreClasses <- scoreAnno_instance$getAnnotatedClasses()
+  	scoreClasses <- scoreClasses$toArray()
+  		
+	for(i in 1:scoreClasses$length){
+		score <- scoreClasses[[i]]
+	  	cmd <- score$getAnnotation()$command()
+	  	
+	  	if(cmd == scoreId){
+  			scoreClass <- score$getClazz()
+  			break
+  		}
+	}
+	
+	algo_instance <- .jcall("edu/cmu/tetrad/algcomparison/algorithm/AlgorithmFactory",
+  							"Ledu/cmu/tetrad/algcomparison/algorithm/Algorithm;",
+  							"create",algoClass, testClass, scoreClass)
+	
+	algoParams <- algo_instance$getParameters()
+		
+	paramDescs_instance <- .jcall("edu/cmu/tetrad/util/ParamDescriptions",
+  								"Ledu/cmu/tetrad/util/ParamDescriptions;",
+  								"getInstance")
+	for(i in 0:(algoParams$size()-1)){
+		algoParam <- algoParams$get(i)
+		paramDesc <- paramDescs_instance$get(algoParam)
+		defaultValue <- paramDesc$getDefaultValue()
+		desc <- paramDesc$getDescription()
+		
+		cat("\n",algoParam,": ",desc," [default:",defaultValue,"]")
+	}
+	
+}
