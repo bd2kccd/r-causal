@@ -69,39 +69,39 @@ tetradrunner <- function(algoId, dfs,testId = NULL, scoreId = NULL, priorKnowled
 	}	
   
   	# dataset
-  	dataset <- NULL
+  	tetradData <- NULL
   	if(!is.list(dfs)){
 
   		if(dataType == 'continuous'){
-  				dataset <- loadContinuousData(df)
+  				tetradData <- loadContinuousData(dfs)
   		}else if(dataType == 'discrete'){
-  				dataset <- loadDiscreteData(df)
+  				tetradData <- loadDiscreteData(dfs)
   		}else{
-  				dataset <- loadMixedData(df, numCategoriesToDiscretize)
+  				tetradData <- loadMixedData(dfs, numCategoriesToDiscretize)
   		}
   		
-  		dataset <- .jcast(dataset, 'edu/cmu/tetrad/data/DataModel')
+  		tetradData <- .jcast(tetradData, 'edu/cmu/tetrad/data/DataModel')
  	    
   	}else{
   		
-  		dataset <- .jnew("java/util/ArrayList")
+  		tetradData <- .jnew("java/util/ArrayList")
 	    for(i in 1:length(dfs)){
     	    df <- dfs[[i]]
     	    
     	    if(dataType == 'continuous'){
-	  				tetradData <- loadContinuousData(df)
+	  				df <- loadContinuousData(df)
   			}else if(dataType == 'discrete'){
-  					tetradData <- loadDiscreteData(df)
+  					df <- loadDiscreteData(df)
   			}else{
-  					tetradData <- loadMixedData(df, numCategoriesToDiscretize)
+  					df <- loadMixedData(df, numCategoriesToDiscretize)
   			}
     	    
-    	    tetradData <- .jcast(tetradData, 'edu/cmu/tetrad/data/DataModel')
+    	    df <- .jcast(df, 'edu/cmu/tetrad/data/DataModel')
     	    
-        	dataset$add(tetradData)
+        	tetradData$add(df)
     	}
     	
-    	dataset <- .jcast(dataset, "java/util/List")
+    	tetradData <- .jcast(tetradData, "java/util/List")
   	}
   
   	algo_instance <- .jcall("edu/cmu/tetrad/algcomparison/algorithm/AlgorithmFactory",
@@ -143,7 +143,7 @@ tetradrunner <- function(algoId, dfs,testId = NULL, scoreId = NULL, priorKnowled
   
   # Search
   tetrad_graph <- .jcall(algo_instance, "Ledu/cmu/tetrad/graph/Graph;", 
-        "search", dataset, parameters_instance, check=FALSE)
+        "search", tetradData, parameters_instance, check=FALSE)
 
     if(!is.null(e <- .jgetEx())){
         .jclear()
@@ -212,7 +212,7 @@ tetradrunner.listScores <- function(){
 	}
 }
 
-testrunner.getAlgorithmDescription <- function(algoId){
+tetradrunner.getAlgorithmDescription <- function(algoId){
 	algoAnno_instance <- .jcall("edu/cmu/tetrad/annotation/AlgorithmAnnotations",
 							"Ledu/cmu/tetrad/annotation/AlgorithmAnnotations;",
 							"getInstance")
