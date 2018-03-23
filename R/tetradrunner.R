@@ -1,5 +1,5 @@
 tetradrunner <- function(algoId, dfs,testId = NULL, scoreId = NULL, priorKnowledge = NULL, 
-	dataType = 0, numCategoriesToDiscretize = 4,java.parameters = NULL,...) {
+	dataType = 'continuous', numCategoriesToDiscretize = 4,java.parameters = NULL,...) {
   
   arguments <- list(...)
   params <- list()
@@ -11,62 +11,21 @@ tetradrunner <- function(algoId, dfs,testId = NULL, scoreId = NULL, priorKnowled
         params <- c(java.parameters = java.parameters)
   }
   
-  # algoId
-  # Initiate Algorithm Annotations
-  algoAnno_instance <- .jnew("edu/cmu/tetrad/annotation/AlgorithmAnnotations")
-  algoClasses <- algoAnno_instance$getInstance()$getAnnotatedClasses()
   
-  algoClass <- NULL
-  
-  algos <- algoClasses$toArray()
-  for(i in 1:algos$length){
-  		algo <- algos[[i]]
-  		if(algo$getAnnotation()$command() == algoId){
-  			algoClass <- algo
-  			break
-  		}
-  }
-  
-  if(is.null(algoClass)){
-  		return(tetradrunner)
-  }
+  argsList <- c("--algorithm",algoId,"--data-type",dataType)
 
   # testId
-  testClass <- NULL
-  
   if(!is.null(testId)){
-	  	testAnno_instance <- .jnew("edu/cmu/tetrad/annotation/TestOfIndependenceAnnotations")
-  		testClasses <- testAnno_instance$getInstance()$getAnnotatedClasses()
-  		tests <- testClasses$toArray()
-  		
-		for(i in 1:tests$length){
-	  		test <- tests[[i]]
-  			if(test$getAnnotation()$command() == testId){
-  				testClass <- test
-  				break
-  			}
-  		}  
+  		argsList <- c(argsList,"--test",testId)
   }
   
   # scoreId
-  scoreClass <- NULL
-  
   if(!is.null(scoreId)){
-	  	scoreAnno_instance <- .jnew("edu/cmu/tetrad/annotation/ScoreAnnotations")
-  		scoreClasses <- scoreAnno_instance$getInstance()$getAnnotatedClasses()
-  		scores <- scoreClasses$toArray()
-  		
-		for(i in 1:scores$length){
-	  		score <- scores[[i]]
-  			if(score$getAnnotation()$command() == scoreId){
-  				scoreClass <- score
-  				break
-  			}
-  		}  
+		argsList <- c(argsList,"--score",scoreId)
   }
   
-  dataset <- NULL
-  
+  # dataset
+  dataset <- ""
   if(!is.list(dfs)){
 
   		if(dataType == 0){
@@ -83,9 +42,9 @@ tetradrunner <- function(algoId, dfs,testId = NULL, scoreId = NULL, priorKnowled
 	    for(i in 1:length(dfs)){
     	    df <- dfs[[i]]
     	    
-    	    if(dataType == 0){
+    	    if(dataType == 'continuous'){
 	  				tetradData <- loadContinuousData(df)
-  			}else if(dataType == 1){
+  			}else if(dataType == 'discrete'){
   					tetradData <- loadDiscreteData(df)
   			}else{
   					tetradData <- loadMixedData(df, numCategoriesToDiscretize)
@@ -95,8 +54,11 @@ tetradrunner <- function(algoId, dfs,testId = NULL, scoreId = NULL, priorKnowled
     	}
   }
   
-  algoFactory_instance <- .jnew("edu/cmu/tetrad/algcomparison/algorithm/AlgorithmFactory")
-  algo_instance <- algoFactory_instance$create(algoClass, testClass, scoreClass)
+  # algoFactory_instance <- .jnew("edu/cmu/tetrad/algcomparison/algorithm/AlgorithmFactory")
+  algo_instance <- .jcall("edu/cmu/tetrad/algcomparison/algorithm/AlgorithmFactory",
+  						"Ledu/cmu/tetrad/algcomparison/algorithm/Algorithm;",
+  						"create",algoClass, testClass, scoreClass)
+  # algoFactory_instance$create(algoClass, testClass, scoreClass)
   
   if(!is.null(priorKnowledge)){
         algo_instance$setKnowledge(priorKnowledge)
@@ -155,3 +117,139 @@ tetradrunner <- function(algoId, dfs,testId = NULL, scoreId = NULL, priorKnowled
     
     return(tetradrunner)
 }
+
+tetradrunner.listAlgorithms <- function(){
+	algoAnno_instance <- .jcall("edu/cmu/tetrad/annotation/AlgorithmAnnotations",
+							"Ledu/cmu/tetrad/annotation/AlgorithmAnnotations;",
+							"getInstance")
+  	algoClasses <- algoAnno_instance$getAnnotatedClasses()
+  
+  	algoClasses <- algoClasses$toArray()
+  	for(i in 1:algoClasses$length){
+  		algo <- algoClasses[[i]]		
+  		algoType <- algo$getAnnotation()$algoType()$toString()
+  		if(algoType != 'orient_pairwise'){
+	  		cmd <- algo$getAnnotation()$command()
+  			cat(cmd,"\n")
+  		}
+  	}
+}
+
+tetradrunner.listIndTests <- function(){
+	testAnno_instance <- .jcall("edu/cmu/tetrad/annotation/TestOfIndependenceAnnotations",
+							"Ledu/cmu/tetrad/annotation/TestOfIndependenceAnnotations;",
+							"getInstance")
+  	testClasses <- testAnno_instance$getAnnotatedClasses()
+  	testClasses <- testClasses$toArray()
+  		
+	for(i in 1:testClasses$length){
+		test <- testClasses[[i]]
+	  	cmd <- test$getAnnotation()$command()
+	  	cat(cmd,"\n")
+	}
+}
+
+tetradrunner.listScores <- function(){
+	scoreAnno_instance <- .jcall("edu/cmu/tetrad/annotation/ScoreAnnotations",
+							"Ledu/cmu/tetrad/annotation/ScoreAnnotations;",
+							"getInstance")
+  	scoreClasses <- scoreAnno_instance$getAnnotatedClasses()
+  	scoreClasses <- scoreClasses$toArray()
+  		
+	for(i in 1:scoreClasses$length){
+		score <- scoreClasses[[i]]
+	  	cmd <- score$getAnnotation()$command()
+	  	cat(cmd,"\n")
+	}
+}
+
+testrunner.getAlgorithmDescription <- function(algoId){
+	algoAnno_instance <- .jcall("edu/cmu/tetrad/annotation/AlgorithmAnnotations",
+							"Ledu/cmu/tetrad/annotation/AlgorithmAnnotations;",
+							"getInstance")
+  	algoClasses <- algoAnno_instance$getAnnotatedClasses()
+  
+  	algoClass <- NULL
+  	algoAnno <- NULL
+  	
+  	algoClasses <- algoClasses$toArray()
+  	for(i in 1:algoClasses$length){
+  		algo <- algoClasses[[i]]		
+  		cmd <- algo$getAnnotation()$command()
+  		
+  		
+  		if(cmd == algoId){
+  			algoClass <- algo$getClazz()
+  			algoAnno <- algo$getAnnotation()
+  			break
+  		}
+	}
+	
+	cat(algoAnno$name(), " : ", algoAnno$description())
+	if(algoAnno_instance$requireIndependenceTest(algoClass)){
+		cat("\nIt requires the independence test.")
+	}
+	if(algoAnno_instance$requireScore(algoClass)){
+		cat("\nIt requires the score.")
+	}
+	if(algoAnno_instance$acceptKnowledge(algoClass)){
+		cat("\nIt accepts the prior knowledge.")
+	}
+}
+
+#testrunner.getAlgorithmParameters <- function(algoId, testId = NULL, scoreId = NULL){
+#	algoAnno_instance <- .jcall("edu/cmu/tetrad/annotation/AlgorithmAnnotations",
+#							"Ledu/cmu/tetrad/annotation/AlgorithmAnnotations;",
+#							"getInstance")
+#  	algoClasses <- algoAnno_instance$getAnnotatedClasses()
+#  
+#  	algoClass <- NULL
+#  	
+#  	algoClasses <- algoClasses$toArray()
+#  	for(i in 1:algoClasses$length){
+#  		algo <- algoClasses[[i]]		
+#  		cmd <- algo$getAnnotation()$command()
+#  		
+# 		
+#  		if(cmd == algoId){
+#  			algoClass <- algo$getClazz()
+#  			break
+#  		}
+#	}
+#	
+#	# testId
+#	
+#	testClass <- .jnull()
+#	
+#	if(!is.null(testId)){
+#		testAnno_instance <- .jcall("edu/cmu/tetrad/annotation/TestOfIndependenceAnnotations",
+#								"Ledu/cmu/tetrad/annotation/TestOfIndependenceAnnotations;",
+#								"getInstance")
+#  		testClasses <- testAnno_instance$getAnnotatedClasses()
+#  		testClasses <- testClasses$toArray()
+#  		
+#		for(i in 1:testClasses$length){
+#			test <- testClasses[[i]]
+#	  		cmd <- test$getAnnotation()$command()
+#		  	
+#		  	if(cmd == testId){
+#		  		testClass <- test
+#		  		break
+#		  	}
+#		}	
+#	}
+#
+#	# scoreId
+#	scoreAnno_instance <- .jcall("edu/cmu/tetrad/annotation/ScoreAnnotations",
+#							"Ledu/cmu/tetrad/annotation/ScoreAnnotations;",
+#							"getInstance")
+#  	scoreClasses <- scoreAnno_instance$getAnnotatedClasses()
+#  	scoreClasses <- scoreClasses$toArray()
+#  		
+#	for(i in 1:scoreClasses$length){
+#		score <- scoreClasses[[i]]
+#	  	cmd <- score$getAnnotation()$command()
+#	  	cat(cmd,"\n")
+#	}	
+#	
+#}
