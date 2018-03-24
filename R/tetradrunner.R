@@ -2,6 +2,7 @@ tetradrunner <- function(algoId, df = NULL, dfs = NULL, testId = NULL, scoreId =
 	dataType = 'continuous', numCategoriesToDiscretize = 4,java.parameters = NULL,...) {
   
   	arguments <- list(...)
+  	
   	params <- list()
   	# result
   	tetradrunner <- list()
@@ -17,6 +18,7 @@ tetradrunner <- function(algoId, df = NULL, dfs = NULL, testId = NULL, scoreId =
   	algoClasses <- algoAnno_instance$getAnnotatedClasses()
   
   	algoClass <- .jnull("java/lang/Class")
+  	algoAnno <- NULL
   	
   	algoClasses <- algoClasses$toArray()
   	for(i in 1:algoClasses$length){
@@ -25,50 +27,102 @@ tetradrunner <- function(algoId, df = NULL, dfs = NULL, testId = NULL, scoreId =
   		 		
   		if(cmd == algoId){
   			algoClass <- algo$getClazz()
+  			algoAnno <- algo$getAnnotation()
   			break
   		}
 	}
-
+	
+	if(is.null(algoAnno)){
+		cat(algoId,' is not found!\n')
+		return
+	}
+	
+	tetradProperties <- .jcall("edu/cmu/tetrad/util/TetradProperties",
+							"Ledu/cmu/tetrad/util/TetradProperties;",
+							"getInstance")
+  
   	# testId
   	testClass <- .jnull("java/lang/Class")
-	if(!is.null(testId)){
+	if(!is.null(testId) || algoAnno_instance$requireIndependenceTest(algoClass)){
 		testAnno_instance <- .jcall("edu/cmu/tetrad/annotation/TestOfIndependenceAnnotations",
 								"Ledu/cmu/tetrad/annotation/TestOfIndependenceAnnotations;",
 								"getInstance")
   		testClasses <- testAnno_instance$getAnnotatedClasses()
   		testClasses <- testClasses$toArray()
   		
+  		defaultTestClassName <- NULL
+  		
+  		# Default dataType
+		continuous = 'datatype.continuous.test.default'
+		discrete = 'datatype.discrete.test.default'
+		mixed = 'datatype.mixed.test.default'
+	
+		if(dataType == 'continuous'){
+			defaultTestClassName = tetradProperties$getValue(continuous)
+		}else if(dataType == 'discrete'){
+			defaultTestClassName = tetradProperties$getValue(discrete)
+		}else{
+			defaultTestClassName = tetradProperties$getValue(mixed)
+		}	
+		
 		for(i in 1:testClasses$length){
 			test <- testClasses[[i]]
 	  		cmd <- test$getAnnotation()$command()
+	  		tClass <- test$getClazz()
+	  		name <- tClass$getName()
 		  	
-		  	if(cmd == testId){
-		  		testClass <- test$getClazz()
+		  	if(name == defaultTestClassName){
+		  		testClass <- tClass
+		  	}
+		  	
+		  	if(!is.null(testId) && cmd == testId){
+		  		testClass <- tClass
 		  		break
 		  	}
 		}	
-	}
-  
+	}	
+	
 	# scoreId
 	scoreClass <- .jnull("java/lang/Class")
-	if(!is.null(scoreId)){
+	if(!is.null(scoreId) || algoAnno_instance$requireScore(algoClass)){
 		scoreAnno_instance <- .jcall("edu/cmu/tetrad/annotation/ScoreAnnotations",
 								"Ledu/cmu/tetrad/annotation/ScoreAnnotations;",
 								"getInstance")
   		scoreClasses <- scoreAnno_instance$getAnnotatedClasses()
   		scoreClasses <- scoreClasses$toArray()
   		
+  		defaultScoreClassName <- NULL
+  		
+  		# Default dataType
+		continuous = 'datatype.continuous.score.default'
+		discrete = 'datatype.discrete.score.default'
+		mixed = 'datatype.mixed.score.default'
+	
+		if(dataType == 'continuous'){
+			defaultScoreClassName = tetradProperties$getValue(continuous)
+		}else if(dataType == 'discrete'){
+			defaultScoreClassName = tetradProperties$getValue(discrete)
+		}else{
+			defaultScoreClassName = tetradProperties$getValue(mixed)
+		}	
+		
 		for(i in 1:scoreClasses$length){
 			score <- scoreClasses[[i]]
 	  		cmd <- score$getAnnotation()$command()
-	  	
-	  		if(cmd == scoreId){
-  				scoreClass <- score$getClazz()
+	  		sClass <- score$getClazz()
+	  		name <- sClass$getName()
+	  		
+	  		if(name == defaultScoreClassName){
+		  		scoreClass <- sClass
+		  	}
+		  	
+	  		if(!is.null(scoreId) && cmd == scoreId){
+  				scoreClass <- sClass
   				break
   			}
 		}	
 	}
-  
+
   	# dataset
   	tetradData <- NULL
   	if(!is.null(df)){
@@ -125,20 +179,23 @@ tetradrunner <- function(algoId, df = NULL, dfs = NULL, testId = NULL, scoreId =
   for(arg in names(arguments)){
     	if(!is.null(paramDescs_instance$get(arg))){
     		
-    		value <- arguments[arg]
+    		value <- arguments[[arg]]
     		parameter_instance <- NULL
     		obj_value <- NULL
     		
-    		if(is.logical(value)){
-    				obj_value <- .jnew("java/lang/Boolean", value)
-    		}else if(value%%1 == 0){
-    				obj_value <- .jnew("java/lang/Integer", value)
-    		}else{
-    				obj_value <- .jnew("java/lang/Double", value)
-    		}
+    		if(!is.character(value)){
+    			if(is.logical(value)){
+    					obj_value <- .jnew("java/lang/Boolean", value)
+    			}else if(value%%1 == 0){
+    					obj_value <- .jnew("java/lang/Integer", as.integer(value))
+	    		}else{
+	    				obj_value <- .jnew("java/lang/Double", value)
+	    		}
 	    	
-    		parameter_instance <- .jcast(obj_value, "java/lang/Object")
-	    	parameters_instance$set(arg, parameter_instance)
+	    		parameter_instance <- .jcast(obj_value, "java/lang/Object")
+		    	parameters_instance$set(arg, parameter_instance)
+    		}
+    		
 	    	
     	}
     # print(arg) # argument's name
@@ -326,7 +383,7 @@ tetradrunner.getAlgorithmParameters <- function(algoId, testId = NULL, scoreId =
 		defaultValue <- paramDesc$getDefaultValue()
 		desc <- paramDesc$getDescription()
 		
-		cat("\n",algoParam,": ",desc," [default:",defaultValue,"]")
+		cat(algoParam,": ",desc," [default:",defaultValue,"]","\n")
 	}
 	
 }
