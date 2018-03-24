@@ -129,7 +129,7 @@ tetradrunner <- function(algoId, df = NULL, dfs = NULL, testId = NULL, scoreId =
     		parameter_instance <- NULL
     		obj_value <- NULL
     		
-    		if(is.boolean(value)){
+    		if(is.logical(value)){
     				obj_value <- .jnew("java/lang/Boolean", value)
     		}else if(value%%1 == 0){
     				obj_value <- .jnew("java/lang/Integer", value)
