@@ -43,7 +43,7 @@ tetradrunner <- function(algoId, df = NULL, dfs = NULL, testId = NULL, scoreId =
 	  		cmd <- test$getAnnotation()$command()
 		  	
 		  	if(cmd == testId){
-		  		testClass <- test
+		  		testClass <- test$getClazz()
 		  		break
 		  	}
 		}	
@@ -284,7 +284,7 @@ testrunner.getAlgorithmParameters <- function(algoId, testId = NULL, scoreId = N
 	  		cmd <- test$getAnnotation()$command()
 		  	
 		  	if(cmd == testId){
-		  		testClass <- test
+		  		testClass <- test$getClazz()
 		  		break
 		  	}
 		}	
