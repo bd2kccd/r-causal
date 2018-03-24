@@ -1,4 +1,4 @@
-tetradrunner <- function(algoId, dfs,testId = NULL, scoreId = NULL, priorKnowledge = NULL, 
+tetradrunner <- function(algoId, df = NULL, dfs = NULL, testId = NULL, scoreId = NULL, priorKnowledge = NULL, 
 	dataType = 'continuous', numCategoriesToDiscretize = 4,java.parameters = NULL,...) {
   
   	arguments <- list(...)
@@ -51,38 +51,39 @@ tetradrunner <- function(algoId, dfs,testId = NULL, scoreId = NULL, priorKnowled
   
 	# scoreId
 	scoreClass <- .jnull("java/lang/Class")
-	
-	scoreAnno_instance <- .jcall("edu/cmu/tetrad/annotation/ScoreAnnotations",
-							"Ledu/cmu/tetrad/annotation/ScoreAnnotations;",
-							"getInstance")
-  	scoreClasses <- scoreAnno_instance$getAnnotatedClasses()
-  	scoreClasses <- scoreClasses$toArray()
+	if(!is.null(scoreId)){
+		scoreAnno_instance <- .jcall("edu/cmu/tetrad/annotation/ScoreAnnotations",
+								"Ledu/cmu/tetrad/annotation/ScoreAnnotations;",
+								"getInstance")
+  		scoreClasses <- scoreAnno_instance$getAnnotatedClasses()
+  		scoreClasses <- scoreClasses$toArray()
   		
-	for(i in 1:scoreClasses$length){
-		score <- scoreClasses[[i]]
-	  	cmd <- score$getAnnotation()$command()
+		for(i in 1:scoreClasses$length){
+			score <- scoreClasses[[i]]
+	  		cmd <- score$getAnnotation()$command()
 	  	
-	  	if(cmd == scoreId){
-  			scoreClass <- score$getClazz()
-  			break
-  		}
-	}	
+	  		if(cmd == scoreId){
+  				scoreClass <- score$getClazz()
+  				break
+  			}
+		}	
+	}
   
   	# dataset
   	tetradData <- NULL
-  	if(!is.list(dfs)){
+  	if(!is.null(df)){
 
   		if(dataType == 'continuous'){
-  				tetradData <- loadContinuousData(dfs)
+  				tetradData <- loadContinuousData(df)
   		}else if(dataType == 'discrete'){
-  				tetradData <- loadDiscreteData(dfs)
+  				tetradData <- loadDiscreteData(df)
   		}else{
-  				tetradData <- loadMixedData(dfs, numCategoriesToDiscretize)
+  				tetradData <- loadMixedData(df, numCategoriesToDiscretize)
   		}
   		
   		tetradData <- .jcast(tetradData, 'edu/cmu/tetrad/data/DataModel')
  	    
-  	}else{
+  	}else if(!is.null(dfs)){
   		
   		tetradData <- .jnew("java/util/ArrayList")
 	    for(i in 1:length(dfs)){
@@ -102,6 +103,9 @@ tetradrunner <- function(algoId, dfs,testId = NULL, scoreId = NULL, priorKnowled
     	}
     	
     	tetradData <- .jcast(tetradData, "java/util/List")
+  	}else{
+  		cat("Dataset is required!")
+  		return
   	}
   
   	algo_instance <- .jcall("edu/cmu/tetrad/algcomparison/algorithm/AlgorithmFactory",
@@ -289,20 +293,22 @@ testrunner.getAlgorithmParameters <- function(algoId, testId = NULL, scoreId = N
 	# scoreId
 	scoreClass <- .jnull("java/lang/Class")
 	
-	scoreAnno_instance <- .jcall("edu/cmu/tetrad/annotation/ScoreAnnotations",
-							"Ledu/cmu/tetrad/annotation/ScoreAnnotations;",
-							"getInstance")
-  	scoreClasses <- scoreAnno_instance$getAnnotatedClasses()
-  	scoreClasses <- scoreClasses$toArray()
+	if(!is.null(scoreId)){
+		scoreAnno_instance <- .jcall("edu/cmu/tetrad/annotation/ScoreAnnotations",
+								"Ledu/cmu/tetrad/annotation/ScoreAnnotations;",
+								"getInstance")
+  		scoreClasses <- scoreAnno_instance$getAnnotatedClasses()
+  		scoreClasses <- scoreClasses$toArray()
   		
-	for(i in 1:scoreClasses$length){
-		score <- scoreClasses[[i]]
-	  	cmd <- score$getAnnotation()$command()
+		for(i in 1:scoreClasses$length){
+			score <- scoreClasses[[i]]
+		  	cmd <- score$getAnnotation()$command()
 	  	
-	  	if(cmd == scoreId){
-  			scoreClass <- score$getClazz()
-  			break
-  		}
+		  	if(cmd == scoreId){
+	  			scoreClass <- score$getClazz()
+	  			break
+	  		}
+		}
 	}
 	
 	algo_instance <- .jcall("edu/cmu/tetrad/algcomparison/algorithm/AlgorithmFactory",
