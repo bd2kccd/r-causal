@@ -1,15 +1,15 @@
 tetradrunner <- function(algoId, dfs,testId = NULL, scoreId = NULL, priorKnowledge = NULL, 
 	dataType = 'continuous', numCategoriesToDiscretize = 4,java.parameters = NULL,...) {
   
-  arguments <- list(...)
-  params <- list()
-  # result
-  tetradrunner <- list()
+  	arguments <- list(...)
+  	params <- list()
+  	# result
+  	tetradrunner <- list()
   
-  if(!is.null(java.parameters)){
+  	if(!is.null(java.parameters)){
         options(java.parameters = java.parameters)
         params <- c(java.parameters = java.parameters)
-  }
+  	}
   
   	algoAnno_instance <- .jcall("edu/cmu/tetrad/annotation/AlgorithmAnnotations",
 							"Ledu/cmu/tetrad/annotation/AlgorithmAnnotations;",
