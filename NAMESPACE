@@ -36,5 +36,6 @@ export("tetradrunner.listAlgorithms")
 export("tetradrunner.listIndTests")
 export("tetradrunner.listScores")
 export("tetradrunner.getAlgorithmDescription")
+export("tetradrunner.getAlgorithmParameters")
 # Export all names
 # exportPattern(".")
