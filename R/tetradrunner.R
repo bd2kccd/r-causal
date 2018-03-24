@@ -165,7 +165,7 @@ tetradrunner <- function(algoId, df = NULL, dfs = NULL, testId = NULL, scoreId =
         # extract edges
         tetradrunner_edges <- extractTetradEdges(tetrad_graph)
         
-        tetradrunner$edges <- tetradrunners_edges
+        tetradrunner$edges <- tetradrunner_edges
     }
     
     return(tetradrunner)
