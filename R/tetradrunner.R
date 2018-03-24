@@ -250,7 +250,7 @@ tetradrunner.getAlgorithmDescription <- function(algoId){
 	}
 }
 
-testrunner.getAlgorithmParameters <- function(algoId, testId = NULL, scoreId = NULL){
+tetradrunner.getAlgorithmParameters <- function(algoId, testId = NULL, scoreId = NULL){
 	algoAnno_instance <- .jcall("edu/cmu/tetrad/annotation/AlgorithmAnnotations",
 							"Ledu/cmu/tetrad/annotation/AlgorithmAnnotations;",
 							"getInstance")
