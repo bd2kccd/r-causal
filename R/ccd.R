@@ -1,4 +1,4 @@
-ccd <- function(df, dataType = 0, numCategoriesToDiscretize = 4, depth = 3, alpha = 0.05,
+ccd <- function(df, dataType = 'continuous', numCategoriesToDiscretize = 4, depth = 3, alpha = 0.05,
     numBootstrap = -1, ensembleMethod = 'Highest', verbose = FALSE, 
     java.parameters = NULL, priorKnowledge = NULL){
     
@@ -11,14 +11,14 @@ ccd <- function(df, dataType = 0, numCategoriesToDiscretize = 4, depth = 3, alph
 
     # Data Frame to Independence Test
     indTest <- NULL
-    if(dataType == 0){
+    if(dataType == 'continuous'){
     	tetradData <- loadContinuousData(df)
     	if(numBootstrap < 1){
 	    	indTest <- .jnew("edu/cmu/tetrad/search/IndTestFisherZ", tetradData, alpha)
     	}else{
     		indTest <- .jnew("edu/cmu/tetrad/algcomparison/independence/FisherZ")
     	}
-    }else if(dataType == 1){
+    }else if(dataType == 'discrete'){
     	tetradData <- loadDiscreteData(df)
     	if(numBootstrap < 1){
     		indTest <- .jnew("edu/cmu/tetrad/search/IndTestChiSquare", tetradData, alpha)

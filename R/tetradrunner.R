@@ -1,5 +1,5 @@
-tetradrunner <- function(algoId, df = NULL, dfs = NULL, testId = NULL, scoreId = NULL, priorKnowledge = NULL, 
-	dataType = 'continuous', numCategoriesToDiscretize = 4,java.parameters = NULL,...) {
+tetradrunner <- function(algoId, dataType, df = NULL, dfs = NULL, testId = NULL, scoreId = NULL, 
+	priorKnowledge = NULL, numCategoriesToDiscretize = 4,java.parameters = NULL,...) {
   
   	arguments <- list(...)
   	
