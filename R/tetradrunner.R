@@ -53,16 +53,16 @@ tetradrunner <- function(algoId, dataType, df = NULL, dfs = NULL, testId = NULL,
   		defaultTestClassName <- NULL
   		
   		# Default dataType
-		continuous = 'datatype.continuous.test.default'
-		discrete = 'datatype.discrete.test.default'
-		mixed = 'datatype.mixed.test.default'
+		continuous <- 'datatype.continuous.test.default'
+		discrete <- 'datatype.discrete.test.default'
+		mixed <- 'datatype.mixed.test.default'
 	
 		if(dataType == 'continuous'){
-			defaultTestClassName = tetradProperties$getValue(continuous)
+			defaultTestClassName <- tetradProperties$getValue(continuous)
 		}else if(dataType == 'discrete'){
-			defaultTestClassName = tetradProperties$getValue(discrete)
+			defaultTestClassName <- tetradProperties$getValue(discrete)
 		}else{
-			defaultTestClassName = tetradProperties$getValue(mixed)
+			defaultTestClassName <- tetradProperties$getValue(mixed)
 		}	
 		
 		for(i in 1:testClasses$length){
@@ -94,16 +94,16 @@ tetradrunner <- function(algoId, dataType, df = NULL, dfs = NULL, testId = NULL,
   		defaultScoreClassName <- NULL
   		
   		# Default dataType
-		continuous = 'datatype.continuous.score.default'
-		discrete = 'datatype.discrete.score.default'
-		mixed = 'datatype.mixed.score.default'
+		continuous <- 'datatype.continuous.score.default'
+		discrete <- 'datatype.discrete.score.default'
+		mixed <- 'datatype.mixed.score.default'
 	
 		if(dataType == 'continuous'){
-			defaultScoreClassName = tetradProperties$getValue(continuous)
+			defaultScoreClassName <- tetradProperties$getValue(continuous)
 		}else if(dataType == 'discrete'){
-			defaultScoreClassName = tetradProperties$getValue(discrete)
+			defaultScoreClassName <- tetradProperties$getValue(discrete)
 		}else{
-			defaultScoreClassName = tetradProperties$getValue(mixed)
+			defaultScoreClassName <- tetradProperties$getValue(mixed)
 		}	
 		
 		for(i in 1:scoreClasses$length){
