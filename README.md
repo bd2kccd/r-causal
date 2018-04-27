@@ -26,26 +26,27 @@ install_github("bd2kccd/r-causal")
 library(rcausal)
 data("charity")   #Load the charity dataset
 
+tetradrunner.getAlgorithmDescription(algoId = 'fges')
+tetradrunner.getAlgorithmParameters(algoId = 'fges',scoreId = 'fisher-z')
 #Compute FGES search
-fges <- fges(df = charity, penaltydiscount = 2, maxDegree = -1,  
-faithfulnessAssumed = TRUE, numOfThreads = 2, verbose = TRUE)    
+tetradrunner <- tetradrunner(algoId = 'fges',df = charity,scoreId = 'fisher-z',
+dataType = 'continuous',alpha=0.1,faithfulnessAssumed=TRUE,maxDegree=-1,verbose=TRUE)
 
-fges$parameters #Show the FGES's parameters
-fges$datasets #Show the dataset
-fges$nodes #Show the result's nodes
-fges$edges #Show the result's edges
+tetradrunner$nodes #Show the result's nodes
+tetradrunner$edges #Show the result's edges
 ```
 ### Discrete Dataset
 ```R
 library(rcausal)
 data("audiology")    #Load the charity dataset
+
+tetradrunner.getAlgorithmParameters(algoId = 'fges',scoreId = 'bdeu')
 #Compute FGES search
-fges.discrete <- fges.discrete(df=audiology,structurePrior=1.0,samplePrior=1.0, 
-maxDegree = -1, faithfulnessAssumed = TRUE, numOfThreads = 2,verbose = TRUE)
-fges.discrete$parameters #Show the FGES Discrete's parameters
-fges.discrete$datasets #Show the dataset
-fges.discrete$nodes #Show the result's nodes
-fges.discrete$edges #Show the result's edges
+tetradrunner <- tetradrunner(algoId = 'fges',df = audiology,scoreId = 'bdeu',dataType = 'discrete',
+alpha=0.1,faithfulnessAssumed=TRUE,maxDegree=-1,verbose=TRUE)
+
+tetradrunner$nodes #Show the result's nodes
+tetradrunner$edges #Show the result's edges
 ```
 
 ### Prior Knowledge
@@ -80,8 +81,8 @@ heuristicSpeedup = TRUE, numOfThreads = 2, verbose = TRUE, priorKnowledge = prio
 # 2 class
 
 prior <- priorKnowledgeFromFile('audiology.prior')
-fges.discrete <- fges.discrete(df=audiology,structurePrior=1.0,samplePrior=1.0, 
-depth = -1, heuristicSpeedup = TRUE, numOfThreads = 2,verbose = TRUE, priorKnowledge = prior)
+tetradrunner <- tetradrunner(algoId = 'fges',df = audiology,scoreId = 'bdeu',dataType = 'discrete',
+alpha=0.1,faithfulnessAssumed=TRUE,maxDegree=-1,verbose=TRUE, priorKnowledge = prior)
 ```
 
 ## Useful `rJava` Trouble-shooting Installation in Mac OS X Links

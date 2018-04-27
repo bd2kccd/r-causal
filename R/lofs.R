@@ -1,6 +1,6 @@
 ## rule: IGCI, R1TimeLag, R1, R2, R3, R4, Tanh, EB, Skew, SkewE, RSkew, RSkewE, Patel, Patel25, Patel50, Patel75, Patel90, FastICA, RC, Nlo
 ## score: andersonDarling, skew, kurtosis, fifthMoment, absoluteValue, exp, expUnstandardized, expUnstandardizedInverted, other, logcosh, entropy
-lofs <- function(tetradGraph, dfs, dataType = 0, numCategoriesToDiscretize = 4, rule = 'R1', 
+lofs <- function(tetradGraph, dfs, dataType = 'continuous', numCategoriesToDiscretize = 4, rule = 'R1', 
 	score = 'andersonDarling', alpha = 0.01, epsilon = 1.0, zeta = 0.0, 
 	orientStrongerDirection = FALSE, r2Orient2Cycles = TRUE, edgeCorrected = FALSE, 
 	selfLoopStrength = 1.0, java.parameters = NULL){
@@ -16,9 +16,9 @@ lofs <- function(tetradGraph, dfs, dataType = 0, numCategoriesToDiscretize = 4, 
     datasets <- .jnew("java/util/ArrayList")
 	for(i in 1:length(dfs)){
     	df <- dfs[[i]]
-    	if(dataType == 0){
+    	if(dataType == 'continuous'){
 	        boxData <- loadContinuousData(df)
-    	}else if(dataType == 1){
+    	}else if(dataType == 'discrete'){
 	        boxData <- loadDiscreteData(df)
     	}else{
 	        boxData <- loadMixedData(df, numCategoriesToDiscretize)

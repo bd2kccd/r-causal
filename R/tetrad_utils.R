@@ -350,7 +350,15 @@ loadMixedData <- function(df, numCategoriesToDiscretize = 4){
     for (i in 1:length(node_names)){
         nodname <- .jnew("java/lang/String", node_names[i])
         cate <- unique(df[[node_names[i]]])
-        if(length(cate) > numCategoriesToDiscretize){
+        cateNumeric <- TRUE		        
+        for(j in 1:length(cate)){    	    	
+        	cate_value <- cate[j]
+    		if(!is.numeric(cate_value)){
+    			cateNumeric <- FALSE
+        		break
+        	}
+        }
+        if(length(cate) > numCategoriesToDiscretize && cateNumeric){
             # Continuous variable
             nodi <- .jnew("edu/cmu/tetrad/data/ContinuousVariable", nodname)
             node_list$add(nodi)

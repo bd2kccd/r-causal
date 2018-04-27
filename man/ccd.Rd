@@ -31,7 +31,7 @@ The Cyclic Causal Discovery algorithm (CCD) is implemented as described by Thoma
 The search method returns an instance of a Graph but it also constructs two lists of node triples which represent the underlines and dotted underlines that the algorithm discovers.
 
 
-More detail about ccd implementation, please visit \href{http://cmu-phil.github.io/tetrad/tetrad-lib-apidocs/edu/cmu/tetrad/search/Ccd.html}{the java documentation}.
+More detail about ccd implementation, please visit \href{https://github.com/cmu-phil/tetrad/blob/master/tetrad-lib/src/main/java/edu/cmu/tetrad/search/Ccd.java}{the java code}.
 }
 \value{
 A list containing the ccd's parameters, the input dataset, the result's nodes, and 
