@@ -45,12 +45,10 @@ the program, with substantial assistance from Frank Wimberly.
 }
 \examples{
 data("charity")    #Load the charity dataset
-fges <- fges(df = charity, penaltydiscount = 2, maxDegree = -1, faithfulnessAsummed = TRUE,
-    numOfThreads = 2, verbose = TRUE)    #Compute FGE search
+tetradrunner <- tetradrunner(algoId = 'fges',df = charity,scoreId = 'fisher-z', dataType = 'continuous',alpha=0.1,faithfulnessAssumed=TRUE,maxDegree=-1,verbose=TRUE)    #Compute FGES search
 fges$parameters #Show the FGES's parameters
-fges$datasets #Show the dataset
-fges$nodes #Show the result's nodes
-fges$edges #Show the result's edges
+tetradrunner$nodes #Show the result's nodes
+tetradrunner$edges #Show the result's edges
 }
 \keyword{causal graphs}
 \keyword{causality}
