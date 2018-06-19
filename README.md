@@ -59,8 +59,9 @@ forbiddenWithin <- c('TangibilityCondition','Imaginability')
 class(forbiddenWithin) <- 'forbiddenWithin' # Make this tier forbidden within
 temporal <- list(forbiddenWithin, c('Sympathy','AmountDonated'),c('Impact')) # List of temporal node tiers
 prior <- priorKnowledge(forbiddirect = forbid, requiredirect = require, addtemporal = temporal)
-fges <- fges(df = charity, penaltydiscount = 2, depth = -1, ignoreLinearDependence = TRUE, 
-heuristicSpeedup = TRUE, numOfThreads = 2, verbose = TRUE, priorKnowledge = prior)
+tetradrunner <- tetradrunner(algoId = 'fges',df = charity,scoreId = 'fisher-z',
+dataType = 'continuous',alpha=0.1,faithfulnessAssumed=TRUE,maxDegree=-1,verbose=TRUE, 
+priorKnowledge = prior)
 ```
 
 #### Load Knowledge File
