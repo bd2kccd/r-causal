@@ -222,10 +222,16 @@ tetradrunner <- function(algoId, dataType, df = NULL, dfs = NULL, testId = NULL,
         # extract edges
         tetradrunner_edges <- extractTetradEdges(tetrad_graph)
         
-        tetradrunner$edges <- tetradrunner_edges
+        tetradrunner$edges <- tetradrunner_edges        
     }
     
     return(tetradrunner)
+}
+
+tetradrunner.tetradGraphToDot <- function(tetrad_graph){
+	graph_dot <- .jcall("edu/cmu/tetrad/graph/GraphUtils",
+							"S","graphToDot",tetrad_graph)
+	return(graph_dot)
 }
 
 tetradrunner.listAlgorithms <- function(){
