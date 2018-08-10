@@ -280,6 +280,41 @@ public final class DataUtils {
         return false;
     }
 
+    /**
+     *
+     * Log or unlog data
+     *
+     * @param data
+     * @param a
+     * @param isUnlog
+     * @return
+     */
+    public static TetradMatrix logData(TetradMatrix data, double a, boolean isUnlog, int base) {
+        TetradMatrix copy = data.copy();
+
+        for (int j = 0; j < copy.columns(); j++) {
+
+            for (int i = 0; i < copy.rows(); i++) {
+                if (isUnlog) {
+                    if (base == 0) {
+                        copy.set(i, j, Math.exp(copy.get(i, j)) - a);
+                    } else {
+                        copy.set(i, j, Math.pow(base,(copy.get(i, j))) - a);
+                    }
+                }  else {
+                    if (base == 0) {
+                        copy.set(i, j, Math.log(a + copy.get(i, j)));
+                    } else {
+                        copy.set(i, j, Math.log(a + copy.get(i, j)) / Math.log(base));
+                    }
+                }
+            }
+        }
+
+        return copy;
+    }
+
+
     public static TetradMatrix standardizeData(TetradMatrix data) {
         TetradMatrix data2 = data.copy();
 
@@ -397,23 +432,41 @@ public final class DataUtils {
         return outList.get(0);
     }
 
-//    public static double[] centerData(double[] data) {
-//        double[] data2 = new double[data.length];
-//
-//        double sum = 0.0;
-//
-//        for (int i = 0; i < data2.length; i++) {
-//            sum += data[i];
-//        }
-//
-//        double mean = sum / data.length;
-//
-//        for (int i = 0; i < data.length; i++) {
-//            data2[i] = data[i] - mean;
-//        }
-//
-//        return data2;
-//    }
+    /**
+     * Centers the array in place.
+     */
+    public static void centerData(double[] data) {
+        double[] data2 = new double[data.length];
+
+        double sum = 0.0;
+
+        for (int i = 0; i < data2.length; i++) {
+            sum += data[i];
+        }
+
+        double mean = sum / data.length;
+
+        for (int i = 0; i < data.length; i++) {
+            data2[i] -= mean;
+        }
+    }
+
+    public static double[] center(double[] d) {
+        double sum = 0.0;
+
+        for (int i = 0; i < d.length; i++) {
+            sum += d[i];
+        }
+
+        double mean = sum / d.length;
+        double[] d2 = new double[d.length];
+
+        for (int i = 0; i < d.length; i++) {
+            d2[i] = d[i] - mean;
+        }
+
+        return d2;
+    }
 
     public static TetradMatrix centerData(TetradMatrix data) {
         TetradMatrix data2 = data.copy();
@@ -1523,6 +1576,7 @@ public final class DataUtils {
     }
 
     public static DataSet reorderColumns(DataSet dataModel) {
+        String name = dataModel.getName();
         List<Node> vars = new ArrayList<>();
 
         List<Node> variables = dataModel.getVariables();
@@ -1536,7 +1590,9 @@ public final class DataUtils {
             }
         }
 
-        return dataModel.subsetColumns(vars);
+        DataSet dataSet = dataModel.subsetColumns(vars);
+        dataSet.setName(name);
+        return dataSet;
     }
 
     public static List<DataSet> reorderColumns(List<DataSet> dataSets) {
@@ -1782,7 +1838,7 @@ public final class DataUtils {
         if (dataModel instanceof ICovarianceMatrix) {
             return (ICovarianceMatrix) dataModel;
         } else if (dataModel instanceof DataSet) {
-            return new CovarianceMatrixOnTheFly((DataSet) dataModel);
+            return new CovarianceMatrix((DataSet) dataModel);
         } else {
             throw new IllegalArgumentException("Sorry, I was expecting either a tabular dataset or a covariance matrix.");
         }

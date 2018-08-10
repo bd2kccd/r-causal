@@ -24,6 +24,8 @@ package edu.cmu.tetrad.search;
 import edu.cmu.tetrad.data.*;
 import edu.cmu.tetrad.graph.Node;
 import edu.cmu.tetrad.util.*;
+import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.commons.math3.linear.SingularMatrixException;
 
 import java.io.PrintStream;
 import java.text.DecimalFormat;
@@ -83,6 +85,8 @@ public final class IndTestFisherZ implements IndependenceTest {
     private boolean verbose = true;
     private double fisherZ = Double.NaN;
     private double cutoff = Double.NaN;
+    private double rho;
+    private NormalDistribution normal = new NormalDistribution(0, 1);
 
     //==========================CONSTRUCTORS=============================//
 
@@ -122,7 +126,7 @@ public final class IndTestFisherZ implements IndependenceTest {
      */
     public IndTestFisherZ(TetradMatrix data, List<Node> variables, double alpha) {
         this.dataSet = ColtDataSet.makeContinuousData(variables, data);
-        this.covMatrix = new CovarianceMatrix(dataSet);
+        this.covMatrix = new CovarianceMatrixOnTheFly(dataSet);
         this.variables = Collections.unmodifiableList(variables);
         this.indexMap = indexMap(variables);
         this.nameMap = nameMap(variables);
@@ -181,54 +185,31 @@ public final class IndTestFisherZ implements IndependenceTest {
      */
     public boolean isIndependent(Node x, Node y, List<Node> z) {
         int n = sampleSize();
-        double r = partialCorrelation(x, y, z);
+        double r;
 
+        try {
+            r = partialCorrelation(x, y, z);
+        } catch (SingularMatrixException e) {
+            System.out.println(SearchLogUtils.determinismDetected(z, x));
+            this.fisherZ = Double.POSITIVE_INFINITY;
+            return false;
+        }
 
-//        double high = 0.999999;
-//
-//        if (r > high) r = high;
-//        if (r < -high) r = -high;
-//
         double fisherZ = Math.sqrt(n - 3 - z.size()) * 0.5 * (Math.log(1.0 + r) - Math.log(1.0 - r));
-//        fisherZ /= 2.0;
-
         this.fisherZ = fisherZ;
+        this.rho = r;
 
-//        double pValue = 2.0 * (1.0 - value);//  RandomUtil.getInstance().normalCdf(0, 1, key));// abs(fisherZ)));
-//        double pValue = 2.0 * (1.0 - RandomUtil.getInstance().normalCdf(0, 1, abs(fisherZ)));
-//
-//        boolean independent = pValue > alpha;
-
-        boolean independent = Math.abs(fisherZ) < cutoff;
-
-//        this.pValue = pValue;
-
-//        if (verbose) {
-//            if (independent) {
-//                if (TetradLogger.getInstance().isEventActive("independencies")) {
-//                    TetradLogger.getInstance().log("independencies",
-//                            SearchLogUtils.independenceFactMsg(x, y, z, pValue));
-//                }
-//            } else {
-//                if (pValueLogger != null) {
-//                    pValueLogger.println(getPValue());
-//                }
-//
-//                if (TetradLogger.getInstance().isEventActive("dependencies")) {
-//                    TetradLogger.getInstance().log("dependencies",
-//                            SearchLogUtils.dependenceFactMsg(x, y, z, pValue));
-//                }
-//            }
-//        }
-
-        return independent;
+        return Math.abs(fisherZ) < cutoff;
     }
 
-    private double partialCorrelation(Node x, Node y, List<Node> z) {
+    private double partialCorrelation(Node x, Node y, List<Node> z) throws SingularMatrixException {
         if (z.isEmpty()) {
             double a = covMatrix.getValue(indexMap.get(x), indexMap.get(y));
             double b = covMatrix.getValue(indexMap.get(x), indexMap.get(x));
             double c = covMatrix.getValue(indexMap.get(y), indexMap.get(y));
+
+            if (b * c == 0) throw new SingularMatrixException();
+
             return -a / Math.sqrt(b * c);
         } else {
             int[] indices = new int[z.size() + 2];
@@ -257,7 +238,7 @@ public final class IndTestFisherZ implements IndependenceTest {
      * @return the probability associated with the most recently computed independence test.
      */
     public double getPValue() {
-        return pValue;
+        return 2.0 * (1.0 - normal.cumulativeProbability(abs(fisherZ)));
     }
 
     /**
@@ -318,29 +299,20 @@ public final class IndTestFisherZ implements IndependenceTest {
             parents[j] = covMatrix.getVariables().indexOf(z.get(j));
         }
 
-        int i = covMatrix.getVariables().indexOf(x);
-
-        double variance = covMatrix.getValue(i, i);
-
         if (parents.length > 0) {
 
             // Regress z onto i, yielding regression coefficients b.
             TetradMatrix Czz = covMatrix.getSelection(parents, parents);
-            TetradMatrix inverse;
 
             try {
-                inverse = Czz.inverse();
-            } catch (Exception e) {
+                Czz.inverse();
+            } catch (SingularMatrixException e) {
+                System.out.println(SearchLogUtils.determinismDetected(z, x));
                 return true;
             }
-
-            TetradVector Cyz = covMatrix.getSelection(parents, new int[]{i}).getColumn(0);
-            TetradVector b = inverse.times(Cyz);
-
-            variance -= Cyz.dotProduct(b);
         }
 
-        return variance < 1e-20;
+        return false;
     }
 
     /**
@@ -438,6 +410,10 @@ public final class IndTestFisherZ implements IndependenceTest {
 
     public void setVerbose(boolean verbose) {
         this.verbose = verbose;
+    }
+
+    public double getRho() {
+        return rho;
     }
 }
 

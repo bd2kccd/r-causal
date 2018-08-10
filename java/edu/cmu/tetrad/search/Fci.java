@@ -146,6 +146,10 @@ public final class Fci implements GraphSearch {
 
         Set<Node> remVars = new HashSet<>();
         for (Node node1 : this.variables) {
+            if (Thread.currentThread().isInterrupted()) {
+                break;
+            }
+
             boolean search = false;
             for (Node node2 : searchVars) {
                 if (node1.getName().equals(node2.getName())) {
@@ -208,6 +212,10 @@ public final class Fci implements GraphSearch {
             new FciOrient(new SepsetsSet(this.sepsets, independenceTest)).ruleR0(graph);
 
             for (Edge edge : new ArrayList<>(graph.getEdges())) {
+                if (Thread.currentThread().isInterrupted()) {
+                    break;
+                }
+
                 Node x = edge.getNode1();
                 Node y = edge.getNode2();
 
@@ -246,7 +254,7 @@ public final class Fci implements GraphSearch {
 
         // Step CI C (Zhang's step F3.)
         long time5 = System.currentTimeMillis();
-        //fciOrientbk(getKnowledge(), graph, independenceTest.getVariables());    - Robert Tillman 2008
+        //fciOrientbk(getKnowledge(), graph, independenceTest.getVariable());    - Robert Tillman 2008
 //        fciOrientbk(getKnowledge(), graph, variables);
 //        new FciOrient(graph, new Sepsets(this.sepsets)).ruleR0(new Sepsets(this.sepsets));
 
@@ -369,6 +377,10 @@ public final class Fci implements GraphSearch {
 
         for (Iterator<KnowledgeEdge> it =
              bk.forbiddenEdgesIterator(); it.hasNext(); ) {
+            if (Thread.currentThread().isInterrupted()) {
+                break;
+            }
+
             KnowledgeEdge edge = it.next();
 
             //match strings to variables in the graph.
@@ -392,6 +404,10 @@ public final class Fci implements GraphSearch {
 
         for (Iterator<KnowledgeEdge> it =
              bk.requiredEdgesIterator(); it.hasNext(); ) {
+            if (Thread.currentThread().isInterrupted()) {
+                break;
+            }
+
             KnowledgeEdge edge = it.next();
 
             //match strings to variables in this graph

@@ -3,6 +3,7 @@ package edu.cmu.tetrad.algcomparison.algorithm.cluster;
 import edu.cmu.tetrad.algcomparison.algorithm.Algorithm;
 import edu.cmu.tetrad.algcomparison.utils.HasKnowledge;
 import edu.cmu.tetrad.algcomparison.utils.TakesInitialGraph;
+import edu.cmu.tetrad.annotation.AlgType;
 import edu.cmu.tetrad.data.*;
 import edu.cmu.tetrad.graph.EdgeListGraph;
 import edu.cmu.tetrad.graph.Graph;
@@ -10,7 +11,8 @@ import edu.cmu.tetrad.search.FindOneFactorClusters;
 import edu.cmu.tetrad.search.SearchGraphUtils;
 import edu.cmu.tetrad.search.TestType;
 import edu.cmu.tetrad.util.Parameters;
-
+import edu.pitt.dbmi.algo.bootstrap.BootstrapEdgeEnsemble;
+import edu.pitt.dbmi.algo.bootstrap.GeneralBootstrapTest;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,41 +21,79 @@ import java.util.List;
  *
  * @author jdramsey
  */
+@edu.cmu.tetrad.annotation.Algorithm(
+        name = "FOFC",
+        command = "fofc",
+        algoType = AlgType.search_for_structure_over_latents
+)
 public class Fofc implements Algorithm, TakesInitialGraph, HasKnowledge, ClusterAlgorithm {
+
     static final long serialVersionUID = 23L;
-    private Algorithm initialGraph = null;
+    private Graph initialGraph = null;
+    private Algorithm algorithm = null;
     private IKnowledge knowledge = new Knowledge2();
 
-    public Fofc() {}
+    public Fofc() {
+    }
 
     @Override
     public Graph search(DataModel dataSet, Parameters parameters) {
-        ICovarianceMatrix cov = DataUtils.getCovMatrix(dataSet);
-        double alpha = parameters.getDouble("alpha");
+    	if (parameters.getInt("bootstrapSampleSize") < 1) {
+            ICovarianceMatrix cov = DataUtils.getCovMatrix(dataSet);
+            double alpha = parameters.getDouble("alpha");
 
-        boolean wishart = parameters.getBoolean("useWishart", true);
-        TestType testType;
+            boolean wishart = parameters.getBoolean("useWishart", true);
+            TestType testType;
 
-        if (wishart) {
-            testType = TestType.TETRAD_WISHART;
+            if (wishart) {
+                testType = TestType.TETRAD_WISHART;
+            } else {
+                testType = TestType.TETRAD_DELTA;
+            }
+
+            boolean gap = parameters.getBoolean("useGap", true);
+            FindOneFactorClusters.Algorithm algorithm;
+
+            if (gap) {
+                algorithm = FindOneFactorClusters.Algorithm.GAP;
+            } else {
+                algorithm = FindOneFactorClusters.Algorithm.SAG;
+            }
+
+            edu.cmu.tetrad.search.FindOneFactorClusters search
+                    = new edu.cmu.tetrad.search.FindOneFactorClusters(cov, testType, algorithm, alpha);
+            search.setVerbose(parameters.getBoolean("verbose"));
+
+            return search.search();
         } else {
-            testType = TestType.TETRAD_DELTA;
+            Fofc algorithm = new Fofc();
+
+            //algorithm.setKnowledge(knowledge);
+//          if (initialGraph != null) {
+//      		algorithm.setInitialGraph(initialGraph);
+//  		}
+
+            DataSet data = (DataSet) dataSet;
+
+            GeneralBootstrapTest search = new GeneralBootstrapTest(data, algorithm, parameters.getInt("bootstrapSampleSize"));
+            search.setKnowledge(knowledge);
+
+            BootstrapEdgeEnsemble edgeEnsemble = BootstrapEdgeEnsemble.Highest;
+            switch (parameters.getInt("bootstrapEnsemble", 1)) {
+                case 0:
+                    edgeEnsemble = BootstrapEdgeEnsemble.Preserved;
+                    break;
+                case 1:
+                    edgeEnsemble = BootstrapEdgeEnsemble.Highest;
+                    break;
+                case 2:
+                    edgeEnsemble = BootstrapEdgeEnsemble.Majority;
+            }
+            search.setEdgeEnsemble(edgeEnsemble);
+            search.setParameters(parameters);
+            search.setVerbose(parameters.getBoolean("verbose"));
+            return search.search();
         }
-
-        boolean gap = parameters.getBoolean("useGap", true);
-        FindOneFactorClusters.Algorithm algorithm;
-
-        if (gap) {
-            algorithm = FindOneFactorClusters.Algorithm.GAP;
-        } else {
-            algorithm = FindOneFactorClusters.Algorithm.SAG;
-        }
-
-        edu.cmu.tetrad.search.FindOneFactorClusters search
-                = new edu.cmu.tetrad.search.FindOneFactorClusters(cov, testType, algorithm, alpha);
-        search.setVerbose(parameters.getBoolean("verbose"));
-
-        return search.search();
     }
 
     @Override
@@ -78,6 +118,9 @@ public class Fofc implements Algorithm, TakesInitialGraph, HasKnowledge, Cluster
         parameters.add("useWishart");
         parameters.add("useGap");
         parameters.add("verbose");
+        // Bootstrapping
+        parameters.add("bootstrapSampleSize");
+        parameters.add("bootstrapEnsemble");
         return parameters;
     }
 
@@ -90,4 +133,20 @@ public class Fofc implements Algorithm, TakesInitialGraph, HasKnowledge, Cluster
     public void setKnowledge(IKnowledge knowledge) {
         this.knowledge = knowledge;
     }
+
+    @Override
+    public Graph getInitialGraph() {
+        return initialGraph;
+    }
+
+    @Override
+    public void setInitialGraph(Graph initialGraph) {
+        this.initialGraph = initialGraph;
+    }
+
+    @Override
+    public void setInitialGraph(Algorithm algorithm) {
+        this.algorithm = algorithm;
+    }
+
 }

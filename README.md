@@ -86,6 +86,13 @@ tetradrunner <- tetradrunner(algoId = 'fges',df = audiology,scoreId = 'bdeu',dat
 alpha=0.1,faithfulnessAssumed=TRUE,maxDegree=-1,verbose=TRUE, priorKnowledge = prior)
 ```
 
+#### Plot a DOT graph
+```R
+library(DOT)
+graph_dot <- tetradrunner.tetradGraphToDot(tetradrunner$graph)
+dot(graph_dot)
+```
+
 ## Useful `rJava` Trouble-shooting Installation in Mac OS X Links
 
 1. [http://stackoverflow.com/questions/26948777/how-can-i-make-rjava-use-the-newer-version-of-java-on-osx/32544358#32544358](http://stackoverflow.com/questions/26948777/how-can-i-make-rjava-use-the-newer-version-of-java-on-osx/32544358#32544358)

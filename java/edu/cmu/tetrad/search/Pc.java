@@ -40,7 +40,7 @@ import java.util.Set;
 public class Pc implements GraphSearch {
 
     /**
-     * The independence test used for the PC search.
+     * The independence test used for the PC search.g
      */
     private IndependenceTest independenceTest;
 
@@ -230,7 +230,7 @@ public class Pc implements GraphSearch {
      * bidirected edges if this assumption is not born out, either due to the actual presence of latent common causes,
      * or due to statistical errors in conditional independence judgments.
      * <p>
-     * All of the given nodes must be in the domain of the given conditional independence test.
+     * All of the given nodes must be in the domatein of the given conditional independence test.
      */
     public Graph search(List<Node> nodes) {
         IFas fas = null;
@@ -248,7 +248,7 @@ public class Pc implements GraphSearch {
         this.logger.log("info", "Starting PC algorithm");
         this.logger.log("info", "Independence test = " + getIndependenceTest() + ".");
 
-//        this.logger.log("info", "Variables " + independenceTest.getVariables());
+//        this.logger.log("info", "Variables " + independenceTest.getVariable());
 
         long startTime = System.currentTimeMillis();
 
@@ -276,10 +276,17 @@ public class Pc implements GraphSearch {
 //        enumerateTriples();
 
         SearchGraphUtils.pcOrientbk(knowledge, graph, nodes);
-        SearchGraphUtils.orientCollidersUsingSepsets(this.sepsets, knowledge, graph, verbose);
+        SearchGraphUtils.orientCollidersUsingSepsets(this.sepsets, knowledge, graph, verbose, false);
+
+        for (Edge edge : graph.getEdges()) {
+            if (Edges.isBidirectedEdge(edge)) {
+                graph.removeEdge(edge.getNode1(), edge.getNode2());
+                graph.addUndirectedEdge(edge.getNode1(), edge.getNode2());
+            }
+        }
 
         MeekRules rules = new MeekRules();
-        rules.setAggressivelyPreventCycles(this.aggressivelyPreventCycles);
+        rules.setAggressivelyPreventCycles(false);
         rules.setKnowledge(knowledge);
         rules.setUndirectUnforcedEdges(false);
         rules.orientImplied(graph);
@@ -432,6 +439,9 @@ public class Pc implements GraphSearch {
 
     public void setFdr(boolean fdr) {
         this.fdr = fdr;
+    }
+
+    public void setEnforcePattern(boolean enforcePattern) {
     }
 }
 
