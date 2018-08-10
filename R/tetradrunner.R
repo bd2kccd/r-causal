@@ -305,7 +305,7 @@ tetradrunner.getAlgorithmDescription <- function(algoId){
 							"Ledu/cmu/tetrad/util/AlgorithmDescriptions;",
 							"getInstance")
 	
-	cat(algoAnno$name(), " : ", algoDesc_instance$get(algoId))
+	cat(algoDesc_instance$get(algoId))
 	
 	if(algoAnno_instance$requireIndependenceTest(algoClass)){
 		cat("\nIt requires the independence test.")
