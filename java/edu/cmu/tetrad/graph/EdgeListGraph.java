@@ -743,7 +743,7 @@ public class EdgeListGraph implements Graph, TripleClassifier {
     }
 
     /**
-     * True if this graph has been "stamped" as a PAG. The search algorithm should do this.
+     * True if this graph has been "stamped" as a PAG_of_the_true_DAG. The search algorithm should do this.
      */
     @Override
     public boolean isPag() {
@@ -1070,7 +1070,7 @@ public class EdgeListGraph implements Graph, TripleClassifier {
             removeEdges(from, to);
             addEdge(new Edge(from, to, Endpoint.TAIL, endPoint));
             return true;
-        } else if (edges.size() == 1) {
+        } else if (edges.size() >= 1) {
             Edge edge = edges.get(0);
             Edge newEdge = new Edge(from, to, edge.getProximalEndpoint(from), endPoint);
 
@@ -1283,6 +1283,7 @@ public class EdgeListGraph implements Graph, TripleClassifier {
      */
     public synchronized List<Edge> getEdges(Node node) {
         List<Edge> list = edgeLists.get(node);
+        if (list == null) return new ArrayList<>();
         return new ArrayList<>(list);
     }
 
@@ -1356,6 +1357,7 @@ public class EdgeListGraph implements Graph, TripleClassifier {
         for (Edge edge : new ArrayList<>(edgesSet)) {
             Node a = edge.getNode1();
             Node b = edge.getNode2();
+
             setEndpoint(a, b, endpoint);
             setEndpoint(b, a, endpoint);
         }
@@ -1564,6 +1566,8 @@ public class EdgeListGraph implements Graph, TripleClassifier {
      */
     public List<Edge> getEdges(Node node1, Node node2) {
         List<Edge> edges = edgeLists.get(node1);
+        if (edges == null) return new ArrayList<>();
+
         List<Edge> _edges = new ArrayList<>();
 
         for (Edge edge : edges) {
@@ -1916,7 +1920,7 @@ public class EdgeListGraph implements Graph, TripleClassifier {
     }
 
     public boolean isHighlighted(Edge edge) {
-        return highlightedEdges.contains(edge);
+        return highlightedEdges != null && highlightedEdges.contains(edge);
     }
 
     public boolean isParameterizable(Node node) {

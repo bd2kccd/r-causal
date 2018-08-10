@@ -74,7 +74,7 @@
 //        }
 //
 //        this.dataSet = new Matrix(dataSet.getDoubleData().toArray());
-//        this.variables = dataSet.getVariables();
+//        this.variables = dataSet.getVariable();
 //        this.sampleSize = dataSet.getNumRows();
 //        this.penaltyDiscount = 2;
 //        logn = Math.log(sampleSize);
@@ -199,11 +199,11 @@
 //        return bump > 0;//-0.25 * getPenaltyDiscount() * Math.log(sampleSize);
 //    }
 //
-//    public DataSet getDataSet() {
+//    public DataSet getDataModel() {
 //        throw new UnsupportedOperationException();
 //    }
 //
-//    public void setAlpha(double penaltyDiscount) {
+//    public void setCorrErrorsAlpha(double penaltyDiscount) {
 //        this.penaltyDiscount = penaltyDiscount;
 //    }
 //
@@ -216,7 +216,7 @@
 //    }
 //
 //    @Override
-//    public List<Node> getVariables() {
+//    public List<Node> getVariable() {
 //        return variables;
 //    }
 //

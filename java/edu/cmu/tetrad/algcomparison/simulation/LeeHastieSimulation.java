@@ -1,27 +1,27 @@
 package edu.cmu.tetrad.algcomparison.simulation;
 
 import edu.cmu.tetrad.algcomparison.graph.RandomGraph;
-import edu.cmu.tetrad.algcomparison.utils.HasParameterValues;
 import edu.cmu.tetrad.algcomparison.utils.HasParameters;
-import edu.cmu.tetrad.util.Parameters;
+import edu.cmu.tetrad.data.DataModel;
 import edu.cmu.tetrad.data.DataSet;
 import edu.cmu.tetrad.data.DataType;
 import edu.cmu.tetrad.graph.Graph;
 import edu.cmu.tetrad.graph.Node;
 import edu.cmu.tetrad.sem.GeneralizedSemIm;
 import edu.cmu.tetrad.sem.GeneralizedSemPm;
+import edu.cmu.tetrad.util.Parameters;
 import edu.pitt.csb.mgm.MixedUtils;
+import java.util.*;
 import org.apache.commons.lang3.RandomUtils;
 
-import java.util.*;
-
 /**
- * A version of the Lee & Hastic simulation which is guaranteed ot generate a discrete
- * data set.
+ * A version of the Lee & Hastic simulation which is guaranteed ot generate a
+ * discrete data set.
  *
  * @author jdramsey
  */
 public class LeeHastieSimulation implements Simulation, HasParameters {
+
     static final long serialVersionUID = 23L;
     private RandomGraph randomGraph;
     private List<DataSet> dataSets = new ArrayList<>();
@@ -46,8 +46,12 @@ public class LeeHastieSimulation implements Simulation, HasParameters {
             throw new IllegalArgumentException("To simulate continuoue data, 'percentDiscrete' must be set to 100.0.");
         }
 
-        if (discrete) this.dataType = DataType.Discrete;
-        if (continuous) this.dataType = DataType.Continuous;
+        if (discrete) {
+            this.dataType = DataType.Discrete;
+        }
+        if (continuous) {
+            this.dataType = DataType.Continuous;
+        }
 
         this.shuffledOrder = null;
 
@@ -77,7 +81,7 @@ public class LeeHastieSimulation implements Simulation, HasParameters {
     }
 
     @Override
-    public DataSet getDataSet(int index) {
+    public DataModel getDataModel(int index) {
         return dataSets.get(index);
     }
 
@@ -94,11 +98,13 @@ public class LeeHastieSimulation implements Simulation, HasParameters {
         parameters.add("numRuns");
         parameters.add("differentGraphs");
         parameters.add("sampleSize");
+        parameters.add("saveLatentVars");
+
         return parameters;
     }
 
     @Override
-    public int getNumDataSets() {
+    public int getNumDataModels() {
         return dataSets.size();
     }
 
@@ -122,8 +128,8 @@ public class LeeHastieSimulation implements Simulation, HasParameters {
 
         for (int i = 0; i < nodes.size(); i++) {
             if (i < nodes.size() * parameters.getDouble("percentDiscrete") * 0.01) {
-                final int minNumCategories = parameters.getInt("minCategories");
-                final int maxNumCategories = parameters.getInt("maxCategories");
+                final int minNumCategories = parameters.getInt("numCategories");
+                final int maxNumCategories = parameters.getInt("numCategories");
                 final int value = pickNumCategories(minNumCategories, maxNumCategories);
                 nd.put(shuffledOrder.get(i).getName(), value);
             } else {
@@ -136,7 +142,9 @@ public class LeeHastieSimulation implements Simulation, HasParameters {
         GeneralizedSemPm pm = MixedUtils.GaussianCategoricalPm(graph, "Split(-1.5,-.5,.5,1.5)");
         GeneralizedSemIm im = MixedUtils.GaussianCategoricalIm(pm);
 
-        DataSet ds = im.simulateDataAvoidInfinity(parameters.getInt("sampleSize"), false);
+        boolean saveLatentVars = parameters.getBoolean("saveLatentVars");
+        DataSet ds = im.simulateDataAvoidInfinity(parameters.getInt("sampleSize"), saveLatentVars);
+
         return MixedUtils.makeMixedData(ds, nd);
     }
 

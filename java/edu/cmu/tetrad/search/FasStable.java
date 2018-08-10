@@ -130,7 +130,6 @@ public class FasStable implements IFas {
     }
 
     public FasStable(IndependenceTest test) {
-        this.graph = new EdgeListGraphSingleConnections(test.getVariables());
         this.test = test;
     }
 
@@ -148,6 +147,8 @@ public class FasStable implements IFas {
      */
     public Graph search() {
         this.logger.log("info", "Starting Fast Adjacency Search.");
+
+        if (graph == null) graph = new EdgeListGraphSingleConnections(test.getVariables());
         graph.removeEdges(graph.getEdges());
 
         sepset = new SepsetMap();
@@ -268,6 +269,10 @@ public class FasStable implements IFas {
                 if ((i + 1) % 100 == 0) out.println("Node # " + (i + 1));
             }
 
+            if (Thread.currentThread().isInterrupted()) {
+                break;
+            }
+
             Node x = nodes.get(i);
 
             for (int j = i + 1; j < nodes.size(); j++) {
@@ -308,10 +313,9 @@ public class FasStable implements IFas {
                         getSepsets().set(x, y, empty);
                     }
 
-                    TetradLogger.getInstance().log("independencies", SearchLogUtils.independenceFact(x, y, empty) + " p = " +
-                            nf.format(test.getPValue()));
-
                     if (verbose) {
+                        TetradLogger.getInstance().forceLogMessage(SearchLogUtils.independenceFact(x, y, empty) + " p = " +
+                                nf.format(test.getPValue()));
                         out.println(SearchLogUtils.independenceFact(x, y, empty) + " p = " +
                                 nf.format(test.getPValue()));
                     }
@@ -320,10 +324,10 @@ public class FasStable implements IFas {
                     adjacencies.get(x).add(y);
                     adjacencies.get(y).add(x);
 
-                    if (verbose) {
-                        TetradLogger.getInstance().log("dependencies", SearchLogUtils.independenceFact(x, y, empty) + " p = " +
-                                nf.format(test.getPValue()));
-                    }
+//                    if (verbose) {
+//                        TetradLogger.getInstance().log("dependencies", SearchLogUtils.independenceFact(x, y, empty) + " p = " +
+//                                nf.format(test.getPValue()));
+//                    }
                 }
             }
         }
@@ -392,6 +396,10 @@ public class FasStable implements IFas {
                     int[] choice;
 
                     while ((choice = cg.next()) != null) {
+                        if (Thread.currentThread().isInterrupted()) {
+                            break;
+                        }
+
                         List<Node> condSet = GraphUtils.asList(choice, ppx);
 
                         boolean independent;
@@ -419,7 +427,7 @@ public class FasStable implements IFas {
                             getSepsets().set(x, y, condSet);
 
                             if (verbose) {
-                                TetradLogger.getInstance().log("independencies", SearchLogUtils.independenceFact(x, y, condSet) + " p = " +
+                                TetradLogger.getInstance().forceLogMessage(SearchLogUtils.independenceFact(x, y, condSet) + " p = " +
                                         nf.format(test.getPValue()));
                                 out.println(SearchLogUtils.independenceFactMsg(x, y, condSet, test.getPValue()));
                             }
