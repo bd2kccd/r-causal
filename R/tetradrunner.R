@@ -301,7 +301,12 @@ tetradrunner.getAlgorithmDescription <- function(algoId){
   		}
 	}
 	
-	cat(algoAnno$name(), " : ", algoAnno$description())
+	algoDesc_instance <- .jcall("edu/cmu/tetrad/util/AlgorithmDescriptions",
+							"Ledu/cmu/tetrad/util/AlgorithmDescriptions;",
+							"getInstance")
+	
+	cat(algoAnno$name(), " : ", algoDesc_instance$get(algoId))
+	
 	if(algoAnno_instance$requireIndependenceTest(algoClass)){
 		cat("\nIt requires the independence test.")
 	}
