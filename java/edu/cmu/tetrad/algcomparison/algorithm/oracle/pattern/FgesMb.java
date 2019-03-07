@@ -13,8 +13,9 @@ import edu.cmu.tetrad.graph.GraphUtils;
 import edu.cmu.tetrad.graph.Node;
 import edu.cmu.tetrad.search.Score;
 import edu.cmu.tetrad.util.Parameters;
-import edu.pitt.dbmi.algo.bootstrap.BootstrapEdgeEnsemble;
-import edu.pitt.dbmi.algo.bootstrap.GeneralBootstrapTest;
+import edu.pitt.dbmi.algo.resampling.GeneralResamplingTest;
+import edu.pitt.dbmi.algo.resampling.ResamplingEdgeEnsemble;
+import java.io.PrintStream;
 import java.util.Collections;
 import java.util.List;
 
@@ -51,7 +52,7 @@ public class FgesMb implements Algorithm, TakesInitialGraph, HasKnowledge, UsesS
 
     @Override
     public Graph search(DataModel dataSet, Parameters parameters) {
-    	if (parameters.getInt("bootstrapSampleSize") < 1) {
+        if (parameters.getInt("numberResampling") < 1) {
             if (algorithm != null) {
 //                initialGraph = algorithm.search(dataSet, parameters);
             }
@@ -61,6 +62,12 @@ public class FgesMb implements Algorithm, TakesInitialGraph, HasKnowledge, UsesS
             search.setFaithfulnessAssumed(parameters.getBoolean("faithfulnessAssumed"));
             search.setKnowledge(knowledge);
             search.setVerbose(parameters.getBoolean("verbose"));
+            search.setMaxDegree(parameters.getInt("maxDegree"));
+
+            Object obj = parameters.get("printStream");
+            if (obj instanceof PrintStream) {
+                search.setOut((PrintStream) obj);
+            }
 
             if (initialGraph != null) {
                 search.setInitialGraph(initialGraph);
@@ -73,25 +80,26 @@ public class FgesMb implements Algorithm, TakesInitialGraph, HasKnowledge, UsesS
         } else {
             FgesMb fgesMb = new FgesMb(score, algorithm);
 
-            //fgesMb.setKnowledge(knowledge);
             if (initialGraph != null) {
                 fgesMb.setInitialGraph(initialGraph);
             }
             DataSet data = (DataSet) dataSet;
-            GeneralBootstrapTest search = new GeneralBootstrapTest(data, fgesMb,
-                    parameters.getInt("bootstrapSampleSize"));
+            GeneralResamplingTest search = new GeneralResamplingTest(data, fgesMb, parameters.getInt("numberResampling"));
             search.setKnowledge(knowledge);
 
-            BootstrapEdgeEnsemble edgeEnsemble = BootstrapEdgeEnsemble.Highest;
-            switch (parameters.getInt("bootstrapEnsemble", 1)) {
+            search.setPercentResampleSize(parameters.getDouble("percentResampleSize"));
+            search.setResamplingWithReplacement(parameters.getBoolean("resamplingWithReplacement"));
+
+            ResamplingEdgeEnsemble edgeEnsemble = ResamplingEdgeEnsemble.Highest;
+            switch (parameters.getInt("resamplingEnsemble", 1)) {
                 case 0:
-                    edgeEnsemble = BootstrapEdgeEnsemble.Preserved;
+                    edgeEnsemble = ResamplingEdgeEnsemble.Preserved;
                     break;
                 case 1:
-                    edgeEnsemble = BootstrapEdgeEnsemble.Highest;
+                    edgeEnsemble = ResamplingEdgeEnsemble.Highest;
                     break;
                 case 2:
-                    edgeEnsemble = BootstrapEdgeEnsemble.Majority;
+                    edgeEnsemble = ResamplingEdgeEnsemble.Majority;
             }
             search.setEdgeEnsemble(edgeEnsemble);
             search.setParameters(parameters);
@@ -121,10 +129,15 @@ public class FgesMb implements Algorithm, TakesInitialGraph, HasKnowledge, UsesS
         List<String> parameters = score.getParameters();
         parameters.add("targetName");
         parameters.add("faithfulnessAssumed");
-        // Bootstrapping
-        parameters.add("bootstrapSampleSize");
-        parameters.add("bootstrapEnsemble");
+        parameters.add("maxDegree");
         parameters.add("verbose");
+
+        // Resampling
+        parameters.add("numberResampling");
+        parameters.add("percentResampleSize");
+        parameters.add("resamplingWithReplacement");
+        parameters.add("resamplingEnsemble");
+
         return parameters;
     }
 
@@ -156,6 +169,11 @@ public class FgesMb implements Algorithm, TakesInitialGraph, HasKnowledge, UsesS
     @Override
     public void setScoreWrapper(ScoreWrapper score) {
         this.score = score;
+    }
+    
+    @Override
+    public ScoreWrapper getScoreWarpper() {
+        return score;
     }
 
 }

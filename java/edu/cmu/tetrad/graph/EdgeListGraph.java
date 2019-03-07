@@ -109,6 +109,8 @@ public class EdgeListGraph implements Graph, TripleClassifier {
 
     private boolean pag = false;
 
+    private Map<String, Object> attributes = new HashMap<>();
+    
     //==============================CONSTUCTORS===========================//
 
     /**
@@ -143,6 +145,10 @@ public class EdgeListGraph implements Graph, TripleClassifier {
         }
 
         transferNodesAndEdges(graph);
+        
+        // Keep attributes from the original graph
+        transferAttributes(graph);
+        
         this.ambiguousTriples = graph.getAmbiguousTriples();
         this.underLineTriples = graph.getUnderLines();
         this.dottedUnderLineTriples = graph.getDottedUnderlines();
@@ -213,6 +219,9 @@ public class EdgeListGraph implements Graph, TripleClassifier {
         _graph.namesHash = new HashMap<>(graph.namesHash);
         _graph.pag = graph.pag;
         _graph.pattern = graph.pattern;
+        
+        _graph.getAllAttributes().putAll(graph.getAllAttributes());
+        
         return _graph;
     }
 
@@ -317,21 +326,82 @@ public class EdgeListGraph implements Graph, TripleClassifier {
 
             Node A = Edges.getDirectedEdgeTail(edge);
             Node B = Edges.getDirectedEdgeHead(edge);
-            List<Node> adjToA = getAdjacentNodes(A);
 
-            while (!adjToA.isEmpty()) {
-                Node Curr = adjToA.remove(0);
-                if (!((getAdjacentNodes(Curr)).contains(B)) &&
-                        ((getEdge(Curr, A)).getProximalEndpoint(A) == Endpoint
-                                .ARROW)) {
-                    return true;
+            for (Node C : getAdjacentNodes(A)) {
+                if (C != B && !isAdjacentTo(C, B)) {
+                    Edge e = getEdge(C, A);
+
+                    if (e.getProximalEndpoint(A) == Endpoint.ARROW) {
+                        return true;
+                    }
                 }
             }
-            return false;
+
+            return visibleEdgeHelper(A, B, this);
         } else {
             throw new IllegalArgumentException(
                     "Given edge is not in the graph.");
         }
+    }
+
+    private static boolean visibleEdgeHelper(Node A, Node B, Graph graph) {
+        if (A.getNodeType() != NodeType.MEASURED) {
+            throw new IllegalArgumentException();
+        }
+        if (B.getNodeType() != NodeType.MEASURED) {
+            throw new IllegalArgumentException();
+        }
+
+        final LinkedList<Node> path = new LinkedList<>();
+        path.add(A);
+
+        for (Node C : graph.getNodesInTo(A, Endpoint.ARROW)) {
+            if (graph.isParentOf(C, A)) return true;
+
+            if (visibleEdgeHelperVisit(graph, C, A, B, path)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static boolean visibleEdgeHelperVisit(Graph graph, Node c, Node a, Node b,
+                                                  LinkedList<Node> path) {
+        if (path.contains(a)) {
+            return false;
+        }
+
+        path.addLast(a);
+
+        if (a == b) {
+            return true;
+        }
+
+        for (Node D : graph.getNodesInTo(a, Endpoint.ARROW)) {
+            if (graph.isParentOf(D, c)) {
+                return true;
+            }
+
+            if (a.getNodeType() == NodeType.MEASURED) {
+                if (!graph.isDefCollider(D, c, a)) {
+                    continue;
+                }
+            }
+
+            if (graph.isDefCollider(D, c, a)) {
+                if (!graph.isParentOf(c, b)) {
+                    continue;
+                }
+            }
+
+            if (visibleEdgeHelperVisit(graph, D, c, b, path)) {
+                return true;
+            }
+        }
+
+        path.removeLast();
+        return false;
     }
 
     /**
@@ -978,6 +1048,15 @@ public class EdgeListGraph implements Graph, TripleClassifier {
 
         ancestors = null;
 //        System.out.println("TANSFER AFTER " + getEdges());
+    }
+    
+    public void transferAttributes(Graph graph)
+    		throws IllegalArgumentException {
+        if (graph == null) {
+            throw new NullPointerException("No graph was provided.");
+        }
+
+        this.attributes.putAll(graph.getAllAttributes());
     }
 
     /**
@@ -1801,7 +1880,7 @@ public class EdgeListGraph implements Graph, TripleClassifier {
      * @param closure the closure of the conditioning set uner the parent
      *                relation (to be calculated recursively).
      */
-    private void doParentClosureVisit(Node node, Set<Node> closure) {
+    /*private void doParentClosureVisit(Node node, Set<Node> closure) {
         if (closure.contains(node)) return;
         closure.add(node);
 
@@ -1811,7 +1890,7 @@ public class EdgeListGraph implements Graph, TripleClassifier {
                 doParentClosureVisit(sub, closure);
             }
         }
-    }
+    }*/
 
     /**
      * @return this object.
@@ -2012,9 +2091,29 @@ public class EdgeListGraph implements Graph, TripleClassifier {
     }
 
     public void setStuffRemovedSinceLastTripleAccess(
-	boolean stuffRemovedSinceLastTripleAccess) {
-	this.stuffRemovedSinceLastTripleAccess = stuffRemovedSinceLastTripleAccess;
+            boolean stuffRemovedSinceLastTripleAccess) {
+        this.stuffRemovedSinceLastTripleAccess = stuffRemovedSinceLastTripleAccess;
     }
+    
+	@Override
+	public Map<String, Object> getAllAttributes() {
+		return attributes;
+	}
+
+	@Override
+	public Object getAttribute(String key) {
+		return attributes.get(key);
+	}
+
+	@Override
+	public void removeAttribute(String key) {
+		attributes.remove(key);
+	}
+
+	@Override
+	public void addAttribute(String key, Object value) {
+		attributes.put(key, value);
+	}
 
 }
 

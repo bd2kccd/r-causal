@@ -11,9 +11,9 @@ import edu.cmu.tetrad.search.Fges;
 import edu.cmu.tetrad.search.SearchGraphUtils;
 import edu.cmu.tetrad.util.Parameters;
 import edu.cmu.tetrad.util.RandomUtil;
-import edu.pitt.dbmi.algo.bootstrap.BootstrapEdgeEnsemble;
-import edu.pitt.dbmi.algo.bootstrap.GeneralBootstrapTest;
-
+import edu.pitt.dbmi.algo.resampling.GeneralResamplingTest;
+import edu.pitt.dbmi.algo.resampling.ResamplingEdgeEnsemble;
+import java.io.PrintStream;
 import java.util.List;
 
 /**
@@ -40,7 +40,7 @@ public class FgesMeasurement implements Algorithm, TakesInitialGraph, HasKnowled
 
     @Override
     public Graph search(DataModel dataModel, Parameters parameters) {
-    	if (parameters.getInt("bootstrapSampleSize") < 1) {
+        if (parameters.getInt("numberResampling") < 1) {
             DataSet dataSet = DataUtils.getContinuousDataSet(dataModel);
             dataSet = dataSet.copy();
 
@@ -62,35 +62,43 @@ public class FgesMeasurement implements Algorithm, TakesInitialGraph, HasKnowled
             search.setKnowledge(knowledge);
             search.setVerbose(parameters.getBoolean("verbose"));
 
+            Object obj = parameters.get("printStream");
+            if (obj instanceof PrintStream) {
+                search.setOut((PrintStream) obj);
+            }
+
             return search.search();
-    	}else{
-    		FgesMeasurement fgesMeasurement = new FgesMeasurement(score, algorithm);
-    		
-    		//fgesMeasurement.setKnowledge(knowledge);
-			if (initialGraph != null) {
-				fgesMeasurement.setInitialGraph(initialGraph);
-			}
-			DataSet data = (DataSet) dataModel;
-			GeneralBootstrapTest search = new GeneralBootstrapTest(data, fgesMeasurement,
-					parameters.getInt("bootstrapSampleSize"));
+        } else {
+            FgesMeasurement fgesMeasurement = new FgesMeasurement(score, algorithm);
+
+            if (initialGraph != null) {
+                fgesMeasurement.setInitialGraph(initialGraph);
+            }
+            DataSet data = (DataSet) dataModel;
+            GeneralResamplingTest search = new GeneralResamplingTest(data, fgesMeasurement, parameters.getInt("numberResampling"));
             search.setKnowledge(knowledge);
 
-			BootstrapEdgeEnsemble edgeEnsemble = BootstrapEdgeEnsemble.Highest;
-			switch (parameters.getInt("bootstrapEnsemble", 1)) {
-			case 0:
-				edgeEnsemble = BootstrapEdgeEnsemble.Preserved;
-				break;
-			case 1:
-				edgeEnsemble = BootstrapEdgeEnsemble.Highest;
-				break;
-			case 2:
-				edgeEnsemble = BootstrapEdgeEnsemble.Majority;
-			}
-			search.setEdgeEnsemble(edgeEnsemble);
-			search.setParameters(parameters);
-			search.setVerbose(parameters.getBoolean("verbose"));
-			return search.search();
-    	}
+            search.setPercentResampleSize(parameters.getDouble("percentResampleSize"));
+            search.setResamplingWithReplacement(parameters.getBoolean("resamplingWithReplacement"));
+
+            ResamplingEdgeEnsemble edgeEnsemble = ResamplingEdgeEnsemble.Highest;
+            switch (parameters.getInt("resamplingEnsemble", 1)) {
+                case 0:
+                    edgeEnsemble = ResamplingEdgeEnsemble.Preserved;
+                    break;
+                case 1:
+                    edgeEnsemble = ResamplingEdgeEnsemble.Highest;
+                    break;
+                case 2:
+                    edgeEnsemble = ResamplingEdgeEnsemble.Majority;
+            }
+            search.setEdgeEnsemble(edgeEnsemble);
+            search.setAddOriginalDataset(parameters.getBoolean("addOriginalDataset"));
+            
+            search.setParameters(parameters);
+            search.setVerbose(parameters.getBoolean("verbose"));
+            return search.search();
+        }
     }
 
     @Override
@@ -114,9 +122,12 @@ public class FgesMeasurement implements Algorithm, TakesInitialGraph, HasKnowled
         parameters.add("faithfulnessAssumed");
         parameters.add("verbose");
         parameters.add("measurementVariance");
-		// Bootstrapping
-        parameters.add("bootstrapSampleSize");
-        parameters.add("bootstrapEnsemble");
+        // Resampling
+        parameters.add("numberResampling");
+        parameters.add("percentResampleSize");
+        parameters.add("resamplingWithReplacement");
+        parameters.add("resamplingEnsemble");
+        parameters.add("addOriginalDataset");
 
         return parameters;
     }
@@ -131,15 +142,15 @@ public class FgesMeasurement implements Algorithm, TakesInitialGraph, HasKnowled
         this.knowledge = knowledge;
     }
 
-	@Override
-	public Graph getInitialGraph() {
-		return initialGraph;
-	}
+    @Override
+    public Graph getInitialGraph() {
+        return initialGraph;
+    }
 
-	@Override
-	public void setInitialGraph(Graph initialGraph) {
-		this.initialGraph = initialGraph;
-	}
+    @Override
+    public void setInitialGraph(Graph initialGraph) {
+        this.initialGraph = initialGraph;
+    }
 
     @Override
     public void setInitialGraph(Algorithm algorithm) {
