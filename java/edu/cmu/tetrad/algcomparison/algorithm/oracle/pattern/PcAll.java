@@ -15,8 +15,8 @@ import edu.cmu.tetrad.graph.EdgeListGraph;
 import edu.cmu.tetrad.graph.Graph;
 import edu.cmu.tetrad.search.SearchGraphUtils;
 import edu.cmu.tetrad.util.Parameters;
-import edu.pitt.dbmi.algo.bootstrap.BootstrapEdgeEnsemble;
-import edu.pitt.dbmi.algo.bootstrap.GeneralBootstrapTest;
+import edu.pitt.dbmi.algo.resampling.GeneralResamplingTest;
+import edu.pitt.dbmi.algo.resampling.ResamplingEdgeEnsemble;
 import java.util.List;
 
 /**
@@ -25,7 +25,7 @@ import java.util.List;
  * @author jdramsey
  */
 @edu.cmu.tetrad.annotation.Algorithm(
-        name = "PC All",
+        name = "Variants of PC",
         command = "pc-all",
         algoType = AlgType.forbid_latent_common_causes
 )
@@ -51,28 +51,7 @@ public class PcAll implements Algorithm, TakesInitialGraph, HasKnowledge, TakesI
 
     @Override
     public Graph search(DataModel dataSet, Parameters parameters) {
-    	if (parameters.getInt("bootstrapSampleSize") < 1) {
-
-            if (algorithm != null) {
-//                initialGraph = algorithm.search(dataSet, parameters);
-            }
-
-            edu.cmu.tetrad.search.PcAll.FasRule fasRule;
-
-            switch (parameters.getInt("fasRule")) {
-                case 1:
-                    fasRule = edu.cmu.tetrad.search.PcAll.FasRule.FAS;
-                    break;
-                case 2:
-                    fasRule = edu.cmu.tetrad.search.PcAll.FasRule.FAS_STABLE;
-                    break;
-                case 3:
-                    fasRule = edu.cmu.tetrad.search.PcAll.FasRule.FAS_STABLE_CONCURRENT;
-                    break;
-                default:
-                    throw new IllegalArgumentException("Not a choice.");
-            }
-
+        if (parameters.getInt("numberResampling") < 1) {
             edu.cmu.tetrad.search.PcAll.ColliderDiscovery colliderDiscovery;
 
             switch (parameters.getInt("colliderDiscoveryRule")) {
@@ -108,7 +87,19 @@ public class PcAll implements Algorithm, TakesInitialGraph, HasKnowledge, TakesI
             edu.cmu.tetrad.search.PcAll search = new edu.cmu.tetrad.search.PcAll(test.getTest(dataSet, parameters), initialGraph);
             search.setDepth(parameters.getInt("depth"));
             search.setKnowledge(knowledge);
-            search.setFasRule(fasRule);
+
+            if (parameters.getBoolean("stableFAS")) {
+                search.setFasType(edu.cmu.tetrad.search.PcAll.FasType.STABLE);
+            } else {
+                search.setFasType(edu.cmu.tetrad.search.PcAll.FasType.REGULAR);
+            }
+
+            if (parameters.getBoolean("concurrentFAS")) {
+                search.setConcurrent(edu.cmu.tetrad.search.PcAll.Concurrent.YES);
+            } else {
+                search.setConcurrent(edu.cmu.tetrad.search.PcAll.Concurrent.NO);
+            }
+
             search.setColliderDiscovery(colliderDiscovery);
             search.setConflictRule(conflictRule);
             search.setUseHeuristic(parameters.getBoolean("useMaxPOrientationHeuristic"));
@@ -119,33 +110,35 @@ public class PcAll implements Algorithm, TakesInitialGraph, HasKnowledge, TakesI
         } else {
             PcAll pcAll = new PcAll(test, algorithm);
 
-            //pcAll.setKnowledge(knowledge);
             if (initialGraph != null) {
                 pcAll.setInitialGraph(initialGraph);
             }
 
             DataSet data = (DataSet) dataSet;
-
-            GeneralBootstrapTest search = new GeneralBootstrapTest(data, pcAll, parameters.getInt("bootstrapSampleSize"));
+            GeneralResamplingTest search = new GeneralResamplingTest(data, pcAll, parameters.getInt("numberResampling"));
             search.setKnowledge(knowledge);
 
-            BootstrapEdgeEnsemble edgeEnsemble = BootstrapEdgeEnsemble.Highest;
-            switch (parameters.getInt("bootstrapEnsemble", 1)) {
+            search.setPercentResampleSize(parameters.getDouble("percentResampleSize"));
+            search.setResamplingWithReplacement(parameters.getBoolean("resamplingWithReplacement"));
+            
+            ResamplingEdgeEnsemble edgeEnsemble = ResamplingEdgeEnsemble.Highest;
+            switch (parameters.getInt("resamplingEnsemble", 1)) {
                 case 0:
-                    edgeEnsemble = BootstrapEdgeEnsemble.Preserved;
+                    edgeEnsemble = ResamplingEdgeEnsemble.Preserved;
                     break;
                 case 1:
-                    edgeEnsemble = BootstrapEdgeEnsemble.Highest;
+                    edgeEnsemble = ResamplingEdgeEnsemble.Highest;
                     break;
                 case 2:
-                    edgeEnsemble = BootstrapEdgeEnsemble.Majority;
+                    edgeEnsemble = ResamplingEdgeEnsemble.Majority;
             }
             search.setEdgeEnsemble(edgeEnsemble);
+            search.setAddOriginalDataset(parameters.getBoolean("addOriginalDataset"));
+            
             search.setParameters(parameters);
             search.setVerbose(parameters.getBoolean("verbose"));
             return search.search();
         }
-
     }
 
     @Override
@@ -155,7 +148,7 @@ public class PcAll implements Algorithm, TakesInitialGraph, HasKnowledge, TakesI
 
     @Override
     public String getDescription() {
-        return "CPC (Conservative \"Peter and Clark\") using " + test.getDescription() + (algorithm != null ? " with initial graph from "
+        return "PC using " + test.getDescription() + (algorithm != null ? " with initial graph from "
                 + algorithm.getDescription() : "");
     }
 
@@ -167,19 +160,19 @@ public class PcAll implements Algorithm, TakesInitialGraph, HasKnowledge, TakesI
     @Override
     public List<String> getParameters() {
         List<String> parameters = test.getParameters();
-
-//        public enum FasRule {FAS, FAS_STABLE, FAS_STABLE_CONCURRENT}
-//        public enum ColliderDiscovery {FAS_SEPSETS, CONSERVATIVE, MAX_P}
-//        public enum ConflictRule {PRIORITY, BIDIRECTED, OVERWRITE}
-        parameters.add("fasRule");
+        parameters.add("stableFAS");
+        parameters.add("concurrentFAS");
         parameters.add("colliderDiscoveryRule");
         parameters.add("conflictRule");
         parameters.add("depth");
         parameters.add("useMaxPOrientationHeuristic");
         parameters.add("maxPOrientationMaxPathLength");
-        // Bootstrapping
-        parameters.add("bootstrapSampleSize");
-        parameters.add("bootstrapEnsemble");
+        // Resampling
+        parameters.add("numberResampling");
+        parameters.add("percentResampleSize");
+        parameters.add("resamplingWithReplacement");
+        parameters.add("resamplingEnsemble");
+        parameters.add("addOriginalDataset");
         parameters.add("verbose");
         return parameters;
     }
@@ -212,6 +205,11 @@ public class PcAll implements Algorithm, TakesInitialGraph, HasKnowledge, TakesI
     @Override
     public void setIndependenceWrapper(IndependenceWrapper test) {
         this.test = test;
+    }
+    
+    @Override
+    public IndependenceWrapper getIndependenceWrapper() {
+        return test;
     }
 
 }

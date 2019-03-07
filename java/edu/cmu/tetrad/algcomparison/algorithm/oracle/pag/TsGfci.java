@@ -13,8 +13,8 @@ import edu.cmu.tetrad.graph.EdgeListGraph;
 import edu.cmu.tetrad.graph.Graph;
 import edu.cmu.tetrad.search.TsDagToPag;
 import edu.cmu.tetrad.util.Parameters;
-import edu.pitt.dbmi.algo.bootstrap.BootstrapEdgeEnsemble;
-import edu.pitt.dbmi.algo.bootstrap.GeneralBootstrapTest;
+import edu.pitt.dbmi.algo.resampling.GeneralResamplingTest;
+import edu.pitt.dbmi.algo.resampling.ResamplingEdgeEnsemble;
 import java.util.List;
 
 /**
@@ -51,7 +51,10 @@ public class TsGfci implements Algorithm, TakesInitialGraph, HasKnowledge, Takes
 //            throw new IllegalArgumentException("You need a (labeled) time series data set to run TsGFCI.");
 //        }
         
-        if (parameters.getInt("bootstrapSampleSize") < 1) {
+        if (parameters.getInt("numberResampling") < 1) {
+        	if(knowledge != null) {
+        		dataSet.setKnowledge(knowledge);
+        	}
             edu.cmu.tetrad.search.TsGFci search = new edu.cmu.tetrad.search.TsGFci(test.getTest(dataSet, parameters),
                     score.getScore(dataSet, parameters));
             IKnowledge _knowledge = dataSet.getKnowledge() != null ? dataSet.getKnowledge() : new Knowledge2();
@@ -64,21 +67,26 @@ public class TsGfci implements Algorithm, TakesInitialGraph, HasKnowledge, Takes
             TsGfci algorithm = new TsGfci(test, score);
 
             DataSet data = (DataSet) dataSet;
-            GeneralBootstrapTest search = new GeneralBootstrapTest(data, algorithm, parameters.getInt("bootstrapSampleSize"));
+            GeneralResamplingTest search = new GeneralResamplingTest(data, algorithm, parameters.getInt("numberResampling"));
             search.setKnowledge(knowledge);
 
-            BootstrapEdgeEnsemble edgeEnsemble = BootstrapEdgeEnsemble.Highest;
-            switch (parameters.getInt("bootstrapEnsemble", 1)) {
+            search.setPercentResampleSize(parameters.getDouble("percentResampleSize"));
+            search.setResamplingWithReplacement(parameters.getBoolean("resamplingWithReplacement"));
+            
+            ResamplingEdgeEnsemble edgeEnsemble = ResamplingEdgeEnsemble.Highest;
+            switch (parameters.getInt("resamplingEnsemble", 1)) {
                 case 0:
-                    edgeEnsemble = BootstrapEdgeEnsemble.Preserved;
+                    edgeEnsemble = ResamplingEdgeEnsemble.Preserved;
                     break;
                 case 1:
-                    edgeEnsemble = BootstrapEdgeEnsemble.Highest;
+                    edgeEnsemble = ResamplingEdgeEnsemble.Highest;
                     break;
                 case 2:
-                    edgeEnsemble = BootstrapEdgeEnsemble.Majority;
+                    edgeEnsemble = ResamplingEdgeEnsemble.Majority;
             }
             search.setEdgeEnsemble(edgeEnsemble);
+            search.setAddOriginalDataset(parameters.getBoolean("addOriginalDataset"));
+            
             search.setParameters(parameters);
             search.setVerbose(parameters.getBoolean("verbose"));
             return search.search();
@@ -108,9 +116,12 @@ public class TsGfci implements Algorithm, TakesInitialGraph, HasKnowledge, Takes
         parameters.add("faithfulnessAssumed");
         parameters.add("maxIndegree");
         parameters.add("printStream");
-        // Bootstrapping
-        parameters.add("bootstrapSampleSize");
-        parameters.add("bootstrapEnsemble");
+        // Resampling
+        parameters.add("numberResampling");
+        parameters.add("percentResampleSize");
+        parameters.add("resamplingWithReplacement");
+        parameters.add("resamplingEnsemble");
+        parameters.add("addOriginalDataset");
         parameters.add("verbose");
         return parameters;
     }
@@ -146,8 +157,18 @@ public class TsGfci implements Algorithm, TakesInitialGraph, HasKnowledge, Takes
     }
 
     @Override
+    public IndependenceWrapper getIndependenceWrapper() {
+        return test;
+    }
+    
+    @Override
     public void setScoreWrapper(ScoreWrapper score) {
         this.score = score;
     }
 
+    @Override
+    public ScoreWrapper getScoreWarpper() {
+        return score;
+    }
+    
 }

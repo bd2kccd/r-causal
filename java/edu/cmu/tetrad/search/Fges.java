@@ -71,6 +71,8 @@ public final class Fges implements GraphSearch, GraphScorer {
      * List of variables in the data set, in order.
      */
     private List<Node> variables;
+    
+    private Map<Node, Object> nodeAttributes = new HashMap<>();
 
     /**
      * The true graph, if known. If this is provided, asterisks will be printed
@@ -221,6 +223,9 @@ public final class Fges implements GraphSearch, GraphScorer {
      * @return the resulting Pattern.
      */
     public Graph search() {
+        long start = System.currentTimeMillis();
+        totalScore = 0.0;
+
         topGraphs.clear();
 
         lookupArrows = new ConcurrentHashMap<>();
@@ -234,6 +239,12 @@ public final class Fges implements GraphSearch, GraphScorer {
         if (initialGraph != null) {
             graph = new EdgeListGraphSingleConnections(initialGraph);
             graph = GraphUtils.replaceNodes(graph, nodes);
+        }
+
+        try {
+            totalScore = scoreDag(SearchGraphUtils.dagFromPattern(graph));
+        } catch (Exception e) {
+            totalScore = 0.0;
         }
 
         addRequiredEdges(graph);
@@ -264,9 +275,21 @@ public final class Fges implements GraphSearch, GraphScorer {
             bes();
         }
 
-        long start = System.currentTimeMillis();
-        totalScore = 0.0;
+        this.modelScore = totalScore;
 
+        this.out.println("Model Score = " + modelScore);
+        
+        for(Node _node : nodeAttributes.keySet()) {
+        	Object value = nodeAttributes.get(_node);
+        	
+        	this.out.println(_node.getName() + " Score = " + value);
+        	
+        	Node node = graph.getNode(_node.getName());
+        	node.addAttribute("BIC", value);
+        }
+
+        graph.addAttribute("BIC", modelScore);
+        
         long endTime = System.currentTimeMillis();
         this.elapsedTime = endTime - start;
 
@@ -277,7 +300,6 @@ public final class Fges implements GraphSearch, GraphScorer {
             this.logger.flush();
         }
 
-        this.modelScore = totalScore;
 
         return graph;
     }
@@ -1287,7 +1309,7 @@ public final class Fges implements GraphSearch, GraphScorer {
             private int to;
 
             public BackwardTask(Node r, List<Node> adj, int chunk, int from, int to,
-                    Map<Node, Integer> hashIndices) {
+                                Map<Node, Integer> hashIndices) {
                 this.adj = adj;
                 this.hashIndices = hashIndices;
                 this.chunk = chunk;
@@ -1386,7 +1408,7 @@ public final class Fges implements GraphSearch, GraphScorer {
         return modelScore;
     }
 
-    // Basic data structure for an arrow a->b considered for additiom or removal from the graph, together with
+    // Basic data structure for an arrow a->b considered for addition or removal from the graph, together with
     // associated sets needed to make this determination. For both forward and backward direction, NaYX is needed.
     // For the forward direction, T neighbors are needed; for the backward direction, H neighbors are needed.
     // See Chickering (2002). The totalScore difference resulting from added in the edge (hypothetically) is recorded
@@ -1500,7 +1522,7 @@ public final class Fges implements GraphSearch, GraphScorer {
 
     // Evaluate the Insert(X, Y, T) operator (Definition 12 from Chickering, 2002).
     private double insertEval(Node x, Node y, Set<Node> t, Set<Node> naYX,
-            Map<Node, Integer> hashIndices) {
+                              Map<Node, Integer> hashIndices) {
         if (x == y) {
             throw new IllegalArgumentException();
         }
@@ -1512,7 +1534,7 @@ public final class Fges implements GraphSearch, GraphScorer {
 
     // Evaluate the Delete(X, Y, T) operator (Definition 12 from Chickering, 2002).
     private double deleteEval(Node x, Node y, Set<Node> diff, Set<Node> naYX,
-            Map<Node, Integer> hashIndices) {
+                              Map<Node, Integer> hashIndices) {
         Set<Node> set = new HashSet<>(diff);
         set.addAll(graph.getParents(y));
         set.remove(x);
@@ -1979,15 +2001,20 @@ public final class Fges implements GraphSearch, GraphScorer {
                 parentIndices[count++] = hashIndices.get(nextParent);
             }
 
+            // Calculate BIC score for this node
             int yIndex = hashIndices.get(y);
-            _score += score.localScore(yIndex, parentIndices);
+            double node_score = score.localScore(yIndex, parentIndices);
+            
+            nodeAttributes.put(y, node_score);
+            
+            _score += node_score;
         }
 
         return _score;
     }
 
     private double scoreGraphChange(Node y, Set<Node> parents,
-            Node x, Map<Node, Integer> hashIndices) {
+                                    Node x, Map<Node, Integer> hashIndices) {
         int yIndex = hashIndices.get(y);
 
         if (x == y) {

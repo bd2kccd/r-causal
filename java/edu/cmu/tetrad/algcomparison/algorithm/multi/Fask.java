@@ -9,8 +9,8 @@ import edu.cmu.tetrad.data.*;
 import edu.cmu.tetrad.graph.EdgeListGraph;
 import edu.cmu.tetrad.graph.Graph;
 import edu.cmu.tetrad.util.Parameters;
-import edu.pitt.dbmi.algo.bootstrap.BootstrapEdgeEnsemble;
-import edu.pitt.dbmi.algo.bootstrap.GeneralBootstrapTest;
+import edu.pitt.dbmi.algo.resampling.GeneralResamplingTest;
+import edu.pitt.dbmi.algo.resampling.ResamplingEdgeEnsemble;
 import java.util.List;
 
 /**
@@ -45,7 +45,7 @@ public class Fask implements Algorithm, HasKnowledge, UsesScoreWrapper {
 
     @Override
     public Graph search(DataModel dataSet, Parameters parameters) {
-        if (parameters.getInt("bootstrapSampleSize") < 1) {
+        if (parameters.getInt("numberResampling") < 1) {
             edu.cmu.tetrad.search.Fask search = new edu.cmu.tetrad.search.Fask((DataSet) dataSet, score.getScore(dataSet, parameters));
             search.setDepth(parameters.getInt("depth"));
             search.setPenaltyDiscount(parameters.getDouble("penaltyDiscount"));
@@ -63,23 +63,28 @@ public class Fask implements Algorithm, HasKnowledge, UsesScoreWrapper {
             return getGraph(search);
         } else {
             Fask fask = new Fask(score);
-            fask.setKnowledge(knowledge);
 
             DataSet data = (DataSet) dataSet;
-            GeneralBootstrapTest search = new GeneralBootstrapTest(data, fask, parameters.getInt("bootstrapSampleSize"));
-
-            BootstrapEdgeEnsemble edgeEnsemble = BootstrapEdgeEnsemble.Highest;
-            switch (parameters.getInt("bootstrapEnsemble", 1)) {
+            GeneralResamplingTest search = new GeneralResamplingTest(data, fask, parameters.getInt("numberResampling"));
+            search.setKnowledge(knowledge);
+            
+            search.setPercentResampleSize(parameters.getDouble("percentResampleSize"));
+            search.setResamplingWithReplacement(parameters.getBoolean("resamplingWithReplacement"));
+            
+            ResamplingEdgeEnsemble edgeEnsemble = ResamplingEdgeEnsemble.Highest;
+            switch (parameters.getInt("resamplingEnsemble", 1)) {
                 case 0:
-                    edgeEnsemble = BootstrapEdgeEnsemble.Preserved;
+                    edgeEnsemble = ResamplingEdgeEnsemble.Preserved;
                     break;
                 case 1:
-                    edgeEnsemble = BootstrapEdgeEnsemble.Highest;
+                    edgeEnsemble = ResamplingEdgeEnsemble.Highest;
                     break;
                 case 2:
-                    edgeEnsemble = BootstrapEdgeEnsemble.Majority;
+                    edgeEnsemble = ResamplingEdgeEnsemble.Majority;
             }
             search.setEdgeEnsemble(edgeEnsemble);
+            search.setAddOriginalDataset(parameters.getBoolean("addOriginalDataset"));
+            
             search.setParameters(parameters);
             search.setVerbose(parameters.getBoolean("verbose"));
             return search.search();
@@ -111,9 +116,13 @@ public class Fask implements Algorithm, HasKnowledge, UsesScoreWrapper {
 
         parameters.add("useFasAdjacencies");
         parameters.add("useCorrDiffAdjacencies");
-        // Bootstrapping
-        parameters.add("bootstrapSampleSize");
-        parameters.add("bootstrapEnsemble");
+        
+        // Resampling
+        parameters.add("numberResampling");
+        parameters.add("percentResampleSize");
+        parameters.add("resamplingWithReplacement");
+        parameters.add("resamplingEnsemble");
+        parameters.add("addOriginalDataset");
         parameters.add("verbose");
 
         return parameters;
@@ -132,5 +141,10 @@ public class Fask implements Algorithm, HasKnowledge, UsesScoreWrapper {
     @Override
     public void setScoreWrapper(ScoreWrapper score) {
         this.score = score;
+    }
+    
+    @Override
+    public ScoreWrapper getScoreWarpper() {
+        return score;
     }
 }

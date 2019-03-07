@@ -20,7 +20,8 @@ public class ParamDescriptions {
         map.put("numMeasures", new ParamDescription("Number of measured variables (min = 1)", 10, 1, Integer.MAX_VALUE));
         map.put("numLatents", new ParamDescription("Number of latent variables (min = 0)", 0, 0, Integer.MAX_VALUE));
         map.put("avgDegree", new ParamDescription("Average degree of graph (min = 1)", 2, 1, Integer.MAX_VALUE));
-        map.put("maxDegree", new ParamDescription("The maximum degree of the graph (min = -1)", 100, -1, Integer.MAX_VALUE));
+        map.put("maxDegree", new ParamDescription("The maximum degree of the graph (min = -1)", 4, -1, Integer.MAX_VALUE));
+        map.get("maxDegree").setLongDescription("During the search if a node reaches the max degree value additional edges will not be added to that node.");
         map.put("maxIndegree", new ParamDescription("Maximum indegree of graph (min = 1)", 100, 1, Integer.MAX_VALUE));
         map.put("maxOutdegree", new ParamDescription("Maximum outdegree of graph (min = 1)", 100, 1, Integer.MAX_VALUE));
 
@@ -103,7 +104,7 @@ public class ParamDescriptions {
         map.put("thr", new ParamDescription("THR parameter (GLASSO) (min = 0.0)", 1e-4, 0.0, Double.MAX_VALUE));
 
         map.put("targetName", new ParamDescription("Target variable name", ""));
-        map.put("verbose", new ParamDescription("Yes if verbose output should be printed or logged", false));
+        map.put("verbose", new ParamDescription("Yes if verbose output should be printed or logged", true));
         map.put("faithfulnessAssumed", new ParamDescription("Yes if (one edge) faithfulness should be assumed", true));
 
         map.put("useWishart", new ParamDescription("Yes if the Wishart test shoud be used. No if the Delta test should be used", false));
@@ -169,11 +170,31 @@ public class ParamDescriptions {
 
         map.put("thresholdForReversing", new ParamDescription("Variables with skewnesses less than this value will be reversed in sign (min = 0)", 0.0, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY));
 
-        // Bootstrapping
-        map.put("bootstrapSampleSize", new ParamDescription("The number of bootstraps (min = 0)", 0, 0, Integer.MAX_VALUE));
-        map.put("bootstrapEnsemble", new ParamDescription("Ensemble method: Preserved (0), Highest (1), Majority (2)", 1, 0, 2));
-        //~Bootstrapping
+        // Resampling
+        map.put("numberResampling", new ParamDescription("The number of bootstraps/resampling iterations (min = 0)", 0, 0, Integer.MAX_VALUE));
+        map.put("percentResampleSize", new ParamDescription("The percentage of resample size (min = 0.1)", 100, 0.1, Double.MAX_VALUE));
+        map.put("resamplingWithReplacement", new ParamDescription("Yes, if sampling with replacement (bootstrapping)", true));
+        map.put("resamplingEnsemble", new ParamDescription("Ensemble method: Preserved (0), Highest (1), Majority (2)", 1, 0, 2));
+        map.put("addOriginalDataset", new ParamDescription("Yes, if adding an original dataset as another bootstrapping", false));
+        //~Resampling
 
+        // Probabilistic Test
+        map.put("noRandomlyDeterminedIndependence", new ParamDescription("Yes, if use the cutoff threshold for the independence test.", false));
+        map.put("cutoffIndTest", new ParamDescription("Independence cutoff threshold", 0.5, 0.0, 1.0));
+        
+        // RB-BSC
+        map.put("thresholdNoRandomDataSearch", new ParamDescription("Yes, if use the cutoff threshold for the constraints independence test (stage 1).", false));
+        map.put("cutoffDataSearch", new ParamDescription("Independence cutoff threshold", 0.5, 0.0, 1.0));
+        map.put("thresholdNoRandomConstrainSearch", new ParamDescription("Yes, if use the cutoff threshold for the meta-constraints independence test (stage 2).", true));
+        map.put("cutoffConstrainSearch", new ParamDescription("Constraint-independence cutoff threshold", 0.5, 0.0, 1.0));
+        
+        map.put("numRandomizedSearchModels", new ParamDescription("The number of search probabilistic model (min = 1)", 10, 1, Integer.MAX_VALUE));
+        map.put("numBscBootstrapSamples", new ParamDescription("The number of bootstrappings drawing from posterior dist. (min = 1)", 50, 1, Integer.MAX_VALUE));
+        map.put("lowerBound", new ParamDescription("Lower bound cutoff threshold", 0.3, 0.0, 1.0));
+        map.put("upperBound", new ParamDescription("Upper bound cutoff threshold", 0.7, 0.0, 1.0));
+        map.put("outputRBD", new ParamDescription("Output graph: Yes: dependent-constraint RB, No: independent-constraint RB.", true));
+        // ~RB-BSC
+        
         map.put("fasRule", new ParamDescription(
                 "Adjacency search: 1 = PC, 2 = PC-Stable, 3 = Concurrent PC-Stable",
                 1, 1, 3));
@@ -263,6 +284,56 @@ public class ParamDescriptions {
         map.put("probTwoCycle", new ParamDescription(
                 "The probability of creating a 2-cycles in the graph (0 - 1)",
                 0.0, 0.0, 1.0));
+
+        map.put("numBasisFunctions", new ParamDescription(
+                "Number of functions to use in (truncated) basis",
+                30, 1, Integer.MAX_VALUE));
+
+        map.put("kernelType", new ParamDescription(
+                "Kernel type (1 = Gaussian, 2 = Epinechnikov)",
+                2, 1, 2));
+
+        map.put("kernelMultiplier", new ParamDescription(
+                "Bowman and Azzalini (1997) default kernel bandwidhts should be multiplied by...",
+                1.0, Double.MIN_VALUE, Double.POSITIVE_INFINITY));
+
+        map.put("basisType", new ParamDescription(
+                "Basis type (1 = Polynomial, 2 = Cosine)",
+                2, 1, 2));
+
+        map.put("fastFDR", new ParamDescription(
+                "Yes if the  possible fastFDR adjustment to alpha levels should be done", false));
+
+        map.put("kernelRegressionSampleSize", new ParamDescription(
+                "Minimum sample size to use per conditioning for kernel regression",
+                100, 1, Double.POSITIVE_INFINITY));
+
+        map.put("cciScoreAlpha", new ParamDescription("Cutoff for p values (alpha) (min = 0.0)", 0.01, 0.0, 1.0));
+
+        map.put("numDependenceSpotChecks", new ParamDescription(
+                "The number of specific <z1,...,zn> values for which to check X _||_ Y | Z = <z1,...,zn>",
+                0, 0,Integer.MAX_VALUE));
+
+        map.put("stableFAS", new ParamDescription(
+                "Yes if the 'stable' FAS should be done", false));
+
+        map.put("concurrentFAS", new ParamDescription(
+                "Yes if a concurrent FAS should be done", true));
+
+        map.put("kciNumBootstraps", new ParamDescription(
+                "Number of bootstraps for Theorems 4 and Proposition 5 for KCI",
+                5000, 1, Integer.MAX_VALUE));
+
+        map.put("thresholdForNumEigenvalues", new ParamDescription(
+                "Threshold to determine how many eigenvalues to use--the lower the more (0 to 1)",
+                0.001, 0, Double.POSITIVE_INFINITY));
+
+        map.put("kciEpsilon", new ParamDescription(
+                "Epsilon for Proposition 5, a small positive number", 0.001, 0, Double.POSITIVE_INFINITY));
+
+        map.put("kciUseAppromation", new ParamDescription(
+                "Use the approximate Gamma approximation algorithm", true));
+
     }
 
     public static ParamDescriptions getInstance() {

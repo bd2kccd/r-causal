@@ -1,7 +1,7 @@
 ---
 title: "rcausal"
 author: "Chirayu Wongchokprasitti"
-date: "June 9, 2017"
+date: "March 7, 2019"
 abstract: >
   This package is a R wrapper containing the Tetrad Library.
 output: 
@@ -17,7 +17,7 @@ R Wrapper for Tetrad Library, for more details see
 <https://github.com/bd2kccd/r-causal>.
 
 ## R Library Requirement
-R >= 3.3.0, stringr, rJava, graph, RBGL, Rgraphviz
+R >= 3.3.0, stringr, rJava
 
 ## Installation
 
