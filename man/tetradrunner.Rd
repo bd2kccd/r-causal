@@ -52,7 +52,7 @@ tetradrunner$edges
 # Bootstrapping
 tetradrunner <- tetradrunner(algoId = 'fges',df = charity,dataType = 'continuous',
 alpha=0.1,faithfulnessAssumed=TRUE,maxDegree=-1,verbose=TRUE,
-bootstrapSampleSize = 10,bootstrapEnsemble=0)
+numberResampling = 10,resamplingEnsemble = 0,addOriginalDataset = TRUE)
 tetradrunner$edges #Show the result's edges
 tetradrunner$nodes #Show the result's nodes
 }
