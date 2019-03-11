@@ -118,16 +118,19 @@ public class BDeuScore implements LocalDiscreteScore, IBDeuScore, Score {
         int[] myChild = data[node];
 
 
+        ROW:
         for (int i = 0; i < sampleSize; i++) {
             for (int p = 0; p < parents.length; p++) {
+                if (myParents[p][i] == -99) continue ROW;
                 parentValues[p] = myParents[p][i];
             }
 
             int childValue = myChild[i];
 
             if (childValue == -99) {
-                throw new IllegalStateException("Please remove or impute missing " +
-                        "values (record " + i + " column " + i + ")");
+                continue ROW;
+//                throw new IllegalStateException("Please remove or impute missing " +
+//                        "values (record " + i + " column " + i + ")");
             }
 
             int rowIndex = getRowIndex(dims, parentValues);
@@ -207,14 +210,6 @@ public class BDeuScore implements LocalDiscreteScore, IBDeuScore, Score {
         return bump > 0;//lastBumpThreshold;
     }
 
-    public boolean getAlternativePenalty() {
-        return false;
-    }
-
-    public void setAlternativePenalty(double alpha) {
-
-    }
-
     @Override
     public DataSet getDataSet() {
         throw new UnsupportedOperationException();
@@ -273,6 +268,11 @@ public class BDeuScore implements LocalDiscreteScore, IBDeuScore, Score {
     @Override
     public int getMaxDegree() {
         return (int) Math.ceil(Math.log(sampleSize));
+    }
+
+    @Override
+    public boolean determines(List<Node> z, Node y) {
+        return false;
     }
 }
 

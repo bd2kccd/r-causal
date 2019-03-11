@@ -3,13 +3,13 @@ package edu.cmu.tetrad.algcomparison.algorithm.oracle.pag;
 import edu.cmu.tetrad.algcomparison.algorithm.Algorithm;
 import edu.cmu.tetrad.algcomparison.independence.IndependenceWrapper;
 import edu.cmu.tetrad.data.DataModel;
-import edu.cmu.tetrad.data.IKnowledge;
+import edu.cmu.tetrad.data.DataSet;
 import edu.cmu.tetrad.graph.EdgeListGraph;
 import edu.cmu.tetrad.util.Parameters;
+import edu.pitt.dbmi.algo.resampling.GeneralResamplingTest;
+import edu.pitt.dbmi.algo.resampling.ResamplingEdgeEnsemble;
 import edu.cmu.tetrad.data.DataType;
 import edu.cmu.tetrad.graph.Graph;
-import edu.cmu.tetrad.search.SearchGraphUtils;
-
 import java.util.List;
 
 /**
@@ -18,22 +18,50 @@ import java.util.List;
  * @author jdramsey
  */
 public class Ccd implements Algorithm {
+
     static final long serialVersionUID = 23L;
     private IndependenceWrapper test;
-    private Algorithm initialGraph = null;
-    private IKnowledge knowledge = null;
 
-    public Ccd(IndependenceWrapper type) {
-        this.test = type;
+    public Ccd(IndependenceWrapper test) {
+        this.test = test;
     }
 
     @Override
     public Graph search(DataModel dataSet, Parameters parameters) {
-        edu.cmu.tetrad.search.Ccd search = new edu.cmu.tetrad.search.Ccd(
-                test.getTest(dataSet, parameters));
-        search.setApplyR1(parameters.getBoolean("applyR1"));
+    	if (parameters.getInt("numberResampling") < 1) {
+            edu.cmu.tetrad.search.Ccd search = new edu.cmu.tetrad.search.Ccd(
+                    test.getTest(dataSet, parameters));
+            search.setDepth(parameters.getInt("depth"));
+            search.setApplyR1(parameters.getBoolean("applyR1"));
 
-        return search.search();
+            return search.search();
+    	}else{
+    		Ccd algorithm = new Ccd(test);
+    		
+    		DataSet data = (DataSet) dataSet;
+    		GeneralResamplingTest search = new GeneralResamplingTest(data, algorithm, parameters.getInt("numberResampling"));
+    		
+    		search.setPercentResampleSize(parameters.getDouble("percentResampleSize"));
+            search.setResamplingWithReplacement(parameters.getBoolean("resamplingWithReplacement"));
+            
+            ResamplingEdgeEnsemble edgeEnsemble = ResamplingEdgeEnsemble.Highest;
+            switch (parameters.getInt("resamplingEnsemble", 1)) {
+                case 0:
+                    edgeEnsemble = ResamplingEdgeEnsemble.Preserved;
+                    break;
+                case 1:
+                    edgeEnsemble = ResamplingEdgeEnsemble.Highest;
+                    break;
+                case 2:
+                    edgeEnsemble = ResamplingEdgeEnsemble.Majority;
+            }
+    		search.setEdgeEnsemble(edgeEnsemble);
+    		search.setAddOriginalDataset(parameters.getBoolean("addOriginalDataset"));
+    		
+    		search.setParameters(parameters);    		
+    		search.setVerbose(parameters.getBoolean("verbose"));
+    		return search.search();
+    	}
     }
 
     @Override
@@ -56,6 +84,13 @@ public class Ccd implements Algorithm {
         List<String> parameters = test.getParameters();
         parameters.add("depth");
         parameters.add("applyR1");
+        // Resampling
+        parameters.add("numberResampling");
+        parameters.add("percentResampleSize");
+        parameters.add("resamplingWithReplacement");
+        parameters.add("resamplingEnsemble");
+        parameters.add("addOriginalDataset");
+        parameters.add("verbose");
         return parameters;
     }
 }

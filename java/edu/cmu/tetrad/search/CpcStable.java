@@ -210,7 +210,7 @@ public final class CpcStable implements GraphSearch {
         graph = new EdgeListGraphSingleConnections(nodes);
 
 
-        final FasStableConcurrent fas = new FasStableConcurrent(getIndependenceTest());
+        final FasConcurrent fas = new FasConcurrent(getIndependenceTest());
         fas.setOut(out);
         return search(fas, nodes);
     }
@@ -220,7 +220,7 @@ public final class CpcStable implements GraphSearch {
         this.logger.log("info", "Independence test = " + getIndependenceTest() + ".");
         this.allTriples = new HashSet<>();
 
-//        this.logger.log("info", "Variables " + independenceTest.getVariables());
+//        this.logger.log("info", "Variables " + independenceTest.getVariable());
 
         long startTime = System.currentTimeMillis();
 

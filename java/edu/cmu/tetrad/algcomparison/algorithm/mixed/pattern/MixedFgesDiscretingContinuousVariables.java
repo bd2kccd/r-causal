@@ -1,7 +1,10 @@
 package edu.cmu.tetrad.algcomparison.algorithm.mixed.pattern;
 
 import edu.cmu.tetrad.algcomparison.algorithm.Algorithm;
+import edu.cmu.tetrad.algcomparison.score.BdeuScore;
+import edu.cmu.tetrad.algcomparison.score.ConditionalGaussianBicScore;
 import edu.cmu.tetrad.algcomparison.score.ScoreWrapper;
+import edu.cmu.tetrad.algcomparison.score.SemBicScore;
 import edu.cmu.tetrad.data.*;
 import edu.cmu.tetrad.graph.Edge;
 import edu.cmu.tetrad.graph.EdgeListGraph;
@@ -10,6 +13,8 @@ import edu.cmu.tetrad.graph.Node;
 import edu.cmu.tetrad.search.Fges;
 import edu.cmu.tetrad.search.SearchGraphUtils;
 import edu.cmu.tetrad.util.Parameters;
+import edu.pitt.dbmi.algo.resampling.GeneralResamplingTest;
+import edu.pitt.dbmi.algo.resampling.ResamplingEdgeEnsemble;
 
 import java.util.List;
 
@@ -25,20 +30,48 @@ public class MixedFgesDiscretingContinuousVariables implements Algorithm {
     }
 
     public Graph search(DataModel dataSet, Parameters parameters) {
-        Discretizer discretizer = new Discretizer(DataUtils.getContinuousDataSet(dataSet));
-        List<Node> nodes = dataSet.getVariables();
+    	if (parameters.getInt("numberResampling") < 1) {
+            Discretizer discretizer = new Discretizer(DataUtils.getContinuousDataSet(dataSet));
+            List<Node> nodes = dataSet.getVariables();
 
-        for (Node node : nodes) {
-            if (node instanceof ContinuousVariable) {
-                discretizer.equalIntervals(node, parameters.getInt("numCategories"));
+            for (Node node : nodes) {
+                if (node instanceof ContinuousVariable) {
+                    discretizer.equalIntervals(node, parameters.getInt("numCategories"));
+                }
             }
-        }
 
-        dataSet = discretizer.discretize();
-        DataSet _dataSet = DataUtils.getDiscreteDataSet(dataSet);
-        Fges fges = new Fges(score.getScore(_dataSet, parameters));
-        Graph p = fges.search();
-        return convertBack(_dataSet, p);
+            dataSet = discretizer.discretize();
+            DataSet _dataSet = DataUtils.getDiscreteDataSet(dataSet);
+            Fges fges = new Fges(score.getScore(_dataSet, parameters));
+            Graph p = fges.search();
+            return convertBack(_dataSet, p);
+    	}else{
+    		MixedFgesDiscretingContinuousVariables algorithm = new MixedFgesDiscretingContinuousVariables(score);
+    		
+    		DataSet data = (DataSet) dataSet;
+    		GeneralResamplingTest search = new GeneralResamplingTest(data, algorithm, parameters.getInt("numberResampling"));
+            
+    		search.setPercentResampleSize(parameters.getDouble("percentResampleSize"));
+            search.setResamplingWithReplacement(parameters.getBoolean("resamplingWithReplacement"));
+    		
+            ResamplingEdgeEnsemble edgeEnsemble = ResamplingEdgeEnsemble.Highest;
+            switch (parameters.getInt("resamplingEnsemble", 1)) {
+                case 0:
+                    edgeEnsemble = ResamplingEdgeEnsemble.Preserved;
+                    break;
+                case 1:
+                    edgeEnsemble = ResamplingEdgeEnsemble.Highest;
+                    break;
+                case 2:
+                    edgeEnsemble = ResamplingEdgeEnsemble.Majority;
+            }
+    		search.setEdgeEnsemble(edgeEnsemble);
+    		search.setAddOriginalDataset(parameters.getBoolean("addOriginalDataset"));
+    		
+    		search.setParameters(parameters);    		
+    		search.setVerbose(parameters.getBoolean("verbose"));
+    		return search.search();
+    	}
     }
 
 
@@ -84,6 +117,13 @@ public class MixedFgesDiscretingContinuousVariables implements Algorithm {
     public List<String> getParameters() {
         List<String> parameters = score.getParameters();
         parameters.add("numCategories");
+        // Resampling
+        parameters.add("numberResampling");
+        parameters.add("percentResampleSize");
+        parameters.add("resamplingWithReplacement");
+        parameters.add("resamplingEnsemble");
+        parameters.add("addOriginalDataset");
+        parameters.add("verbose");
         return parameters;
     }
 }

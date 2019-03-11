@@ -124,29 +124,41 @@ public final class SearchGraphUtils {
                     continue;
                 }
 
-                List<Node> sepset = set.get(x, z);
+                List<Node> sepset = sepset(graph, x, z, new HashSet<Node>(), new HashSet<Node>(),
+                        -1, test);
+                //set.get(x, z);
 
                 if (sepset == null) {
                     continue;
                 }
 
-                List<Node> augmentedSet = new LinkedList<>(sepset);
-                augmentedSet.add(y);
-
-//                if (test.splitDetermines(Collections.singletonList(y), x, z)) {
-//                    continue;
-//                }
-
-                if (test.determines(sepset, y)) {
-                    TetradLogger.getInstance().log("info", sepset + " determines " + y);
+                if (sepset.contains(y)) {
                     continue;
                 }
 
-                boolean splitDeterminexSepsetXZ = test.determines(sepset, x) || test.determines(sepset, z);
-                boolean splitDeterminesAugmentedSetXZ = test.determines(augmentedSet, x) || test.determines(augmentedSet, z);
+                List<Node> augmentedSet = new LinkedList<>(sepset);
 
-                if (!splitDeterminexSepsetXZ && !splitDeterminesAugmentedSetXZ) {
-                    TetradLogger.getInstance().log("info", sepset + " split determines " + x + " and " + z);
+                if (!augmentedSet.contains(y)) {
+                    augmentedSet.add(y);
+                }
+
+                if (test.determines(sepset, x)) {
+//                    System.out.println(SearchLogUtils.determinismDetected(sepset, x));
+                    continue;
+                }
+
+                if (test.determines(sepset, z)) {
+//                    System.out.println(SearchLogUtils.determinismDetected(sepset, z));
+                    continue;
+                }
+
+                if (test.determines(augmentedSet, x)) {
+//                    System.out.println(SearchLogUtils.determinismDetected(augmentedSet, x));
+                    continue;
+                }
+
+                if (test.determines(augmentedSet, z)) {
+//                    System.out.println(SearchLogUtils.determinismDetected(augmentedSet, z));
                     continue;
                 }
 
@@ -158,11 +170,47 @@ public final class SearchGraphUtils {
                 graph.setEndpoint(x, y, Endpoint.ARROW);
                 graph.setEndpoint(z, y, Endpoint.ARROW);
 
+                System.out.println(SearchLogUtils.colliderOrientedMsg(x, y, z) + " sepset = " + sepset);
                 TetradLogger.getInstance().log("colliderOrientations", SearchLogUtils.colliderOrientedMsg(x, y, z));
             }
         }
 
         TetradLogger.getInstance().log("info", "Finishing Collider Orientation.");
+    }
+
+    private static List<Node> sepset(Graph graph, Node a, Node c, Set<Node> containing, Set<Node> notContaining, int depth,
+                                     IndependenceTest independenceTest) {
+        List<Node> adj = graph.getAdjacentNodes(a);
+        adj.addAll(graph.getAdjacentNodes(c));
+        adj.remove(c);
+        adj.remove(a);
+
+        for (int d = 0; d <= Math.min((depth == -1 ? 1000 : depth), Math.max(adj.size(), adj.size())); d++) {
+            if (d <= adj.size()) {
+                ChoiceGenerator gen = new ChoiceGenerator(adj.size(), d);
+                int[] choice;
+
+                WHILE:
+                while ((choice = gen.next()) != null) {
+                    Set<Node> v2 = GraphUtils.asSet(choice, adj);
+                    v2.addAll(containing);
+                    v2.removeAll(notContaining);
+                    v2.remove(a);
+                    v2.remove(c);
+
+//                    if (isForbidden(a, c, new ArrayList<>(v2)))
+
+                    independenceTest.isIndependent(a, c, new ArrayList<>(v2));
+                    double p2 = independenceTest.getScore();
+
+                    if (p2 < 0) {
+                        return new ArrayList<>(v2);
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     //    /**
@@ -225,7 +273,8 @@ public final class SearchGraphUtils {
      * Step C of PC; orients colliders using specified sepset. That is, orients x *-* y *-* z as x *-> y <-* z just in
      * case y is in Sepset({x, z}).
      */
-    public static List<Triple> orientCollidersUsingSepsets(SepsetMap set, IKnowledge knowledge, Graph graph, boolean verbose) {
+    public static List<Triple> orientCollidersUsingSepsets(SepsetMap set, IKnowledge knowledge, Graph graph, boolean verbose,
+                                                           boolean enforcePattern) {
         TetradLogger.getInstance().log("details", "Starting Collider Orientation:");
         List<Triple> colliders = new ArrayList<>();
 
@@ -260,8 +309,20 @@ public final class SearchGraphUtils {
                         System.out.println("Collider orientation <" + a + ", " + b + ", " + c + "> sepset = " + sepset);
                     }
 
-                    graph.setEndpoint(a, b, Endpoint.ARROW);
-                    graph.setEndpoint(c, b, Endpoint.ARROW);
+                    if (enforcePattern) {
+                        if (graph.getEndpoint(b, a) == Endpoint.ARROW || graph.getEndpoint(b, c) == Endpoint.ARROW)
+                            continue;
+                    }
+
+//                    graph.setEndpoint(a, b, Endpoint.ARROW);
+//                    graph.setEndpoint(c, b, Endpoint.ARROW);
+
+                    graph.removeEdge(a, b);
+                    graph.removeEdge(c, b);
+
+                    graph.addDirectedEdge(a, b);
+                    graph.addDirectedEdge(c, b);
+
                     colliders.add(new Triple(a, b, c));
                     TetradLogger.getInstance().log("colliderOrientations", SearchLogUtils.colliderOrientedMsg(a, b, c, sepset));
                 }
@@ -1378,9 +1439,41 @@ public final class SearchGraphUtils {
         return graph;
     }
 
-    public static Graph dagFromPattern(Graph pattern) {
-        DagInPatternIterator dags = new DagInPatternIterator(pattern);
-        return dags.next();
+    public static Graph dagFromPattern(Graph graph) {
+        Graph dag = new EdgeListGraph(graph);
+
+        MeekRules rules = new MeekRules();
+        rules.orientImplied(graph);
+
+        WHILE:
+        while (true) {
+            Set<Edge> edges = dag.getEdges();
+
+            for (Edge edge : edges) {
+                if (Edges.isUndirectedEdge(edge)) {
+                    Node node1 = edge.getNode1();
+                    Node node2 = edge.getNode2();
+
+                    if (!(dag.isAncestorOf(node2, node1))) {
+                        edge.setEndpoint2(Endpoint.ARROW);
+                    } else if (!dag.getParents(node1).isEmpty()) {
+                        edge.setEndpoint1(Endpoint.ARROW);
+                    } else {
+                        throw new IllegalArgumentException("Can't orient " + edge);
+                    }
+
+                    rules.orientImplied(dag);
+                    continue WHILE;
+                }
+            }
+
+            break;
+        }
+
+        return dag;
+
+//        DagInPatternIterator dags = new DagInPatternIterator(pattern);
+//        return dags.next();
 
 //        MeekRules rules = new MeekRules();
 //        rules.orientImplied(graph);
@@ -2155,9 +2248,9 @@ public final class SearchGraphUtils {
 //            }
 //        }
 //
-//        PatternToDag search = new PatternToDag(new Pattern(newGraph));
-//        Graph dag = search.patternToDagMeekRules();
-//        DataGraphUtils.arrangeBySourceGraph(dag, graph);
+//        PatternToDag search = new PatternToDag(new EdgeListGraph(newGraph));
+//        Graph dag = search.patternToDagMeek();
+//        GraphUtils.arrangeBySourceGraph(dag, graph);
 //        return dag;
     }
 
@@ -2910,7 +3003,6 @@ public final class SearchGraphUtils {
         }
         return error;
     }
-
 
     private static class AhdCounts {
         private int ahdFp = 0;

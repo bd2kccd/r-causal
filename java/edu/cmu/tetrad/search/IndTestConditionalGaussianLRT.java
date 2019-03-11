@@ -32,6 +32,10 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.*;
 
+import static edu.cmu.tetrad.util.MathUtils.logChoose;
+import static java.lang.Math.exp;
+import static java.lang.Math.log;
+
 /**
  * Performs a test of conditional independence X _||_ Y | Z1...Zn where all searchVariables are either continuous or discrete.
  * This test is valid for both ordinal and non-ordinal discrete searchVariables.
@@ -49,12 +53,14 @@ public class IndTestConditionalGaussianLRT implements IndependenceTest {
     private ConditionalGaussianLikelihood likelihood;
     private double pValue = Double.NaN;
     private int numCategoriesToDiscretize = 3;
-    private double penaltyDiscount;
 
-    public IndTestConditionalGaussianLRT(DataSet data, double alpha) {
+    private boolean verbose = false;
+    private boolean fastFDR = false;
+
+    public IndTestConditionalGaussianLRT(DataSet data, double alpha, boolean discretize) {
         this.data = data;
         this.likelihood = new ConditionalGaussianLikelihood(data);
-
+        this.likelihood.setDiscretize(discretize);
         nodesHash = new HashedMap<>();
 
         List<Node> variables = data.getVariables();
@@ -84,38 +90,66 @@ public class IndTestConditionalGaussianLRT implements IndependenceTest {
         int _x = nodesHash.get(x);
         int _y = nodesHash.get(y);
 
+        int[] list0 = new int[z.size() + 1];
         int[] list1 = new int[z.size() + 1];
         int[] list2 = new int[z.size()];
 
+        list0[0] = _x;
         list1[0] = _y;
 
         for (int i = 0; i < z.size(); i++) {
             int _z = nodesHash.get(z.get(i));
+            list0[i + 1] = _z;
             list1[i + 1] = _z;
             list2[i] = _z;
         }
 
-        ConditionalGaussianLikelihood.Ret ret1 = likelihood.getLikelihood(_x, list1);
-        ConditionalGaussianLikelihood.Ret ret2 = likelihood.getLikelihood(_x, list2);
+        ConditionalGaussianLikelihood.Ret ret1 = likelihood.getLikelihood(_y, list0);
+        ConditionalGaussianLikelihood.Ret ret2 = likelihood.getLikelihood(_y, list2);
+        ConditionalGaussianLikelihood.Ret ret3 = likelihood.getLikelihood(_x, list1);
+        ConditionalGaussianLikelihood.Ret ret4 = likelihood.getLikelihood(_x, list2);
 
-        double lik = ret1.getLik() - ret2.getLik();
-        double dof = ret1.getDof() - ret2.getDof();
+        double lik0 = ret1.getLik() - ret2.getLik();
+        double dof0 = ret1.getDof() - ret2.getDof();
+        double lik1 = ret3.getLik() - ret4.getLik();
+        double dof1 = ret3.getDof() - ret4.getDof();
 
-        if (dof <= 0) {
-            dof = 1;
+        if (dof0 <= 0) {
+            dof0 = 1;
+//            throw new IllegalArgumentException("DOF must be >= 1");
+        }
+        if (dof1 <= 0) {
+            dof1 = 1;
 //            throw new IllegalArgumentException("DOF must be >= 1");
         }
 
-        double p = 0;
+        double p0 = 0;
+        double p1 = 0;
         try {
-            p = 1.0 - new ChiSquaredDistribution(dof).cumulativeProbability(2.0 * lik);
+            p0 = 1.0 - new ChiSquaredDistribution(dof0).cumulativeProbability(2.0 * lik0);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            p1 = 1.0 - new ChiSquaredDistribution(dof1).cumulativeProbability(2.0 * lik1);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        this.pValue = p;
+        this.pValue = Math.min(p0, p1);
 
-        return p > alpha;
+//        return this.pValue > alpha;
+
+        if(fastFDR) {
+            final int d1 = 0; // reference
+            final int d2 = z.size();
+            final int v = data.getNumColumns() - 2;
+
+            double alpha2 = (exp(log(alpha) + logChoose(v, d1) - logChoose(v, d2)));
+            return this.pValue > alpha2;
+        } else {
+            return this.pValue > alpha;
+        }
     }
 
     public boolean isIndependent(Node x, Node y, Node... z) {
@@ -240,7 +274,17 @@ public class IndTestConditionalGaussianLRT implements IndependenceTest {
         this.numCategoriesToDiscretize = numCategoriesToDiscretize;
     }
 
-    public void setPenaltyDiscount(double penaltyDiscount) {
-        this.penaltyDiscount = penaltyDiscount;
+    @Override
+    public boolean isVerbose() {
+        return verbose;
+    }
+
+    @Override
+    public void setVerbose(boolean verbose) {
+        this.verbose = verbose;
+    }
+
+    public void setFastFDR(boolean fastFDR) {
+        this.fastFDR = fastFDR;
     }
 }

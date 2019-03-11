@@ -1,15 +1,20 @@
 package edu.cmu.tetrad.util;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
- * Stores a list of named parameters with their values. Stores default values for known
- * parameters. Returns a list of parameters with their values, for the parameters whose
- * values have been retrieved, using the toString method.
+ * Stores a list of named parameters with their values. Stores default values
+ * for known parameters. Returns a list of parameters with their values, for the
+ * parameters whose values have been retrieved, using the toString method.
  *
  * @author jdramsey
  */
 public class Parameters implements TetradSerializable {
+
     static final long serialVersionUID = 23L;
 
     private Map<String, Object[]> parameters = new LinkedHashMap<>();
@@ -20,7 +25,9 @@ public class Parameters implements TetradSerializable {
     }
 
     public Parameters(Parameters parameters) {
-        if (parameters == null) throw new NullPointerException();
+        if (parameters == null) {
+            throw new NullPointerException();
+        }
         this.parameters = new LinkedHashMap<>(parameters.parameters);
         this.usedParameters = new LinkedHashSet<>(parameters.usedParameters);
         this.overriddenParameters = new HashMap<>(parameters.overriddenParameters);
@@ -32,15 +39,17 @@ public class Parameters implements TetradSerializable {
 
     // Includes all of the given parameters setting with the current parameter settings.
     public void putAll(Parameters parameters) {
-        if (parameters == null) throw new NullPointerException();
+        if (parameters == null) {
+            throw new NullPointerException();
+        }
         this.parameters.putAll(parameters.parameters);
         this.usedParameters.addAll(parameters.usedParameters);
         this.overriddenParameters.putAll(parameters.overriddenParameters);
     }
 
     /**
-     * Returns a list of the parameters whoese values were actually used in the course of
-     * the simulation.
+     * Returns a list of the parameters whoese values were actually used in the
+     * course of the simulation.
      *
      * @return This list, in String form.
      */
@@ -48,7 +57,7 @@ public class Parameters implements TetradSerializable {
         StringBuilder builder = new StringBuilder();
 
         for (String param : usedParameters) {
-//            ParamDescription paramDescription = ParamDescriptions.instance().get(param);
+//            ParamDescription paramDescription = ParamDescriptions.getInstance().get(param);
 //            builder.append("\n").append(paramDescription.getDescription()).append(" = ").append(parameters.get(param)[0]);
             builder.append("\n").append(param).append(" = ").append(parameters.get(param)[0]);
         }
@@ -57,65 +66,69 @@ public class Parameters implements TetradSerializable {
     }
 
     /**
-     * Returns the integer value of the given parameter, looking up its default in the
-     * ParamDescriptions map.
+     * Returns the integer value of the given parameter, looking up its default
+     * in the ParamDescriptions map.
      *
-     * @param name The name parameter.
+     * @param name The name of the parameter.
      * @return The integer value of this parameter.
      */
     public int getInt(String name) {
-        return ((Number) get(name, ParamDescriptions.instance().get(name).getDefaultValue())).intValue();
+        return ((Number) get(name, ParamDescriptions.getInstance().get(name).getDefaultValue())).intValue();
     }
 
     /**
-     * Returns the boolean value of the given parameter, looking up its default in the
-     * ParamDescriptions map.
+     * Returns the boolean value of the given parameter, looking up its default
+     * in the ParamDescriptions map.
      *
-     * @param name The name parameter.
+     * @param name The name of the parameter.
      * @return The boolean value of this parameter.
      */
     public boolean getBoolean(String name) {
-        return (Boolean) get(name, ParamDescriptions.instance().get(name).getDefaultValue());
+        try {
+            return (Boolean) get(name, ParamDescriptions.getInstance().get(name).getDefaultValue());
+        } catch (Exception e) {
+            throw new RuntimeException("ERROR: Parameter " + name + " was not actually boolean.");
+        }
     }
 
     /**
-     * Returns the double value of the given parameter, looking up its default in the
-     * ParamDescriptions map.
+     * Returns the double value of the given parameter, looking up its default
+     * in the ParamDescriptions map.
      *
-     * @param name The name parameter.
+     * @param name The name or the parameter.
      * @return The double value of this parameter.
      */
     public double getDouble(String name) {
-        return ((Number) get(name, ParamDescriptions.instance().get(name).getDefaultValue())).doubleValue();
+        return ((Number) get(name, ParamDescriptions.getInstance().get(name).getDefaultValue())).doubleValue();
     }
 
     /**
-     * Returns the string value of the given parameter, looking up its default in the
-     * ParamDescriptions map.
+     * Returns the string value of the given parameter, looking up its default
+     * in the ParamDescriptions map.
      *
-     * @param name The name parameter.
+     * @param name The name or the parameter.
      * @return The string value of this parameter.
      */
     public String getString(String name) {
-        return (String) get(name, ParamDescriptions.instance().get(name).getDefaultValue());
+        return String.valueOf(get(name, ParamDescriptions.getInstance().get(name).getDefaultValue()));
     }
 
     /**
-     * Returns the object value of the given parameter, looking up its default in the
-     * ParamDescriptions map.
+     * Returns the object value of the given parameter, looking up its default
+     * in the ParamDescriptions map.
      *
-     * @param name The name parameter.
+     * @param name The name of the parameter.
      * @return The object value of this parameter.
      */
     public Object get(String name) {
-        return get(name, ParamDescriptions.instance().get(name).getDefaultValue());
+        return get(name, ParamDescriptions.getInstance().get(name).getDefaultValue());
     }
 
     /**
-     * Returns the integer value of the given parameter, looking up its default in the
-     * ParamDescriptions map.
+     * Returns the integer value of the given parameter, looking up its default
+     * in the ParamDescriptions map.
      *
-     * @param name The name parameter.
+     * @param name The name of the parameter.
      * @return The integer value of this parameter.
      */
     public int getInt(String name, int defaultValue) {
@@ -123,19 +136,26 @@ public class Parameters implements TetradSerializable {
     }
 
     /**
-     * Returns the boolean value of the given parameter, using the given default.
+     * Returns the boolean value of the given parameter, using the given
+     * default.
      *
-     * @param name The name parameter.
+     * @param name The name of the parameter.
      * @return The boolean value of this parameter.
      */
     public boolean getBoolean(String name, boolean defaultValue) {
-        return (Boolean) get(name, defaultValue);
+        Object b = get(name, defaultValue);
+
+        if (b == null || !(b instanceof Boolean)) {
+            return false;
+        }
+
+        return (Boolean) b;
     }
 
     /**
      * Returns the object value of the given parameter, using the given default.
      *
-     * @param name The name parameter.
+     * @param name The name of the parameter.
      * @return The double value of this parameter.
      */
     public double getDouble(String name, double defaultValue) {
@@ -145,17 +165,17 @@ public class Parameters implements TetradSerializable {
     /**
      * Returns the string value of the given parameter, using the given default.
      *
-     * @param name The name parameter.
+     * @param name The name of the parameter.
      * @return The string value of this parameter.
      */
     public String getString(String name, String defaultValue) {
-        return (String) get(name, defaultValue);
+        return String.valueOf(get(name, defaultValue));
     }
 
     /**
      * Returns the object value of the given parameter, using the given default.
      *
-     * @param name The name parameter.
+     * @param name The name of the parameter.
      * @return The object value of this parameter.
      */
     public Object get(String name, Object defaultValue) {
@@ -175,7 +195,8 @@ public class Parameters implements TetradSerializable {
 //            }
         } else {
             if (getNumValues(name) != 1) {
-                throw new IllegalArgumentException("Parameter '" + name + "' has more than one value.");
+                System.out.println("ERROR. Parameter '" + name + "' was not listed among the algorithm parameters "
+                        + "for this algorithm. Skipping this run.\n");
             }
 
             return objects[0];
@@ -196,10 +217,10 @@ public class Parameters implements TetradSerializable {
         Object[] objects = parameters.get(name);
 
         if (objects == null) {
-            ParamDescription paramDescription = ParamDescriptions.instance().get(name);
+            ParamDescription paramDescription = ParamDescriptions.getInstance().get(name);
             if (paramDescription == null) {
-                throw new IllegalArgumentException("A description of '" + name + "' has " +
-                        "not been given in ParamDescriptions.");
+                throw new IllegalArgumentException("A description of '" + name + "' has "
+                        + "not been given in ParamDescriptions.");
             }
             return new Object[]{paramDescription.getDefaultValue()};
         } else {
@@ -211,7 +232,7 @@ public class Parameters implements TetradSerializable {
      * Sets the value(s) of the given parameter to a list of strings.
      *
      * @param name The name of the parameter.
-     * @param n    A list of values for the parameter.
+     * @param n A list of values for the parameter.
      */
     public void set(String name, Object... n) {
         parameters.put(name, n);
@@ -221,7 +242,7 @@ public class Parameters implements TetradSerializable {
      * Sets the value(s) of the given parameter to a list of values.
      *
      * @param name The name of the parameter.
-     * @param s    A list of strings for the parameter.
+     * @param s A list of strings for the parameter.
      */
     public void set(String name, String... s) {
         parameters.put(name, s);
@@ -244,7 +265,7 @@ public class Parameters implements TetradSerializable {
     /**
      * Sets the given parameter to the given value.
      *
-     * @param name  The name of the parameter.
+     * @param name The name of the parameter.
      * @param value The value of the parameter (a single value).
      */
     public void set(String name, Object value) {
@@ -259,7 +280,7 @@ public class Parameters implements TetradSerializable {
     /**
      * Sets the given parameter to the given value.
      *
-     * @param name  The name of the parameter.
+     * @param name The name of the parameter.
      * @param value The value of the parameter (a single value).
      */
     public void set(String name, String value) {

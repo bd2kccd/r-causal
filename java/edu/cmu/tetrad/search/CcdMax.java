@@ -199,12 +199,11 @@ public final class CcdMax implements GraphSearch {
     private Graph fastAdjacencySearch() {
         long start = System.currentTimeMillis();
 
-        FasStableConcurrent fas = new FasStableConcurrent(null, independenceTest);
+        FasConcurrent fas = new FasConcurrent(null, independenceTest);
         fas.setDepth(getDepth());
         fas.setKnowledge(knowledge);
         fas.setVerbose(false);
 
-        fas.setRecordSepsets(orientConcurrentFeedbackLoops);
         Graph graph = fas.search();
 
         if (useOrientTowardDConnections) {
@@ -243,10 +242,10 @@ public final class CcdMax implements GraphSearch {
 
                                 if (
                                         graph.getEdge(a, c).pointsTowards(a)
-                                        || graph.getEdge(a, d).pointsTowards(a)
-                                        || graph.getEdge(b, c).pointsTowards(b)
-                                        || graph.getEdge(b, d).pointsTowards(b)
-                                        ) {
+                                                || graph.getEdge(a, d).pointsTowards(a)
+                                                || graph.getEdge(b, c).pointsTowards(b)
+                                                || graph.getEdge(b, d).pointsTowards(b)
+                                ) {
                                     continue;
                                 }
 
@@ -397,6 +396,10 @@ public final class CcdMax implements GraphSearch {
         this.knowledge = knowledge;
     }
 
+    public boolean isUseHeuristic() {
+        return useHeuristic;
+    }
+
     public void setUseHeuristic(boolean useHeuristic) {
         this.useHeuristic = useHeuristic;
     }
@@ -407,6 +410,10 @@ public final class CcdMax implements GraphSearch {
 
     public void setMaxPathLength(int maxPathLength) {
         this.maxPathLength = maxPathLength;
+    }
+
+    public boolean isUseOrientTowardDConnections() {
+        return useOrientTowardDConnections;
     }
 
     public void setUseOrientTowardDConnections(boolean useOrientTowardDConnections) {
@@ -639,7 +646,6 @@ public final class CcdMax implements GraphSearch {
 //        }
     }
 }
-
 
 
 

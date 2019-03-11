@@ -23,8 +23,12 @@ package edu.cmu.tetrad.util;
 
 import cern.colt.list.DoubleArrayList;
 import cern.jet.stat.Descriptive;
+import edu.cmu.tetrad.data.BoxDataSet;
+import edu.cmu.tetrad.data.CovarianceMatrix;
+import edu.cmu.tetrad.data.DoubleDataBox;
 import org.apache.commons.math3.distribution.ChiSquaredDistribution;
 import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.commons.math3.linear.SingularMatrixException;
 
 import java.util.*;
 
@@ -113,8 +117,8 @@ public final class StatUtils {
         int count = 0;
 
         for (int i = 0; i < N; i++) {
-            if (!Double.isNaN( data.get(i))) {
-                sum +=  data.get(i);
+            if (!Double.isNaN(data.get(i))) {
+                sum += data.get(i);
                 count++;
             }
         }
@@ -1231,13 +1235,16 @@ public final class StatUtils {
             thirdMoment += s * s * s;
         }
 
+        double ess = secondMoment / N;
+        double esss = thirdMoment / (N - 1);
+
         if (secondMoment == 0) {
             throw new ArithmeticException("StatUtils.skew:  There is no skew " +
                     "when the variance is zero.");
         }
 
         //        thirdMoment /= (N * Math.pow(secondMoment, 1.5));
-        return thirdMoment / Math.pow(secondMoment, 1.5);
+        return esss / Math.pow(ess, 1.5);
     }
 
     /**
@@ -1246,24 +1253,25 @@ public final class StatUtils {
      * @return the skew of the first N values in array.
      */
     public static double skewness(double array[], int N) {
-        double mean = StatUtils.mean(array, N);
-        double variance = StatUtils.variance(array, N);
-        double skew = 0.0;
+        double mean = mean(array, N);
+        double secondMoment = 0.0;
+        double thirdMoment = 0.0;
 
         for (int j = 0; j < N; j++) {
             double s = array[j] - mean;
-
-            skew += s * s * s;
+            secondMoment += s * s;
+            thirdMoment += s * s * s;
         }
 
-//        if (variance == 0) {
-//            throw new ArithmeticException("StatUtils.skew:  There is no skew " +
-//                    "when the variance is zero.");
-//        }
+        double ess = secondMoment / N;
+        double esss = thirdMoment / N;
 
-        skew /= (N * Math.pow(variance, 1.5));
+        if (secondMoment == 0) {
+            throw new ArithmeticException("StatUtils.skew:  There is no skew " +
+                    "when the variance is zero.");
+        }
 
-        return skew;
+        return esss / Math.pow(ess, 1.5);
     }
 
     public static double[] removeNaN(double[] x1) {
@@ -1679,8 +1687,6 @@ public final class StatUtils {
      * @return the given partial covariance.
      */
     public static double partialCovariance(TetradMatrix submatrix) {
-//        submatrix = TetradAlgebra.inverse(submatrix);
-//        return -1.0 * submatrix.get(0, 1);
 
         // Using the method in Whittacker.
         // cov(X, Y | Z) = cov(X, Y) - cov(X, Z) inverse(cov(Z, Z)) cov(Z, Y)
@@ -1689,9 +1695,9 @@ public final class StatUtils {
         int[] _z = new int[submatrix.rows() - 2];
         for (int i = 0; i < submatrix.rows() - 2; i++) _z[i] = i + 2;
 
-        TetradMatrix covXz = submatrix.getSelection(new int[]{0}, _z).copy();
-        TetradMatrix covZy = submatrix.getSelection(_z, new int[]{1}).copy();
-        TetradMatrix covZ = submatrix.getSelection(_z, _z).copy();
+        TetradMatrix covXz = submatrix.getSelection(new int[]{0}, _z);
+        TetradMatrix covZy = submatrix.getSelection(_z, new int[]{1});
+        TetradMatrix covZ = submatrix.getSelection(_z, _z);
 
         TetradMatrix _zInverse = covZ.inverse();
 
@@ -1762,14 +1768,8 @@ public final class StatUtils {
 //
 //        return cov / Math.sqrt(var1 * var2);
 
-
-        try {
-            TetradMatrix inverse = submatrix.inverse();
-            return -(1.0 * inverse.get(0, 1)) / Math.sqrt(inverse.get(0, 0) * inverse.get(1, 1));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Double.NaN;
-        }
+        TetradMatrix inverse = submatrix.inverse();
+        return -(1.0 * inverse.get(0, 1)) / Math.sqrt(inverse.get(0, 0) * inverse.get(1, 1));
     }
 
     /**
@@ -1947,7 +1947,7 @@ public final class StatUtils {
 
         return data2;
     }
-
+    
     public static double factorial(int c) {
         if (c < 0) throw new IllegalArgumentException("Can't take the factorial of a negative number: " + c);
         if (c == 0) return 1;
@@ -1955,22 +1955,8 @@ public final class StatUtils {
     }
 
     public static double getZForAlpha(double alpha) {
-        double low = 0.0;
-        double high = 20.0;
-        double mid = 5.0;
         NormalDistribution dist = new NormalDistribution(0, 1);
-
-        while (high - low > 1e-4) {
-            mid = (high + low) / 2.0;
-            double _alpha = 2.0 * (1.0 - dist.cumulativeProbability(Math.abs(mid)));
-
-            if (_alpha > alpha) {
-                low = mid;
-            } else {
-                high = mid;
-            }
-        }
-        return mid;
+        return dist.inverseCumulativeProbability(1.0 - alpha / 2.0);
     }
 
     public static double getChiSquareCutoff(double alpha, int df) {
@@ -2019,6 +2005,166 @@ public final class StatUtils {
         double sum = 0.0;
         for (double xx : x) sum += xx;
         return sum;
+    }
+
+    public static double[]  cov(double[] x, double[] y, double[] condition, double threshold, double direction) {
+        double exy = 0.0;
+        double exx = 0.0;
+        double eyy = 0.0;
+
+        double ex = 0.0;
+        double ey = 0.0;
+
+        int n = 0;
+
+        for (int k = 0; k < x.length; k++) {
+            if (direction > threshold) {
+                if (condition[k] > threshold) {
+                    exy += x[k] * y[k];
+                    exx += x[k] * x[k];
+                    eyy += y[k] * y[k];
+                    ex += x[k];
+                    ey += y[k];
+                    n++;
+                }
+            } else if (direction < threshold) {
+                if (condition[k] > threshold) {
+                    exy += x[k] * y[k];
+                    exx += x[k] * x[k];
+                    eyy += y[k] * y[k];
+                    ex += x[k];
+                    ey += y[k];
+                    n++;
+                }
+            }
+        }
+
+        exy /= n;
+        exx /= n;
+        eyy /= n;
+        ex /= n;
+        ey /= n;
+
+        double sxy = exy - ex * ey;
+        double sx = exx - ex * ex;
+        double sy = eyy - ey * ey;
+
+        return new double[]{sxy, sxy / sqrt(sx * sy), sx, sy, (double) n, ex, ey, sxy / sx};
+    }
+
+    public static double[][] covMatrix(double[] x, double[] y, double[][] z, double[] condition, double threshold, double direction) {
+        List<Integer> rows = getRows(x, condition, threshold, direction);
+
+        double[][] allData = new double[z.length + 2][];
+
+        allData[0] = x;
+        allData[1] = y;
+
+        for (int i = 0; i < z.length; i++) allData[i + 2] = z[i];
+
+        double[][] subdata = new double[allData.length][rows.size()];
+
+        for (int c = 0; c < allData.length; c++) {
+            for (int i = 0; i < rows.size(); i++) {
+                try {
+                    subdata[c][i] = allData[c][rows.get(i)];
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        double[][] cov = new double[z.length + 2][z.length + 2];
+
+        for (int i = 0; i < z.length + 2; i++) {
+            for (int j = 0; j < z.length + 2; j++) {
+                double c = StatUtils.covariance(subdata[i], subdata[j]);
+                cov[i][j] = c;
+            }
+        }
+
+        return cov;
+    }
+
+    public static List<Integer> getRows(double[] x, double[] condition, double threshold, double direction) {
+        List<Integer> rows = new ArrayList<>();
+
+        for (int k = 0; k < x.length; k++) {
+            if (direction > threshold) {
+                if (condition[k] > threshold) {
+                    rows.add(k);
+                }
+            } else if (direction < threshold) {
+                if (condition[k] > threshold) {
+                    rows.add(k);
+                }
+            }
+        }
+        return rows;
+    }
+
+    public static double[] E(double[] x, double[] y, double[] condition, double threshold, double direction) {
+        double exy = 0.0;
+        double exx = 0.0;
+        double eyy = 0.0;
+        double exm = 0.0;
+        double eym = 0.0;
+
+        int n = 0;
+
+        for (int k = 0; k < x.length; k++) {
+            if (direction > threshold) {
+                if (condition[k] > threshold) {
+                    exy += x[k] * y[k];
+                    exx += x[k] * x[k];
+                    eyy += y[k] * y[k];
+                    exm += x[k];
+                    eym += y[k];
+                    n++;
+                }
+            } else if (direction < threshold) {
+                if (condition[k] > threshold) {
+                    exy += x[k] * y[k];
+                    exx += x[k] * x[k];
+                    eyy += y[k] * y[k];
+                    exm += x[k];
+                    eym += y[k];
+                    n++;
+                }
+            }
+        }
+
+        exx /= n;
+        eyy /= n;
+        exy /= n;
+
+        double exye = 0.0;
+        double exxe = 0.0;
+        double eyye = 0.0;
+
+        for (int k = 0; k < x.length; k++) {
+            if (direction > threshold) {
+                if (condition[k] > threshold) {
+                    exye += (x[k] * y[k] - exy) * (x[k] * y[k] - exy);
+                    exxe += (x[k] * x[k] - exx) * (x[k] * x[k] - exx);
+                    eyye += (y[k] * y[k] - eyy) * (y[k] * y[k] - eyy);
+                }
+            } else if (direction < threshold) {
+                if (condition[k] > threshold) {
+                    exye += (x[k] * y[k] - exy) * (x[k] * y[k] - exy);
+                    exxe += (x[k] * x[k] - exx) * (x[k] * x[k] - exx);
+                    eyye += (y[k] * y[k] - eyy) * (y[k] * y[k] - eyy);
+                }
+            }
+        }
+
+        exye /= n;
+        exxe /= n;
+        eyye /= n;
+
+        double exyv = sqrt(exye / sqrt(exxe * eyye)) / sqrt(n - 1);
+
+        return new double[]{exy, exy / sqrt(exx * eyy), exx, eyy, (double) n, exyv};
     }
 }
 

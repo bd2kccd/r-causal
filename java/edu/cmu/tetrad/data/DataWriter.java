@@ -28,6 +28,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.text.NumberFormat;
+import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Provides static methods for saving data to files.
@@ -185,30 +188,87 @@ public final class DataWriter {
      * @param out The writer to write the output to.
      */
     public static void writeCovMatrix(ICovarianceMatrix covMatrix,
-                                      PrintWriter out, NumberFormat nf) {
-        int numVars = covMatrix.getVariableNames().size();
+            PrintWriter out, NumberFormat nf) {
 //        out.println("/Covariance");
         out.println(covMatrix.getSampleSize());
 
-        for (int i = 0; i < numVars; i++) {
-            String name = covMatrix.getVariableNames().get(i);
-            out.print(name + "\t");
-        }
+        List<String> variables = covMatrix.getVariableNames();
+        int numVars = variables.size();
 
-        out.println();
+        int varCount = 0;
+        for (String variable : variables) {
+            varCount++;
+            if (varCount < numVars) {
+                out.print(variable);
+                out.print("\t");
+            } else {
+                out.println(variable);
+            }
+        }
 
         for (int j = 0; j < numVars; j++) {
             for (int i = 0; i <= j; i++) {
-                if (Double.isNaN(covMatrix.getValue(i, j))) {
-                    out.print("*" + "\t");
+                double value = covMatrix.getValue(i, j);
+                if (Double.isNaN(value)) {
+                    out.print("*");
                 } else {
-                    out.print(nf.format(covMatrix.getValue(i, j)) + "\t");
+                    out.print(nf.format(value));
                 }
+                
+                out.print((i < j)  ? "\t" : "\n");
             }
-            out.println();
         }
         out.flush();
         out.close();
+    }
+
+    public static void saveKnowledge(IKnowledge knowledge, Writer out) throws IOException {
+        StringBuilder buf = new StringBuilder();
+        buf.append("/knowledge");
+
+        buf.append("\naddtemporal\n");
+
+        for (int i = 0; i < knowledge.getNumTiers(); i++) {
+
+            String forbiddenWithin = knowledge.isTierForbiddenWithin(i) ? "*" : "";
+            String onlyCanCauseNextTier = knowledge.isOnlyCanCauseNextTier(i) ? "-" : "";
+            buf.append("\n").append(i+1).append(forbiddenWithin).append(onlyCanCauseNextTier).append(" ");
+
+
+            List<String> tier = knowledge.getTier(i);
+            if (!(tier == null || tier.isEmpty())) {
+                buf.append(" ");
+                buf.append(tier.stream().collect(Collectors.joining(" ")));
+            }
+        }
+
+        buf.append("\n\nforbiddirect");
+
+        for (Iterator<KnowledgeEdge> i
+             = knowledge.forbiddenEdgesIterator(); i.hasNext();) {
+            KnowledgeEdge pair = i.next();
+            String from = pair.getFrom();
+            String to = pair.getTo();
+
+            if (knowledge.isForbiddenByTiers(from, to)) {
+                continue;
+            }
+
+            buf.append("\n").append(from).append(" ").append(to);
+        }
+
+        buf.append("\n\nrequiredirect");
+
+        for (Iterator<KnowledgeEdge> i
+                = knowledge.requiredEdgesIterator(); i.hasNext();) {
+            KnowledgeEdge pair = i.next();
+            String from = pair.getFrom();
+            String to = pair.getTo();
+            buf.append("\n").append(from).append(" ").append(to);
+        }
+
+        out.write(buf.toString());
+        out.flush();
     }
 }
 

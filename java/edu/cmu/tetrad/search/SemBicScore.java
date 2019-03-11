@@ -25,16 +25,14 @@ import edu.cmu.tetrad.data.DataSet;
 import edu.cmu.tetrad.data.ICovarianceMatrix;
 import edu.cmu.tetrad.graph.Node;
 import edu.cmu.tetrad.util.DepthChoiceGenerator;
+import edu.cmu.tetrad.util.StatUtils;
 import edu.cmu.tetrad.util.TetradMatrix;
 import edu.cmu.tetrad.util.TetradVector;
+import org.apache.commons.math3.linear.SingularMatrixException;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
-import static java.lang.Math.PI;
 import static java.lang.Math.log;
 
 /**
@@ -69,6 +67,9 @@ public class SemBicScore implements Score {
     // Variables that caused computational problems and so are to be avoided.
     private Set<Integer> forbidden = new HashSet<>();
 
+    private Map<String, Integer> indexMap;
+
+
     /**
      * Constructs the score using a covariance matrix.
      */
@@ -80,6 +81,7 @@ public class SemBicScore implements Score {
         this.setCovariances(covariances);
         this.variables = covariances.getVariables();
         this.sampleSize = covariances.getSampleSize();
+        this.indexMap = indexMap(this.variables);
     }
 
     /**
@@ -105,9 +107,8 @@ public class SemBicScore implements Score {
             }
 
             int n = getSampleSize();
-            int k = 2 * p + 1;
-            s2 = ((n) / (double) (n - k)) * s2;
-            return -(n) * log(s2) - getPenaltyDiscount() * k * log(n);
+            return -(n) * log(s2) - getPenaltyDiscount() * log(n);
+            // + getStructurePrior(parents.length);// - getStructurePrior(parents.length + 1);
         } catch (Exception e) {
             boolean removedOne = true;
 
@@ -124,9 +125,67 @@ public class SemBicScore implements Score {
         }
     }
 
+    double sp = 6.0;
+
+    private double getStructurePrior(int parents) {
+        if (sp <= 0) {
+            return 0;
+        } else {
+            int i = parents + 1;
+            int c = variables.size();
+            double p = sp / (double) c;
+            return i * Math.log(p) + (c - i) * Math.log(1.0 - p);
+        }
+    }
+
     @Override
     public double localScoreDiff(int x, int y, int[] z) {
-        return localScore(y, append(z, x)) - localScore(y, z);
+
+        Node _x = variables.get(x);
+        Node _y = variables.get(y);
+        List<Node> _z = getVariableList(z);
+
+        double r;
+
+        try {
+            r = partialCorrelation(_x, _y, _z);
+        } catch (SingularMatrixException e) {
+//            System.out.println(SearchLogUtils.determinismDetected(_z, _x));
+            return Double.NaN;
+        }
+
+        int p = 2 + z.length;
+
+        int N = covariances.getSampleSize();
+        return -N * Math.log(1.0 - r * r) - p * getPenaltyDiscount() * Math.log(N);
+//        return localScore(y, append(z, x)) - localScore(y, z);
+    }
+
+    private List<Node> getVariableList(int[] indices) {
+        List<Node> variables = new ArrayList<>();
+        for (int i : indices) {
+            variables.add(this.variables.get(i));
+        }
+        return variables;
+    }
+
+    private double partialCorrelation(Node x, Node y, List<Node> z) throws SingularMatrixException {
+        int[] indices = new int[z.size() + 2];
+        indices[0] = indexMap.get(x.getName());
+        indices[1] = indexMap.get(y.getName());
+        for (int i = 0; i < z.size(); i++) indices[i + 2] = indexMap.get(z.get(i).getName());
+        TetradMatrix submatrix = covariances.getSubmatrix(indices).getMatrix();
+        return StatUtils.partialCorrelation(submatrix);
+    }
+
+    private Map<String, Integer> indexMap(List<Node> variables) {
+        Map<String, Integer> indexMap = new HashMap<>();
+
+        for (int i = 0; i < variables.size(); i++) {
+            indexMap.put(variables.get(i).getName(), i);
+        }
+
+        return indexMap;
     }
 
     @Override
@@ -305,6 +364,21 @@ public class SemBicScore implements Score {
     @Override
     public int getMaxDegree() {
         return (int) Math.ceil(log(sampleSize));
+    }
+
+    @Override
+    public boolean determines(List<Node> z, Node y) {
+        int i = variables.indexOf(y);
+
+        int[] k = new int[z.size()];
+
+        for (int t = 0; t < z.size(); t++) {
+            k[t] = variables.indexOf(z.get(t));
+        }
+
+        double v = localScore(i, k);
+
+        return Double.isNaN(v);
     }
 }
 

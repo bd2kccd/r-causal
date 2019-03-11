@@ -26,6 +26,7 @@ import edu.cmu.tetrad.util.TetradSerializable;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -412,7 +413,7 @@ public interface Graph extends TetradSerializable, TripleClassifier {
 
     /**
      * A directed edge A->B is definitely visible if there is a node C not
-     * adjacent to B such that C*->A is in the PAG. Added by ekorber,
+     * adjacent to B such that C*->A is in the PAG_of_the_true_DAG. Added by ekorber,
      * 2004/06/11.
      *
      * @return true if the given edge is definitely visible (Jiji, pg 25)
@@ -515,6 +516,8 @@ public interface Graph extends TetradSerializable, TripleClassifier {
      */
     void transferNodesAndEdges(Graph graph) throws IllegalArgumentException;
 
+    void transferAttributes(Graph graph) throws IllegalArgumentException;
+    
     /**
      * @return the list of ambiguous triples associated with this graph. Triples <x, y, z> that no longer
      * lie along a path in the getModel graph are removed.
@@ -650,6 +653,14 @@ public interface Graph extends TetradSerializable, TripleClassifier {
     List<Node> getSepset(Node n1, Node n2);
 
     void setNodes(List<Node> nodes);
+    
+    Map<String, Object> getAllAttributes();
+    
+    Object getAttribute(String key);
+    
+    void removeAttribute(String key);
+    
+    void addAttribute(String key, Object value);
 }
 
 

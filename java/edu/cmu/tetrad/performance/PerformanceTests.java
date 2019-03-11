@@ -262,10 +262,10 @@ public class PerformanceTests {
         out.close();
     }
 
-    public void testPcMax(int numVars, double edgeFactor, int numCases, double alpha) {
+    public void testPcStableMax(int numVars, double edgeFactor, int numCases, double alpha) {
         int depth = -1;
 
-        init(new File("long.pcmax." + numVars + "." + edgeFactor + "." + alpha + ".txt"), "Tests performance of the PC Max algorithm");
+        init(new File("long.pcstablemax." + numVars + "." + edgeFactor + "." + alpha + ".txt"), "Tests performance of the PC Max algorithm");
 
         long time1 = System.currentTimeMillis();
 
@@ -307,7 +307,7 @@ public class PerformanceTests {
 
         IndTestFisherZ test = new IndTestFisherZ(cov, alpha);
 
-        PcMax pcStable = new PcMax(test);
+        PcStableMax pcStable = new PcStableMax(test);
 //        pcStable.setVerbose(false);
 //        pcStable.setDepth(depth);
 //        pcStable.setOut(out);
@@ -1072,7 +1072,7 @@ public class PerformanceTests {
         Graph estPattern;
         long elapsed;
 
-        FgesMb2 fges;
+        FgesMb fges;
         List<Node> vars;
 
         if (continuous) {
@@ -1120,12 +1120,12 @@ public class PerformanceTests {
             System.out.println(new Date());
             System.out.println("\nStarting FGES-MB");
 
-            fges = new FgesMb2(score);
+            fges = new FgesMb(score);
             fges.setVerbose(false);
             fges.setNumPatternsToStore(0);
             fges.setOut(System.out);
 //            fges.setHeuristicSpeedup(faithfulness);
-            fges.setMaxIndegree(maxIndegree);
+            fges.setMaxDegree(maxIndegree);
             fges.setCycleBound(-1);
         } else {
             init(new File("FgesMb.comparison.discrete" + numVars + "." + (int) (edgeFactor * numVars) +
@@ -1165,12 +1165,12 @@ public class PerformanceTests {
 
             long time4 = System.currentTimeMillis();
 
-            fges = new FgesMb2(score);
+            fges = new FgesMb(score);
             fges.setVerbose(false);
             fges.setNumPatternsToStore(0);
             fges.setOut(System.out);
 //            fges.setHeuristicSpeedup(faithfulness);
-            fges.setMaxIndegree(maxIndegree);
+            fges.setMaxDegree(maxIndegree);
             fges.setCycleBound(-1);
 
             long timeb = System.currentTimeMillis();
@@ -1352,7 +1352,7 @@ public class PerformanceTests {
             dagToPag.setMaxPathLength(maxPathLength);
             Graph truePag = dagToPag.convert();
 
-            System.out.println("True PAG done");
+            System.out.println("True PAG_of_the_true_DAG done");
 
             // Data.
             System.out.println("Starting simulation");
@@ -1444,7 +1444,7 @@ public class PerformanceTests {
 
     }
 
-    // Compares two different ways of calculating a PAG from a DAG, to see if they match up
+    // Compares two different ways of calculating a PAG_of_the_true_DAG from a DAG, to see if they match up
     public void testCompareDagToPattern(int numVars, double edgeFactor, int numLatents) {
         System.out.println("Making list of vars");
 
@@ -1491,7 +1491,7 @@ public class PerformanceTests {
 
         System.out.println("True DAG = " + dag);
         System.out.println("FCI DAG with dsep = " + left);
-        System.out.println("DAG to PAG = " + top);
+        System.out.println("DAG to PAG_of_the_true_DAG = " + top);
 
         System.out.println("Correcting nodes");
         top = GraphUtils.replaceNodes(top, left.getNodes());
@@ -1690,11 +1690,11 @@ public class PerformanceTests {
 //
 //            final IndTestFisherZ independenceTestGFci = new IndTestFisherZ(cov, alphaGFci);
 //
-//            out6.println("FCI.FGES.PAG");
+//            out6.println("FCI.FGES.PAG_of_the_true_DAG");
 //
 //            GFci GFci = new GFci(independenceTestGFci);
 //            GFci.setVerbose(false);
-//            GFci.setAlpha(penaltyDiscount);
+//            GFci.setCorrErrorsAlpha(penaltyDiscount);
 //            GFci.setMaxDegree(depth);
 //            GFci.setMaxPathLength(maxPathLength);
 //            GFci.setPossibleDsepSearchDone(true);
@@ -1726,7 +1726,7 @@ public class PerformanceTests {
 //
 //            out10.println(data);
 //
-//            out11.println("True PAG");
+//            out11.println("True PAG_of_the_true_DAG");
 //            final Graph truePag = new DagToPag(dag).convert();
 //            out11.println(truePag);
 //            printDanMatrix(_vars, truePag, out12);
@@ -2426,21 +2426,21 @@ public class PerformanceTests {
 
 
 //        performanceTests.testPcStable(20000, 1, 1000, .00001);
-        performanceTests.testPcMax(5000, 1, 1000, .0001);
-//        performanceTests.testPcMax(5000, 5, 1000, .0001);
+        performanceTests.testPcStableMax(5000, 1, 1000, .0001);
+//        performanceTests.testPcStableMax(5000, 5, 1000, .0001);
 //        performanceTests.testFges(5000, 5, 1000, 4);
 
 //        performanceTests.testPcStable(10000, 1, 1000, .0001);
-//        performanceTests.testPcMax(10000, 1, 1000, .0001);
+//        performanceTests.testPcStableMax(10000, 1, 1000, .0001);
 //
 //        performanceTests.testPcStable(10000, 1, 1000, .001);
-//        performanceTests.testPcMax(10000, 1, 1000, .001);
+//        performanceTests.testPcStableMax(10000, 1, 1000, .001);
 //
 //        performanceTests.testPcStable(10000, 1, 1000, .01);
-//        performanceTests.testPcMax(10000, 1, 1000, .01);
+//        performanceTests.testPcStableMax(10000, 1, 1000, .01);
 //
 //        performanceTests.testPcStable(10000, 1, 1000, .05);
-//        performanceTests.testPcMax(10000, 1, 1000, .05);
+//        performanceTests.testPcStableMax(10000, 1, 1000, .05);
 
     }
 }
