@@ -1,6 +1,6 @@
 Package: rcausal
-Version: 1.1.1
-Date: 2019-3-14
+Version: 1.2.0
+Date: 2019-8-8
 Title: R-Causal Library
 Author: Chirayu Wongchokprasitti
 Maintainer: Chirayu Wongchokprasitti <chw20@pitt.edu>

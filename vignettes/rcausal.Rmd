@@ -1,7 +1,7 @@
 ---
 title: "rcausal"
 author: "Chirayu Wongchokprasitti"
-date: "March 7, 2019"
+date: "Aug 8, 2019"
 abstract: >
   This package is a R wrapper containing the Tetrad Library.
 output: 
@@ -41,10 +41,16 @@ require(rcausal)
 
 ```{r}
 data("charity")    #Load the charity dataset
-fgs <- fgs(df = charity, penaltydiscount = 2, maxDegree = -1, faithfulnessAssumed = TRUE,
-            numOfThreads = 2, verbose = TRUE)    #Compute FGS search
-fgs$parameters #Show the FGS's parameters
-fgs$datasets #Show the dataset
-fgs$nodes #Show the result's nodes
-fgs$edges #Show the result's edges
+tetradrunner <- tetradrunner(algoId = 'fges',df = charity,scoreId = 'sem-bic', dataType = 'continuous',faithfulnessAssumed=TRUE,maxDegree=-1,verbose=TRUE)    #Compute FGES search
+tetradrunner$nodes #Show the result's nodes
+tetradrunner$edges #Show the result's edges
+
+graph <- tetradrunner$graph
+graph$getAttribute('BIC')
+
+nodes <- graph$getNodes()
+for(i in 0:as.integer(nodes$size()-1)){
+    node <- nodes$get(i)
+    cat(node$getName(),": ",node$getAttribute('BIC'),"\n")
+}
 ```

@@ -36,13 +36,13 @@ the result's edges.
 \examples{
 data("charity")
 tetradrunner.getAlgorithmDescription(algoId = 'fges')
-tetradrunner.getAlgorithmParameters(algoId = 'fges',scoreId = 'fisher-z')
+tetradrunner.getAlgorithmParameters(algoId = 'fges',scoreId = 'sem-bic')
 
-tetradrunner <- tetradrunner(algoId = 'fges',df = charity,scoreId = 'fisher-z',dataType = 'continuous')
+tetradrunner <- tetradrunner(algoId = 'fges',df = charity,scoreId = 'sem-bic',dataType = 'continuous')
 tetradrunner$edges
 
-tetradrunner <- tetradrunner(algoId = 'fges',df = charity,scoreId = 'fisher-z',dataType = 'continuous',
-alpha=0.1,faithfulnessAssumed=TRUE,maxDegree=-1,verbose=TRUE)
+tetradrunner <- tetradrunner(algoId = 'fges',df = charity,scoreId = 'sem-bic',dataType = 'continuous',
+faithfulnessAssumed=TRUE,maxDegree=-1,verbose=TRUE)
 tetradrunner$edges
 
 # Using the default score
@@ -51,10 +51,21 @@ tetradrunner$edges
 
 # Bootstrapping
 tetradrunner <- tetradrunner(algoId = 'fges',df = charity,dataType = 'continuous',
-alpha=0.1,faithfulnessAssumed=TRUE,maxDegree=-1,verbose=TRUE,
+faithfulnessAssumed=TRUE,maxDegree=-1,verbose=TRUE,
 numberResampling = 10,resamplingEnsemble = 0,addOriginalDataset = TRUE)
 tetradrunner$edges #Show the result's edges
 tetradrunner$nodes #Show the result's nodes
+
+# Get BIC scores
+graph <- tetradrunner$graph
+graph$getAttribute('BIC')
+
+nodes <- graph$getNodes()
+for(i in 0:as.integer(nodes$size()-1)){
+    node <- nodes$get(i)
+    cat(node$getName(),": ",node$getAttribute('BIC'),"\n")
+}
+
 }
 \keyword{tetradrunner}
 \keyword{causality search}
