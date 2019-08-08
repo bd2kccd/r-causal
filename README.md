@@ -27,26 +27,42 @@ library(rcausal)
 data("charity")   #Load the charity dataset
 
 tetradrunner.getAlgorithmDescription(algoId = 'fges')
-tetradrunner.getAlgorithmParameters(algoId = 'fges',scoreId = 'fisher-z')
 #Compute FGES search
-tetradrunner <- tetradrunner(algoId = 'fges',df = charity,scoreId = 'fisher-z',
-dataType = 'continuous',alpha=0.1,faithfulnessAssumed=TRUE,maxDegree=-1,verbose=TRUE)
+tetradrunner <- tetradrunner(algoId = 'fges',df = charity,scoreId = 'sem-bic',
+dataType = 'continuous',faithfulnessAssumed=TRUE,maxDegree=-1,verbose=TRUE)
 
 tetradrunner$nodes #Show the result's nodes
 tetradrunner$edges #Show the result's edges
+
+graph <- tetradrunner$graph
+graph$getAttribute('BIC')
+
+nodes <- graph$getNodes()
+for(i in 0:as.integer(nodes$size()-1)){
+    node <- nodes$get(i)
+    cat(node$getName(),": ",node$getAttribute('BIC'),"\n")
+}
 ```
 ### Discrete Dataset
 ```R
 library(rcausal)
 data("audiology")    #Load the charity dataset
 
-tetradrunner.getAlgorithmParameters(algoId = 'fges',scoreId = 'bdeu')
 #Compute FGES search
-tetradrunner <- tetradrunner(algoId = 'fges',df = audiology,scoreId = 'bdeu',dataType = 'discrete',
-alpha=0.1,faithfulnessAssumed=TRUE,maxDegree=-1,verbose=TRUE)
+tetradrunner <- tetradrunner(algoId = 'fges',df = audiology,scoreId = 'cg-bic-score',dataType = 'discrete',
+faithfulnessAssumed=TRUE,maxDegree=-1,verbose=TRUE)
 
 tetradrunner$nodes #Show the result's nodes
 tetradrunner$edges #Show the result's edges
+
+graph <- tetradrunner$graph
+graph$getAttribute('BIC')
+
+nodes <- graph$getNodes()
+for(i in 0:as.integer(nodes$size()-1)){
+    node <- nodes$get(i)
+    cat(node$getName(),": ",node$getAttribute('BIC'),"\n")
+}
 ```
 
 ### Prior Knowledge
