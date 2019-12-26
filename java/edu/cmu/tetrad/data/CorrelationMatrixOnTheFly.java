@@ -21,17 +21,16 @@
 
 package edu.cmu.tetrad.data;
 
-import EDU.oswego.cs.dl.util.concurrent.SyncMap;
 import cern.colt.matrix.DoubleMatrix2D;
 import edu.cmu.tetrad.graph.Node;
 import edu.cmu.tetrad.util.*;
-import org.apache.commons.math3.linear.RealMatrix;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.text.NumberFormat;
 import java.util.*;
-import java.util.concurrent.RecursiveTask;
+
+import static java.lang.Math.sqrt;
 
 /**
  * Stores a covariance matrix together with variable names and sample size,
@@ -45,9 +44,11 @@ import java.util.concurrent.RecursiveTask;
  * @author Joseph Ramsey jdramsey@andrew.cmu.edu
  * @see CorrelationMatrix
  */
-public class CovarianceMatrixOnTheFly implements ICovarianceMatrix {
+public class CorrelationMatrixOnTheFly implements ICovarianceMatrix {
     static final long serialVersionUID = 23L;
     private boolean verbose = false;
+
+    private ICovarianceMatrix cov;
 
     /**
      * The name of the covariance matrix.
@@ -112,184 +113,8 @@ public class CovarianceMatrixOnTheFly implements ICovarianceMatrix {
      *
      * @throws IllegalArgumentException if this is not a continuous data set.
      */
-    public CovarianceMatrixOnTheFly(DataSet dataSet) {
-        this(dataSet, false);
-    }
-
-    public CovarianceMatrixOnTheFly(DataSet dataSet, boolean verbose) {
-        if (!dataSet.isContinuous()) {
-            throw new IllegalArgumentException("Not a continuous data set.");
-        }
-
-        this.variables = Collections.unmodifiableList(dataSet.getVariables());
-        this.sampleSize = dataSet.getNumRows();
-
-        if (verbose) {
-            System.out.println("Calculating variable vectors");
-        }
-
-        if (dataSet instanceof BoxDataSet) {
-
-            DataBox box = ((BoxDataSet) dataSet).getDataBox();
-
-            if (box instanceof VerticalDoubleDataBox) {
-                if (verbose) {
-                    System.out.println("Getting vectors from VerticalDoubleDataBox");
-                }
-//                box = box.copy();
-
-                if (!dataSet.getVariables().equals(variables)) throw new IllegalArgumentException();
-
-                vectors = ((VerticalDoubleDataBox) box).getVariableVectors();
-
-                if (verbose) {
-                    System.out.println("Calculating means");
-                }
-
-                TetradVector means = DataUtils.means(vectors);
-                DataUtils.demean(vectors, means);
-            } else if (box instanceof DoubleDataBox) {
-                if (verbose) {
-                    System.out.println("Getting vectors from DoubleDataBox");
-                }
-                if (!dataSet.getVariables().equals(variables)) throw new IllegalArgumentException();
-                double[][] horizData = ((DoubleDataBox) box).getData();
-
-                if (verbose) {
-                    System.out.println("Transposing data");
-                }
-
-                vectors = new double[horizData[0].length][horizData.length];
-
-                for (int i = 0; i < horizData.length; i++) {
-                    for (int j = 0; j < horizData[0].length; j++) {
-                        vectors[j][i] = horizData[i][j];
-                    }
-                }
-
-                if (verbose) {
-                    System.out.println("Calculating means");
-                }
-
-                TetradVector means = DataUtils.means(vectors);
-                DataUtils.demean(vectors, means);
-            }
-
-
-        }
-
-        if (vectors == null) {
-            if (verbose) {
-                System.out.println("Copying data");
-            }
-
-            final TetradMatrix doubleData = dataSet.getDoubleData().copy();
-
-            if (verbose) {
-                System.out.println("Calculating means");
-            }
-
-            TetradVector means = DataUtils.means(doubleData);
-
-            if (verbose) {
-                System.out.println("Demeaning");
-            }
-
-            DataUtils.demean(doubleData, means);
-
-            if (verbose) {
-                System.out.println("Getting vectors from data");
-            }
-
-            final RealMatrix realMatrix = doubleData.getRealMatrix();
-
-            vectors = new double[variables.size()][];
-
-            for (int i = 0; i < variables.size(); i++) {
-                vectors[i] = realMatrix.getColumnVector(i).toArray();
-            }
-        }
-
-        if (verbose) {
-            System.out.println("Calculating variances");
-        }
-
-        this.variances = new double[variables.size()];
-
-        class VarianceTask extends RecursiveTask<Boolean> {
-            private int chunk;
-            private int from;
-            private int to;
-
-            public VarianceTask(int chunk, int from, int to) {
-                this.chunk = chunk;
-                this.from = from;
-                this.to = to;
-            }
-
-            @Override
-            protected Boolean compute() {
-                if (to - from <= chunk) {
-                    for (int i = from; i < to; i++) {
-                        double d = 0.0D;
-
-                        int count = 0;
-
-                        double[] v1 = vectors[i];
-
-                        for (int k = 0; k < sampleSize; ++k) {
-                            if (Double.isNaN(v1[k])) {
-                                continue;
-                            }
-
-                            d += v1[k] * v1[k];
-                            count++;
-                        }
-
-                        double v = d;
-//                        v /= (sampleSize - 1);
-                        v /= (count - 1);
-
-                        variances[i] = v;
-
-                        if (v == 0) {
-                            System.out.println("Zero variance! " + variables.get(i));
-                        }
-                    }
-
-                    return true;
-                } else {
-                    final int numIntervals = 4;
-
-                    int step = (to - from) / numIntervals + 1;
-
-                    List<VarianceTask> tasks = new ArrayList<>();
-
-                    for (int i = 0; i < numIntervals; i++) {
-                        VarianceTask task = new VarianceTask(chunk, from + i * step, Math.min(from + (i + 1) * step, to));
-                        tasks.add(task);
-                    }
-
-                    invokeAll(tasks);
-
-                    return true;
-                }
-            }
-        }
-
-        int NTHREADS = Runtime.getRuntime().availableProcessors() * 10;
-        int _chunk = variables.size() / NTHREADS + 1;
-        int minChunk = 100;
-        final int chunk = _chunk < minChunk ? minChunk : _chunk;
-
-        VarianceTask task = new VarianceTask(chunk, 0, variables.size());
-        ForkJoinPoolInstance.getInstance().getPool().invoke(task);
-
-        if (verbose) {
-            System.out.println("Done with variances.");
-        }
-
-
+    public CorrelationMatrixOnTheFly(ICovarianceMatrix cov) {
+        this.cov = cov;
     }
 
     /**
@@ -309,40 +134,28 @@ public class CovarianceMatrixOnTheFly implements ICovarianceMatrix {
      * @return the list of variables (unmodifiable).
      */
     public final List<Node> getVariables() {
-        return this.variables;
+        return cov.getVariables();
     }
 
     /**
      * @return the variable names, in order.
      */
     public final List<String> getVariableNames() {
-        List<String> names = new ArrayList<>();
-
-        for (int i = 0; i < getVariables().size(); i++) {
-            Node variable = getVariables().get(i);
-            names.add(variable.getName());
-        }
-
-        return names;
+        return cov.getVariableNames();
     }
 
     /**
      * @return the variable name at the given index.
      */
     public final String getVariableName(int index) {
-        if (index >= getVariables().size()) {
-            throw new IllegalArgumentException("Index out of range: " + index);
-        }
-
-        Node variable = getVariables().get(index);
-        return variable.getName();
+        return cov.getVariableName(index);
     }
 
     /**
      * @return the dimension of the covariance matrix.
      */
     public final int getDimension() {
-        return variables.size();
+        return cov.getDimension();
     }
 
     /**
@@ -351,39 +164,35 @@ public class CovarianceMatrixOnTheFly implements ICovarianceMatrix {
      * @return The sample size (> 0).
      */
     public final int getSampleSize() {
-        return this.sampleSize;
+        return cov.getSampleSize();
     }
 
     /**
      * Gets the name of the covariance matrix.
      */
     public final String getName() {
-        return this.name;
+        return cov.getName() + ".corr";
     }
 
     /**
      * Sets the name of the covariance matrix.
      */
     public final void setName(String name) {
-        this.name = name;
+        cov.setName(name);
     }
 
     /**
      * @return the knowledge associated with this data.
      */
     public final IKnowledge getKnowledge() {
-        return this.knowledge.copy();
+        return cov.getKnowledge();
     }
 
     /**
      * Associates knowledge with this data.
      */
     public final void setKnowledge(IKnowledge knowledge) {
-        if (knowledge == null) {
-            throw new NullPointerException();
-        }
-
-        this.knowledge = knowledge.copy();
+        cov.setKnowledge(knowledge);
     }
 
     /**
@@ -394,7 +203,7 @@ public class CovarianceMatrixOnTheFly implements ICovarianceMatrix {
         List<Node> submatrixVars = new LinkedList<>();
 
         for (int indice : indices) {
-            submatrixVars.add(variables.get(indice));
+            submatrixVars.add(cov.getVariables().get(indice));
         }
 
         TetradMatrix cov = new TetradMatrix(indices.length, indices.length);
@@ -421,7 +230,7 @@ public class CovarianceMatrixOnTheFly implements ICovarianceMatrix {
 
         for (int i = 0; i < indices.length; i++) {
             for (int j = i; j < indices.length; j++) {
-                double d = getValue(indices[i], indices[j], dataRows);
+                double d = getValue(indices[i], indices[j]);
                 cov.set(i, j, d);
                 cov.set(j, i, d);
             }
@@ -438,7 +247,7 @@ public class CovarianceMatrixOnTheFly implements ICovarianceMatrix {
      * @return a submatrix of this matrix, with variables in the given
      * order.
      */
-    public final CovarianceMatrixOnTheFly getSubmatrix(String[] submatrixVarNames) {
+    public final CorrelationMatrixOnTheFly getSubmatrix(String[] submatrixVarNames) {
         throw new UnsupportedOperationException();
     }
 
@@ -446,74 +255,24 @@ public class CovarianceMatrixOnTheFly implements ICovarianceMatrix {
      * @return the value of element (i,j) in the matrix
      */
     public final double getValue(int i, int j) {
-        if (i == j) {
-            return variances[i];
-        }
-
-        double d = 0.0D;
-
-        double[] v1 = vectors[i];
-        double[] v2 = vectors[j];
-        int count = 0;
-
-        for (int k = 0; k < sampleSize; k++) {
-            if (Double.isNaN(v1[k])) continue;
-            if (Double.isNaN(v2[k])) continue;
-
-            d += v1[k] * v2[k];
-            count++;
-        }
-
-        double v = d;
-//        v /= (sampleSize - 1);
-        v /= (count - 1);
-        return v;
-    }
-
-    public final double getValue(int i, int j, int[] rows) {
-//        if (i == j) {
-//            return variances[i];
-//        }
-
-        double d = 0.0D;
-
-        double[] v1 = vectors[i];
-        double[] v2 = vectors[j];
-        int count = 0;
-
-        for (int k : rows) {
-            if (Double.isNaN(v1[k])) continue;
-            if (Double.isNaN(v2[k])) continue;
-
-            d += v1[k] * v2[k];
-            count++;
-        }
-
-        double v = d;
-//        v /= (sampleSize - 1);
-        v /= (count - 1);
-//        v /= count;
+        double v = cov.getValue(i, j);
+        v /= sqrt(cov.getValue(i, i) * cov.getValue(j, j));
         return v;
     }
 
     public void setMatrix(TetradMatrix matrix) {
-        this.matrix = matrix;
-        checkMatrix();
+        cov.setMatrix(matrix);
     }
 
     public final void setSampleSize(int sampleSize) {
-        if (sampleSize <= 0) {
-            throw new IllegalArgumentException("Sample size must be > 0.");
-        }
-
-        this.sampleSize = sampleSize;
+        cov.setSampleSize(sampleSize);
     }
 
     /**
      * @return the size of the square matrix.
      */
     public final int getSize() {
-        return getVariables().size();
+        return cov.getSize();
     }
 
     /**
@@ -536,7 +295,7 @@ public class CovarianceMatrixOnTheFly implements ICovarianceMatrix {
 
         for (int i = 0; i < getDimension(); i++) {
             for (int j = 0; j < getDimension(); j++) {
-                matrix.set(i, j, getValue(i, j, rows));
+                matrix.set(i, j, getValue(i, j));
             }
         }
 
@@ -544,31 +303,19 @@ public class CovarianceMatrixOnTheFly implements ICovarianceMatrix {
     }
 
     public final void select(Node variable) {
-        if (variables.contains(variable)) {
-            getSelectedVariables().add(variable);
-        }
+        cov.select(variable);
     }
 
     public final void clearSelection() {
-        getSelectedVariables().clear();
+        cov.clearSelection();
     }
 
     public final boolean isSelected(Node variable) {
-        if (variable == null) {
-            throw new NullPointerException("Null variable. Try again.");
-        }
-
-        return getSelectedVariables().contains(variable);
+        return cov.isSelected(variable);
     }
 
     public final List<String> getSelectedVariableNames() {
-        List<String> selectedVariableNames = new LinkedList<>();
-
-        for (Node variable : selectedVariables) {
-            selectedVariableNames.add(variable.getName());
-        }
-
-        return selectedVariableNames;
+        return cov.getSelectedVariableNames();
     }
 
     /**
@@ -646,27 +393,6 @@ public class CovarianceMatrixOnTheFly implements ICovarianceMatrix {
         this.verbose = verbose;
     }
 
-    private class IntPair {
-        private final int x;
-        private final int y;
-
-        public IntPair(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        public int hashCode() {
-            return x + y;
-        }
-
-        public boolean equals(Object o) {
-            if (o == null) return false;
-//            if (!(o instanceof IntPair)) return false;
-            IntPair pair = (IntPair) o;
-            return pair == this || (this.x == pair.x && this.y == pair.y);
-        }
-    }
-
     @Override
     public TetradMatrix getSelection(int[] rows, int[] cols) {
         TetradMatrix m = new TetradMatrix(rows.length, cols.length);
@@ -697,7 +423,7 @@ public class CovarianceMatrixOnTheFly implements ICovarianceMatrix {
         if (Arrays.equals(rows, cols)) {
             for (int i = 0; i < rows.length; i++) {
                 for (int j = i; j < cols.length; j++) {
-                    double value = getValue(rows[i], cols[j], dataRows);
+                    double value = getValue(rows[i], cols[j]);
                     m.set(i, j, value);
                     m.set(j, i, value);
                 }
@@ -705,7 +431,7 @@ public class CovarianceMatrixOnTheFly implements ICovarianceMatrix {
         } else {
             for (int i = 0; i < rows.length; i++) {
                 for (int j = 0; j < cols.length; j++) {
-                    double value = getValue(rows[i], cols[j], dataRows);
+                    double value = getValue(rows[i], cols[j]);
                     m.set(i, j, value);
                 }
             }
@@ -714,17 +440,8 @@ public class CovarianceMatrixOnTheFly implements ICovarianceMatrix {
         return m;
     }
 
-    //========================PRIVATE METHODS============================//
-
     public Node getVariable(String name) {
-        for (int i = 0; i < getVariables().size(); i++) {
-            Node variable = getVariables().get(i);
-            if (name.equals(variable.getName())) {
-                return variable;
-            }
-        }
-
-        return null;
+        return cov.getVariable(name);
     }
 
     @Override
@@ -745,41 +462,7 @@ public class CovarianceMatrixOnTheFly implements ICovarianceMatrix {
 
     @Override
     public void removeVariables(List<String> remaining) {
-        ICovarianceMatrix cov = getSubmatrix(remaining);
-        this.matrix = cov.getMatrix();
-        this.variables = cov.getVariables();
-        clearSelection();
-    }
-
-    private Set<Node> getSelectedVariables() {
-        return selectedVariables;
-    }
-
-    /**
-     * Checks the sample size, variable, and matrix information.
-     */
-    private void checkMatrix() {
-        int numVars = variables.size();
-
-        for (Node variable : variables) {
-            if (variable == null) {
-                throw new NullPointerException();
-            }
-
-//            if (!(variables.get(i) instanceof ContinuousVariable)) {
-//                throw new IllegalArgumentException();
-//            }
-        }
-
-        if (sampleSize < 1) {
-            throw new IllegalArgumentException(
-                    "Sample size must be at least 1.");
-        }
-
-        if (numVars != matrix.rows() || numVars != matrix.columns()) {
-            throw new IllegalArgumentException("Number of variables does not " +
-                    "equal the dimension of the matrix.");
-        }
+        cov.removeVariables(remaining);
     }
 
     /**
@@ -792,7 +475,7 @@ public class CovarianceMatrixOnTheFly implements ICovarianceMatrix {
      * of the class that didn't include it. (That's what the
      * "s.defaultReadObject();" is for. See J. Bloch, Effective Java, for help.
      *
-     * @throws java.io.IOException
+     * @throws IOException
      * @throws ClassNotFoundException
      */
     private void readObject(ObjectInputStream s)
