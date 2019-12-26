@@ -16,8 +16,8 @@ import java.util.List;
  * @author jdramsey
  */
 @edu.cmu.tetrad.annotation.Score(
-        name = "Conditional Gaussian BIC Score",
-        command = "cond-gauss-bic",
+        name = "Conditional Gaussian (CG) BIC Score",
+        command = "cg-bic-score",
         dataType = DataType.Mixed
 )
 public class ConditionalGaussianBicScore implements ScoreWrapper {
@@ -28,9 +28,11 @@ public class ConditionalGaussianBicScore implements ScoreWrapper {
     @Override
     public Score getScore(DataModel dataSet, Parameters parameters) {
         this.dataSet = dataSet;
-        final ConditionalGaussianScore conditionalGaussianScore
-                = new ConditionalGaussianScore(DataUtils.getMixedDataSet(dataSet), parameters.getDouble("structurePrior"), parameters.getBoolean("discretize"));
-
+        final ConditionalGaussianScore conditionalGaussianScore =
+                new ConditionalGaussianScore(DataUtils.getMixedDataSet(dataSet),
+                        parameters.getDouble("penaltyDiscount"),
+                        parameters.getDouble("structurePrior"),
+                        parameters.getBoolean("discretize"));
         conditionalGaussianScore.setNumCategoriesToDiscretize(parameters.getInt("numCategoriesToDiscretize"));
         return conditionalGaussianScore;
     }
@@ -49,6 +51,7 @@ public class ConditionalGaussianBicScore implements ScoreWrapper {
     public List<String> getParameters() {
         List<String> parameters = new ArrayList<>();
 
+        parameters.add("penaltyDiscount");
         parameters.add("structurePrior");
         parameters.add("discretize");
         return parameters;
