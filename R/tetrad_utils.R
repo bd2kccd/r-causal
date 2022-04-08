@@ -130,7 +130,14 @@ dataFrame2TetradConditionalGaussianScore <- function(df,
 
 ########################################################
 # converter: R covariance matrix into Tetrad covariance matrix
-rCovMatrix2TetradCovMatrix <- function(covmat, node_list, sample_size){
+rCovMatrix2TetradCovMatrix <- function(covmat, node_names, sample_size){
+  node_list <- .jnew("java/util/ArrayList")
+	for (i in 1:length(node_names)){
+		nodname <- .jnew("java/lang/String", node_names[i])
+		nodi <- .jnew("edu/cmu/tetrad/data/ContinuousVariable", nodname)
+		node_list$add(nodi)
+	}
+	node_list <- .jcast(node_list, "java/util/List")
 	mat <- .jarray(covmat, dispatch=TRUE)
 	tetmat <- .jnew("edu/cmu/tetrad/util/TetradMatrix", mat)
 	tetcovmat <- .jnew("edu/cmu/tetrad/data/CovarianceMatrix", node_list, 
