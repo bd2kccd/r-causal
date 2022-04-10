@@ -1,5 +1,5 @@
 tetradrunner <- function(algoId, dataType, df = NULL, dfs = NULL, testId = NULL, scoreId = NULL, 
-	priorKnowledge = NULL, numCategoriesToDiscretize = 4,java.parameters = NULL,...) {
+	priorKnowledge = NULL, numCategoriesToDiscretize = 4,java.parameters = NULL, cov_names = NULL, cov_sample_size = NULL, ...) {
 
 	arguments <- list(...)
 	
@@ -57,7 +57,7 @@ tetradrunner <- function(algoId, dataType, df = NULL, dfs = NULL, testId = NULL,
 		discrete <- 'datatype.discrete.test.default'
 		mixed <- 'datatype.mixed.test.default'
 
-		if(dataType == 'continuous'){
+		if(dataType == 'continuous' | dataType == 'covariance'){
 			defaultTestClassName <- tetradProperties$getValue(continuous)
 		}else if(dataType == 'discrete'){
 			defaultTestClassName <- tetradProperties$getValue(discrete)
@@ -98,7 +98,7 @@ tetradrunner <- function(algoId, dataType, df = NULL, dfs = NULL, testId = NULL,
 		discrete <- 'datatype.discrete.score.default'
 		mixed <- 'datatype.mixed.score.default'
 
-		if(dataType == 'continuous'){
+		if(dataType == 'continuous' | dataType == 'covariance'){
 			defaultScoreClassName <- tetradProperties$getValue(continuous)
 		}else if(dataType == 'discrete'){
 			defaultScoreClassName <- tetradProperties$getValue(discrete)
@@ -127,7 +127,10 @@ tetradrunner <- function(algoId, dataType, df = NULL, dfs = NULL, testId = NULL,
 	tetradData <- NULL
 	if(!is.null(df)){
 
-		if(dataType == 'continuous'){
+
+		if(dataType == 'covariance'){
+				tetradData <- rCovMatrix2TetradCovMatrix(df,cov_names,cov_sample_size) 
+		}else if(dataType == 'continuous'){
 				tetradData <- loadContinuousData(df)
 		}else if(dataType == 'discrete'){
 				tetradData <- loadDiscreteData(df)
