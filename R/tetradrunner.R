@@ -218,13 +218,15 @@ tetradrunner <- function(algoId, dataType, df = NULL, dfs = NULL, testId = NULL,
 		tetradrunner$graph <- tetrad_graph
 
 		V <- extractTetradNodes(tetrad_graph)
-
 		tetradrunner$nodes <- V
 
 		# extract edges
 		tetradrunner_edges <- extractTetradEdges(tetrad_graph)
+		tetradrunner$edges <- tetradrunner_edges
 
-		tetradrunner$edges <- tetradrunner_edges        
+		u_params <- .jcall(parameters_instance, "S", "toString")
+		used_params <- unlist(strsplit(gsub("\r", "", u_params, fixed = T), "\n", T))
+		tetradrunner$usedParameters <- used_params
 	}
 
 	return(tetradrunner)
