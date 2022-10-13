@@ -308,6 +308,10 @@ loadContinuousData <- function(df){
 loadDiscreteData <- function(df){
 	node_names <- colnames(df)
 	node_list <- .jnew("java/util/ArrayList")
+
+	mat_dataset <- matrix(0L, ncol = ncol(df), nrow = nrow(df))
+	colnames(mat_dataset) <- node_names
+
 	for (i in 1:length(node_names)){
 		nodname <- .jnew("java/lang/String", node_names[i])
 		cat("node_names: ", node_names[i],"\n")
@@ -326,15 +330,13 @@ loadDiscreteData <- function(df){
 		node_list$add(nodi)
 
 		# Substitute a new categorial value
-		cate <- data.frame(cate)
-		new_col <- sapply(df[,i],function(x,cate) 
-					as.integer(which(cate[,1] == x)),cate=cate)
-		new_col = as.integer(new_col - 1)
-		df[,i] <- (data.frame(new_col))[,1]
+		c.cate <- cate
+		c.new.col <- as.integer(factor(df[,i], levels = cate))
+		c.new.col <- c.new.col - 1L
+		mat_dataset[,i] <- c.new.col
 	}
 	node_list <- .jcast(node_list, "java/util/List")
-	mt <- as.matrix(df)
-	mat <- .jarray(t(mt), dispatch=TRUE)
+	mat <- .jarray(t(mat_dataset), dispatch=TRUE)
 	data <- .jnew("edu/cmu/tetrad/data/VerticalIntDataBox", mat)
 	data <- .jcast(data, "edu/cmu/tetrad/data/DataBox")
 	boxData <- .jnew("edu/cmu/tetrad/data/BoxDataSet", data, node_list)
