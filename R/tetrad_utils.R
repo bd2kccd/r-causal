@@ -199,8 +199,8 @@ rCovMatrix2TetradCovMatrix <- function(covmat, node_names, sample_size){
 ############################################################
 # extract nodes from Tetrad graph result
 extractTetradNodes <- function(resultGraph){
-    nods <- resultGraph$getNodes()
-	V <- sapply(as.list(nods), with, toString())
+    nods <- resultGraph$getNodeNames()
+    V <- sapply(as.list(nods), .jcall, "S", "toString")
     return(V)
 }
 
@@ -208,11 +208,11 @@ extractTetradNodes <- function(resultGraph){
 # extract edges from Tetrad graph result
 extractTetradEdges <- function(resultGraph){
     eds <- resultGraph$getEdges()
-    fgs_edges <- c()
+    edges <- c()
     if(!is.null(eds)){
-	   fgs_edges <- sapply(as.list(eds), .jrcall, "toString")
+        edges <- sapply(as.list(eds), .jcall, "S", "toString")
     }
-    return(fgs_edges)
+    return(edges)
 }
 
 ############################################################
@@ -308,33 +308,37 @@ loadContinuousData <- function(df){
 loadDiscreteData <- function(df){
 	node_names <- colnames(df)
 	node_list <- .jnew("java/util/ArrayList")
+
+	mat_dataset <- matrix(0L, ncol = ncol(df), nrow = nrow(df))
+	colnames(mat_dataset) <- node_names
+
 	for (i in 1:length(node_names)){
 		nodname <- .jnew("java/lang/String", node_names[i])
-		cat("node_names: ", node_names[i],"\n")
+#		cat("node_names: ", node_names[i],"\n")
 		cate <- unique(df[[node_names[i]]])
 		cate <- sort(cate)
-		cat("value: ")
-		print(cate)
-		cat("\n")
+#   cat("value: ")
+#   print(cate)
+#   cat("\n")
 		cate_list <- .jnew("java/util/ArrayList")
 		for(j in 1:length(cate)){
-			cate_list$add(as.character(cate[j]))
+#			cate_list$add(as.character(cate[j]))
+		  .jcall(cate_list, "Z", "add", .jcast(.jnew("java/lang/String", as.character(cate[j])), "java/lang/Object"))
 		}
 		cate_list <- .jcast(cate_list, "java/util/List")
 		nodi <- .jnew("edu/cmu/tetrad/data/DiscreteVariable", 
 						nodname, cate_list)
-		node_list$add(nodi)
+#		node_list$add(nodi)
+		.jcall(node_list, "Z", "add", .jcast(nodi, "java/lang/Object"))
 
 		# Substitute a new categorial value
-		cate <- data.frame(cate)
-		new_col <- sapply(df[,i],function(x,cate) 
-					as.integer(which(cate[,1] == x)),cate=cate)
-		new_col = as.integer(new_col - 1)
-		df[,i] <- (data.frame(new_col))[,1]
+		c.cate <- cate
+		c.new.col <- as.integer(factor(df[,i], levels = cate))
+		c.new.col <- c.new.col - 1L
+		mat_dataset[,i] <- c.new.col
 	}
 	node_list <- .jcast(node_list, "java/util/List")
-	mt <- as.matrix(df)
-	mat <- .jarray(t(mt), dispatch=TRUE)
+	mat <- .jarray(t(mat_dataset), dispatch=TRUE)
 	data <- .jnew("edu/cmu/tetrad/data/VerticalIntDataBox", mat)
 	data <- .jcast(data, "edu/cmu/tetrad/data/DataBox")
 	boxData <- .jnew("edu/cmu/tetrad/data/BoxDataSet", data, node_list)
