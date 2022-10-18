@@ -199,8 +199,8 @@ rCovMatrix2TetradCovMatrix <- function(covmat, node_names, sample_size){
 ############################################################
 # extract nodes from Tetrad graph result
 extractTetradNodes <- function(resultGraph){
-    nods <- resultGraph$getNodes()
-	V <- sapply(as.list(nods), with, toString())
+    nods <- resultGraph$getNodeNames()
+    V <- sapply(as.list(nods), .jcall, "S", "toString")
     return(V)
 }
 
@@ -208,11 +208,11 @@ extractTetradNodes <- function(resultGraph){
 # extract edges from Tetrad graph result
 extractTetradEdges <- function(resultGraph){
     eds <- resultGraph$getEdges()
-    fgs_edges <- c()
+    edges <- c()
     if(!is.null(eds)){
-	   fgs_edges <- sapply(as.list(eds), .jrcall, "toString")
+        edges <- sapply(as.list(eds), .jcall, "S", "toString")
     }
-    return(fgs_edges)
+    return(edges)
 }
 
 ############################################################
