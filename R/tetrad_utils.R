@@ -314,20 +314,22 @@ loadDiscreteData <- function(df){
 
 	for (i in 1:length(node_names)){
 		nodname <- .jnew("java/lang/String", node_names[i])
-		cat("node_names: ", node_names[i],"\n")
+#		cat("node_names: ", node_names[i],"\n")
 		cate <- unique(df[[node_names[i]]])
 		cate <- sort(cate)
-		cat("value: ")
-		print(cate)
-		cat("\n")
+#   cat("value: ")
+#   print(cate)
+#   cat("\n")
 		cate_list <- .jnew("java/util/ArrayList")
 		for(j in 1:length(cate)){
-			cate_list$add(as.character(cate[j]))
+#			cate_list$add(as.character(cate[j]))
+		  .jcall(cate_list, "Z", "add", .jcast(.jnew("java/lang/String", as.character(cate[j])), "java/lang/Object"))
 		}
 		cate_list <- .jcast(cate_list, "java/util/List")
 		nodi <- .jnew("edu/cmu/tetrad/data/DiscreteVariable", 
 						nodname, cate_list)
-		node_list$add(nodi)
+#		node_list$add(nodi)
+		.jcall(node_list, "Z", "add", .jcast(nodi, "java/lang/Object"))
 
 		# Substitute a new categorial value
 		c.cate <- cate
