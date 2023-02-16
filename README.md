@@ -10,7 +10,7 @@ Here is a link showing how to run Tetrad algorithms in Python through the os.sys
 
 https://github.com/cmu-phil/tetrad/wiki/Running-Tetrad-algorithms-in-Python
 
-Sorry for the inconvenience; we realize rcausal is being used and will try to get to updating it hopefully in the near future.
+Sorry for the inconvenience; we realize rcausal is being used and will possibly try to update it in the near future.
 
 Best,
 
