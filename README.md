@@ -1,4 +1,4 @@
-Note: This version of RCausal uses an older version of Tetrad, and our current (tiny) development team has not been able to get to updating it. The projects we are striving to keep up to date are Tetrad and Causal-Cmd, the command-line version of Tetrad. Here is the current version of Tetrad:
+**Note: This version of RCausal uses an older version of Tetrad, which our current development team has not been able to get to updating. However, we have gotten to updating our Python integration--see the nodes in https://github.com/cmu-phil/tetrad. Updating our R integration is one of the next projects we will take up.**
 
 https://github.com/cmu-phil/tetrad
 
