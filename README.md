@@ -1,20 +1,5 @@
-**Note: This version of RCausal uses an older version of Tetrad, which our current development team has not been able to get to updating. However, we have gotten to updating our Python integration--see the notes in https://github.com/cmu-phil/tetrad. Updating our R integration is one of the next projects we will take up.**
+**Note: This version of RCausal uses an older version of Tetrad, which our current development team has not been able to get to updating. However, we have gotten to updating our Python integration--see the notes in https://github.com/cmu-phil/tetrad. Updating our R integration is one of the next projects we will take up. 2023-03-06**
 
-https://github.com/cmu-phil/tetrad
-
-Here is the current version of Causal Command (causal-cmd):
-
-https://github.com/bd2kccd/causal-cmd
-
-Here is a link showing how to run Tetrad algorithms in Python through the os.sys command using causal-cmd:
-
-https://github.com/cmu-phil/tetrad/wiki/Running-Tetrad-algorithms-in-Python
-
-Sorry for the inconvenience; we realize rcausal is being used and will possibly try to update it in the near future.
-
-Best,
-
-Joe Ramsey, 2023-02-16
 
 # r-causal
 R Wrapper for Tetrad Library
