@@ -2,6 +2,8 @@
 
 **News 2023-04-05: We have put forward a proposal to replace the r-causal functionality using the py-tetrad functionality, here: [https://github.com/cmu-phil/py-tetrad/tree/main/pytetrad/R](https://github.com/cmu-phil/py-tetrad/tree/main/pytetrad/R). The installation procedure for this is still somewhat complicated, and we will try to simplify it, but if you try it and and have difficulties, please [let us know](https://github.com/cmu-phil/py-tetrad).**
 
+**By the way, rcausal has not been maintained for some time now, as the maintainer has since moved on to a better paradise :-)... but going back through some of the issues posted for r-causal gives some hints as to additional functionality that pytetrad/R should have. We'll try to get caught up.**
+
 
 # r-causal
 R Wrapper for Tetrad Library
