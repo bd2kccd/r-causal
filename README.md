@@ -1,4 +1,8 @@
-**Note: This version of RCausal uses an older version of Tetrad, which our current development team has not been able to get to updating. However, we have gotten to updating our Python integration--see the notes in https://github.com/cmu-phil/tetrad. Updating our R integration is one of the next projects we will take up. 2023-03-06**
+**
+Note: This version of RCausal uses an older version of Tetrad, which our current development team has not been able to get to updating. However, we have gotten to updating our Python integration--see the notes in https://github.com/cmu-phil/tetrad. Updating our R integration is one of the next projects we will take up. 2023-03-06
+
+News 2023-04-05: We have put forward a proposal to replace the r-causal functionality using the py-tetrad functionality, here: [https://github.com/cmu-phil/py-tetrad/tree/main/pytetrad/R](https://github.com/cmu-phil/py-tetrad/tree/main/pytetrad/R). The installation procedure for this is still somewhat complicated, and we will try to simplify it, but if you try it and and have difficulties, please [let me know](https://github.com/cmu-phil/py-tetrad).
+**
 
 
 # r-causal
