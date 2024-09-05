@@ -2,6 +2,8 @@
 
 **R-causal has not been maintained for some time now, as the tireless maintainer has since moved on to different work :-)... but going back through some of the issues posted for r-causal gives some hints as to additional functionality that pytetrad/R should have. We'll try to get caught up.**
 
+**NEWS 2024-09-05: We are working on a new wrapping of Tetrad using rJava; please see [r-tetrad](https://github.com/bd2kccd/r-causal). This will be a standalong implementation that requires only R to be installed; the JDK and Tetrad jars used will be downloaded programmatically by the R scripts.**
+
 # r-causal
 R Wrapper for Tetrad Library
 
